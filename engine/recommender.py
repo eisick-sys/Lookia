@@ -163,6 +163,29 @@ def garment_base_score(
 
             if any(x in name for x in ["ajust", "skinny", "tight"]):
                 score -= 6
+        
+    if category == "one_piece":
+        score += 18
+
+        if occasion == "matrimonio":
+            score += 40
+
+            if garment_has_style(g, "elegante") or garment_has_style(g, "formal"):
+                score += 20
+
+            if g.dress_level == "elegante":
+                score += 20
+            elif g.dress_level == "arreglado":
+                score += 10
+
+        elif occasion == "gala":
+            score += 30
+
+            if garment_has_style(g, "elegante") or garment_has_style(g, "formal"):
+                score += 16
+
+        elif occasion in ["cita", "salida nocturna"]:
+            score += 12
 
     return score
 
@@ -278,6 +301,20 @@ def outfit_score(
             activity,
             user_profile,
         )
+
+    has_one_piece = any(g.category == "one_piece" for g in items)
+
+    if has_one_piece:
+        if occasion == "matrimonio":
+            score += 40
+        elif occasion == "gala":
+            score += 30
+        elif occasion == "cita":
+            score += 6
+        elif occasion == "salida nocturna":
+            score += 3
+        else:
+            score += 8
 
     # =========================================================
     # 🔥 NUEVO: BONUS POR PRENDA FORZADA
@@ -422,7 +459,12 @@ def outfit_score(
     score -= coherence_penalty(items, occasion)
     score -= practicality_penalty(items, occasion, temp, rain)
     score -= outfit_accessory_penalty(items, occasion, mood, activity, temp, rain)
-    score -= outfit_structure_penalty(items)
+    has_one_piece = any(g.category == "one_piece" for g in items)
+
+    if has_one_piece:
+        score -= max(outfit_structure_penalty(items) - 15, 0)
+    else:
+        score -= outfit_structure_penalty(items)
 
     # =========================================================
     # FEEDBACK

@@ -76,6 +76,9 @@ def infer_category_from_name(name: str) -> Optional[str]:
     text = normalize_text(name)
 
     category_keywords = {
+        "one_piece": [
+            "vestido", "enterito", "mono", "jumpsuit", "overall"
+        ],
         "top": [
             "polera", "camiseta", "remera", "top", "blusa", "camisa",
             "body", "crop top", "camiseta", "beatle", "tank", "musculosa"

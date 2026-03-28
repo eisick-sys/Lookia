@@ -442,9 +442,11 @@
     "name": "polera cafe",
     "category": "top",
     "color": "café",
-    "style": "formal",
+    "style": "casual",
     "secondary_colors": [],
-    "secondary_styles": [],
+    "secondary_styles": [
+      "elegante"
+    ],
     "pattern": "liso",
     "warmth": "medio",
     "waterproof": false,
@@ -540,5 +542,23 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_76.jpg"
+  },
+  {
+    "id": 77,
+    "name": "vestido elegante rosado",
+    "category": "one_piece",
+    "color": "rosado",
+    "style": "elegante",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "formal"
+    ],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "elegante",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_77.jpg"
   }
 ]

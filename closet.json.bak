@@ -292,24 +292,6 @@
     "image_name": "46.jpg"
   },
   {
-    "id": 48,
-    "name": "trench",
-    "category": "outerwear",
-    "color": "café",
-    "style": "formal",
-    "secondary_colors": [],
-    "secondary_styles": [
-      "casual"
-    ],
-    "pattern": "liso",
-    "warmth": "medio",
-    "waterproof": false,
-    "dress_level": "arreglado",
-    "sexiness": 0,
-    "accessory_type": null,
-    "image_name": "48.jpg"
-  },
-  {
     "id": 49,
     "name": "blusa",
     "category": "top",
@@ -558,5 +540,23 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_76.jpg"
+  },
+  {
+    "id": 77,
+    "name": "vestido elegante rosado",
+    "category": "one_piece",
+    "color": "rosado",
+    "style": "elegante",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "formal"
+    ],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "elegante",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_77.jpg"
   }
 ]

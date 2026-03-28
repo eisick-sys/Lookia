@@ -15,7 +15,7 @@ class Garment:
     name: str
 
     # clasificación
-    category: str        # top, midlayer, outerwear, bottom, shoes, accessory
+    category: str        # top, midlayer, outerwear, bottom, one_piece, shoes, accessory
     color: str
     style: str           # casual, formal, urbano, sport, elegante
     secondary_colors: List[str] = field(default_factory=list)

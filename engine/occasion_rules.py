@@ -36,11 +36,11 @@ def build_required_categories(occasion: str, rain: bool = False, temp: int = 15)
         },
         "matrimonio": {
             "required": ["top", "bottom", "shoes"],
-            "optional": ["midlayer", "accessory", "outerwear"],
+            "optional": ["accessory", "outerwear"],
         },
         "gala": {
             "required": ["top", "bottom", "shoes"],
-            "optional": ["midlayer", "accessory", "outerwear"],
+            "optional": ["accessory", "outerwear"],
         },
     }
 
@@ -89,7 +89,9 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
         if garment.category == "outerwear":
             if any(x in lower_name for x in ["impermeable", "parka", "rain", "agua"]):
                 return False, f"No te recomiendo usar {garment.name} para {occasion}."
-
+        if garment.category == "bottom":
+            if any(x in lower_name for x in ["short", "shorts"]):
+                return False, f"{garment.name} no va con un {occasion}."
         if "sport" in garment_styles:
             return (
                 False,
@@ -109,12 +111,12 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
             return False, f"{garment.name} no es ideal para trabajo."
 
         # BLOQUEO DURO: animal print fuera de trabajo
-        if garment.category in ["top", "bottom", "midlayer", "outerwear"]:
+        if garment.category in ["top", "bottom", "midlayer", "outerwear", "one_piece"]:
             if is_animal_print(garment):
                 return False, f"{garment.name} no es adecuada para trabajo formal."
 
     if occasion == "deporte":
-        if garment.category in ["top", "bottom", "shoes"]:
+        if garment.category in ["top", "bottom", "shoes", "one_piece"]:
             if "sport" not in garment_styles:
                 return False, f"{garment.name} no es adecuada para deporte."
 

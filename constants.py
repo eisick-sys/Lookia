@@ -2,12 +2,13 @@
 # CATEGORÍAS
 # =========================================================
 
-CATEGORY_OPTIONS = ["top", "midlayer", "outerwear", "bottom", "shoes", "accessory"]
+CATEGORY_OPTIONS = ["top", "midlayer", "outerwear", "bottom", "one_piece", "shoes", "accessory"]
 CATEGORY_LABELS_ES = {
     "top": "Arriba",
     "midlayer": "Prenda intermedia",
     "outerwear": "Abrigos",
     "bottom": "Abajo",
+    "one_piece": "Una pieza (vestidos/enteritos)",
     "shoes": "Calzado",
     "accessory": "Accesorios",
 }

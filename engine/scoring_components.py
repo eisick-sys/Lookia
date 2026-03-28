@@ -340,5 +340,13 @@ def practicality_penalty(
 
     if temp >= 22 and layer_count >= 2:
         penalty += 25
+    
+    has_one_piece_elegante = any(
+        g.category == "one_piece"
+        and (garment_has_style(g, "elegante") or garment_has_style(g, "formal"))
+        for g in items
+    )
 
+    if has_one_piece_elegante and occasion in ["matrimonio", "gala"]:
+        penalty = max(penalty - 40, 0)
     return penalty
