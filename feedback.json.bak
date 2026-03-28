@@ -1,0 +1,917 @@
+[
+  {
+    "id": 1,
+    "garment_ids": [
+      39,
+      16,
+      35,
+      36,
+      22
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 2,
+    "garment_ids": [
+      39,
+      7,
+      35,
+      36,
+      22
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 3,
+    "garment_ids": [
+      21,
+      7,
+      9,
+      10,
+      11
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 4,
+    "garment_ids": [
+      39,
+      6,
+      8,
+      36,
+      22
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 5,
+    "garment_ids": [
+      39,
+      6,
+      35,
+      36,
+      22
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 6,
+    "garment_ids": [
+      39,
+      6,
+      8,
+      10,
+      22
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 7,
+    "garment_ids": [
+      39,
+      6,
+      8,
+      36,
+      22
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 8,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      12
+    ],
+    "liked": true,
+    "occasion": "gala",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 9,
+    "garment_ids": [
+      2,
+      7,
+      9,
+      12
+    ],
+    "liked": false,
+    "occasion": "gala",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 10,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      37
+    ],
+    "liked": true,
+    "occasion": "gala",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 11,
+    "garment_ids": [
+      4,
+      18,
+      19
+    ],
+    "liked": true,
+    "occasion": "deporte",
+    "mood": "comodo",
+    "activity": "entrenar",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 12,
+    "garment_ids": [
+      4,
+      16,
+      19
+    ],
+    "liked": false,
+    "occasion": "deporte",
+    "mood": "comodo",
+    "activity": "entrenar",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 13,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      23,
+      30
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 14,
+    "garment_ids": [
+      1,
+      29,
+      9,
+      23,
+      30
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 15,
+    "garment_ids": [
+      1,
+      29,
+      9,
+      23,
+      30
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 16,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      36,
+      11
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 17,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      23,
+      15
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 18,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      36,
+      15
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 19,
+    "garment_ids": [
+      1,
+      7,
+      33,
+      23,
+      22
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 20,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      23,
+      22
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 21,
+    "garment_ids": [
+      1,
+      29,
+      33,
+      23,
+      30
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 22,
+    "garment_ids": [
+      21,
+      29,
+      33,
+      36,
+      30
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 23,
+    "garment_ids": [
+      1,
+      7,
+      9,
+      12,
+      11
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 24,
+    "garment_ids": [
+      21,
+      29,
+      33,
+      43,
+      30
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "elegante",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 25,
+    "garment_ids": [
+      1,
+      7,
+      33,
+      23,
+      30
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "elegante",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 26,
+    "garment_ids": [
+      1,
+      50,
+      9,
+      24,
+      22
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 27,
+    "garment_ids": [
+      1,
+      50,
+      9,
+      43,
+      22
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 28,
+    "garment_ids": [
+      3,
+      18,
+      19,
+      30
+    ],
+    "liked": false,
+    "occasion": "casual",
+    "mood": "relajado",
+    "activity": "caminar",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 29,
+    "garment_ids": [
+      1,
+      54,
+      9,
+      23,
+      22
+    ],
+    "liked": true,
+    "occasion": "matrimonio",
+    "mood": "elegante",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 30,
+    "garment_ids": [
+      1,
+      54,
+      9,
+      23,
+      22
+    ],
+    "liked": false,
+    "occasion": "matrimonio",
+    "mood": "elegante",
+    "activity": "formal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 31,
+    "garment_ids": [
+      3,
+      6,
+      8,
+      10,
+      11
+    ],
+    "liked": false,
+    "occasion": "casual",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 32,
+    "garment_ids": [
+      3,
+      18,
+      8,
+      10,
+      11
+    ],
+    "liked": false,
+    "occasion": "casual",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 33,
+    "garment_ids": [
+      51,
+      17,
+      35,
+      24,
+      48
+    ],
+    "liked": false,
+    "occasion": "casual",
+    "mood": "urbano",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 34,
+    "garment_ids": [
+      4,
+      52,
+      42,
+      15,
+      58,
+      47
+    ],
+    "liked": false,
+    "occasion": "casual",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 35,
+    "garment_ids": [
+      2,
+      54,
+      33,
+      43
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 36,
+    "garment_ids": [
+      57,
+      50,
+      33,
+      24
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 37,
+    "garment_ids": [
+      21,
+      55,
+      33,
+      43
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 38,
+    "garment_ids": [
+      51,
+      17,
+      35,
+      36,
+      30
+    ],
+    "liked": true,
+    "occasion": "casual",
+    "mood": "urbano",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 39,
+    "garment_ids": [
+      2,
+      50,
+      59,
+      23,
+      47
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 40,
+    "garment_ids": [
+      2,
+      50,
+      9,
+      23,
+      47
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 41,
+    "garment_ids": [
+      51,
+      5,
+      35,
+      10,
+      62
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "urbano",
+    "activity": "caminar",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 42,
+    "garment_ids": [
+      49,
+      50,
+      60,
+      24,
+      30
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "comodo",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 43,
+    "garment_ids": [
+      57,
+      54,
+      59,
+      12,
+      58
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "elegante",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 44,
+    "garment_ids": [
+      2,
+      64,
+      59,
+      26,
+      58
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 45,
+    "garment_ids": [
+      49,
+      64,
+      59,
+      26,
+      58
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "comodo",
+    "activity": "formal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 46,
+    "garment_ids": [
+      39,
+      20,
+      35,
+      43,
+      22
+    ],
+    "liked": false,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 47,
+    "garment_ids": [
+      39,
+      28,
+      59,
+      30,
+      47
+    ],
+    "liked": true,
+    "occasion": "trabajo",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 48,
+    "garment_ids": [
+      69,
+      54,
+      59,
+      12,
+      13
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "elegante",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 49,
+    "garment_ids": [
+      1,
+      54,
+      9,
+      23,
+      45
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "elegante",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 50,
+    "garment_ids": [
+      69,
+      55,
+      59,
+      12,
+      13
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "elegante",
+    "activity": "normal",
+    "weather_tag": "templado"
+  },
+  {
+    "id": 51,
+    "garment_ids": [
+      51,
+      68,
+      35,
+      36,
+      47
+    ],
+    "liked": true,
+    "occasion": "salida nocturna",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 52,
+    "garment_ids": [
+      51,
+      68,
+      35,
+      36,
+      30
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 53,
+    "garment_ids": [
+      31,
+      68,
+      59,
+      30,
+      62
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 54,
+    "garment_ids": [
+      31,
+      68,
+      60,
+      30,
+      62
+    ],
+    "liked": true,
+    "occasion": "cita",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 55,
+    "garment_ids": [
+      67,
+      17,
+      19,
+      74
+    ],
+    "liked": true,
+    "occasion": "deporte",
+    "mood": "relajado",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 56,
+    "garment_ids": [
+      69,
+      68,
+      60,
+      10,
+      47
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "frio"
+  },
+  {
+    "id": 57,
+    "garment_ids": [
+      63,
+      61,
+      53,
+      13
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "calor"
+  },
+  {
+    "id": 58,
+    "garment_ids": [
+      34,
+      20,
+      42,
+      46
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "calor"
+  },
+  {
+    "id": 59,
+    "garment_ids": [
+      49,
+      61,
+      53,
+      13
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "calor"
+  },
+  {
+    "id": 60,
+    "garment_ids": [
+      63,
+      61,
+      35,
+      13
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "calor"
+  },
+  {
+    "id": 61,
+    "garment_ids": [
+      69,
+      68,
+      77,
+      12,
+      71
+    ],
+    "liked": false,
+    "occasion": "cita",
+    "mood": "elegante",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  },
+  {
+    "id": 62,
+    "garment_ids": [
+      69,
+      68,
+      53,
+      36,
+      47
+    ],
+    "liked": false,
+    "occasion": "salida nocturna",
+    "mood": "sexy",
+    "activity": "normal",
+    "weather_tag": "lluvia"
+  }
+]
