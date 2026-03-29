@@ -13,6 +13,68 @@ CATEGORY_LABELS_ES = {
     "accessory": "Accesorios",
 }
 
+SUBCATEGORY_OPTIONS = {
+    "top": [
+        "polera",
+        "blusa",
+        "camisa",
+        "top",
+        "body",
+        "crop_top",
+        "peto",
+    ],
+    "midlayer": [
+        "sweater",
+        "cardigan",
+        "chaleco",
+        "blazer",
+        "hoodie",
+        "polar",
+    ],
+    "outerwear": [
+        "chaqueta",
+        "abrigo",
+        "parka",
+        "trench",
+        "impermeable",
+        "poncho",
+    ],
+    "bottom": [
+        "jeans",
+        "pantalon",
+        "falda",
+        "short",
+        "legging",
+    ],
+    "one_piece": [
+        "vestido",
+        "enterito",
+    ],
+    "shoes": [
+        "zapatilla",
+        "zapato",
+        "botin",
+        "bota",
+        "sandalia",
+        "taco",
+        "mocasin",
+    ],
+    "accessory": [
+        "reloj",
+        "collar",
+        "pulsera",
+        "anillo",
+        "aros",
+        "cinturon",
+        "bolso",
+        "cartera",
+        "bufanda",
+        "pañuelo",
+        "gorro",
+        "guantes",
+    ],
+}
+
 # =========================================================
 # COLORES
 # =========================================================

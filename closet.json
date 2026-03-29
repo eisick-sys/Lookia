@@ -5,6 +5,7 @@
     "category": "top",
     "color": "negro",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -24,6 +25,7 @@
     "category": "top",
     "color": "blanco",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -43,6 +45,7 @@
     "category": "bottom",
     "color": "azul",
     "style": "urbano",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "casual"
@@ -61,6 +64,7 @@
     "category": "bottom",
     "color": "azul",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -79,6 +83,7 @@
     "category": "bottom",
     "color": "azul oscuro",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "casual",
@@ -98,6 +103,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "sport",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -116,6 +122,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "sport",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -132,6 +139,7 @@
     "category": "top",
     "color": "blanco",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -148,6 +156,7 @@
     "category": "outerwear",
     "color": "negro",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "elegante",
@@ -167,6 +176,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -183,6 +193,7 @@
     "category": "accessory",
     "color": "blanco",
     "style": "elegante",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "formal"
@@ -201,6 +212,7 @@
     "category": "top",
     "color": "blanco",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [
       "gris"
     ],
@@ -221,6 +233,7 @@
     "category": "shoes",
     "color": "blanco",
     "style": "urbano",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "casual"
@@ -239,6 +252,7 @@
     "category": "midlayer",
     "color": "negro",
     "style": "formal",
+    "subcategory": "blazer",
     "secondary_colors": [],
     "secondary_styles": [
       "elegante",
@@ -258,6 +272,7 @@
     "category": "accessory",
     "color": "azul",
     "style": "elegante",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "formal",
@@ -277,6 +292,7 @@
     "category": "accessory",
     "color": "plateado",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "formal",
@@ -297,6 +313,7 @@
     "category": "top",
     "color": "negro",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -316,6 +333,7 @@
     "category": "bottom",
     "color": "café",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -336,6 +354,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "urbano",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -352,6 +371,7 @@
     "category": "bottom",
     "color": "café",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -370,6 +390,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "formal",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -386,6 +407,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -404,6 +426,7 @@
     "category": "accessory",
     "color": "beige",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -422,6 +445,7 @@
     "category": "top",
     "color": "café",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [
       "beige",
       "negro"
@@ -443,6 +467,7 @@
     "category": "top",
     "color": "café",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -461,6 +486,7 @@
     "category": "midlayer",
     "color": "blanco",
     "style": "casual",
+    "subcategory": "chaleco",
     "secondary_colors": [
       "negro"
     ],
@@ -479,6 +505,7 @@
     "category": "outerwear",
     "color": "azul",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "formal"
@@ -497,6 +524,7 @@
     "category": "outerwear",
     "color": "celeste",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "sport"
@@ -515,6 +543,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -533,6 +562,7 @@
     "category": "outerwear",
     "color": "café",
     "style": "casual",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -549,6 +579,7 @@
     "category": "one_piece",
     "color": "rosado",
     "style": "elegante",
+    "subcategory": null,
     "secondary_colors": [],
     "secondary_styles": [
       "formal"
@@ -560,5 +591,94 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_77.jpg"
+  },
+  {
+    "id": 78,
+    "name": "pantalon leopardo",
+    "category": "bottom",
+    "color": "negro",
+    "style": "casual",
+    "subcategory": "pantalon",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_78.jpg"
+  },
+  {
+    "id": 79,
+    "name": "cardigan amarillo",
+    "category": "midlayer",
+    "color": "amarillo",
+    "style": "casual",
+    "subcategory": "cardigan",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_79.jpg"
+  },
+  {
+    "id": 80,
+    "name": "cardigan amarillo",
+    "category": "midlayer",
+    "color": "amarillo",
+    "style": "casual",
+    "subcategory": "cardigan",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_80.jpg"
+  },
+  {
+    "id": 81,
+    "name": "zapatos rojos",
+    "category": "shoes",
+    "color": "rojo",
+    "style": "casual",
+    "subcategory": "taco",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_81.jpg"
+  },
+  {
+    "id": 83,
+    "name": "abrigo leopardo",
+    "category": "outerwear",
+    "color": "negro",
+    "style": "casual",
+    "subcategory": "abrigo",
+    "secondary_colors": [
+      "café"
+    ],
+    "secondary_styles": [
+      "elegante"
+    ],
+    "pattern": "animal_print",
+    "warmth": "frio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_83.jpg"
   }
 ]

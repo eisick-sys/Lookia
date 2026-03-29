@@ -64,6 +64,7 @@ from constants import (
     OCCASION_OPTIONS,
     PATTERN_OPTIONS,
     STYLE_OPTIONS,
+    SUBCATEGORY_OPTIONS,
     THERMAL_ACCESSORIES,
     WARMTH_OPTIONS,
 )
@@ -810,6 +811,11 @@ with tab1:
 
     for idx, (score, combo) in enumerate(outfits, start=1):
         st.markdown(f"### Outfit {idx} · Score {score}")
+        
+        if st.session_state.get("outfit_used_message_idx") == idx:
+            st.success(st.session_state.get("outfit_used_message_text", "Outfit guardado como usado."))
+            del st.session_state["outfit_used_message_idx"]
+            del st.session_state["outfit_used_message_text"]
 
         cols = st.columns(len(combo))
 
@@ -870,7 +876,8 @@ with tab1:
             add_used_outfit(USED_OUTFITS_FILE, new_used_outfit)
             st.session_state.used_outfits = load_used_outfits(USED_OUTFITS_FILE)
 
-            st.success("Outfit guardado como usado.")
+            st.session_state["outfit_used_message_idx"] = idx
+            st.session_state["outfit_used_message_text"] = "Outfit guardado como usado."
             st.rerun()
 
         st.divider()
@@ -1165,6 +1172,29 @@ with tab2:
                             format_func=lambda c: CATEGORY_LABELS_ES.get(c, c)
                         )
 
+                        current_subcategory = getattr(garment, "subcategory", None)
+
+                        subcategory_options = ["— ninguna —"] + SUBCATEGORY_OPTIONS.get(category, [])
+
+                        subcategory = st.selectbox(
+                            "Subcategoría",
+                            subcategory_options,
+                            index=subcategory_options.index(current_subcategory)
+                            if current_subcategory in subcategory_options else 0
+                        )
+
+                        if subcategory == "— ninguna —":
+                            subcategory = None
+
+                        accessory_type = None
+                        if category == "accessory":
+                            current_accessory_type = getattr(garment, "accessory_type", None) or "reloj"
+                            accessory_type = st.selectbox(
+                                "Tipo de accesorio",
+                                ACCESSORY_TYPE_OPTIONS,
+                                index=ACCESSORY_TYPE_OPTIONS.index(current_accessory_type)
+                                if current_accessory_type in ACCESSORY_TYPE_OPTIONS else 0
+                            )
                         accessory_type = None
                         if category == "accessory":
                             current_accessory_type = getattr(garment, "accessory_type", None) or "reloj"
@@ -1233,6 +1263,7 @@ with tab2:
                         else:
                             garment.name = name.strip()
                             garment.category = category
+                            garment.subcategory = subcategory
                             garment.color = normalize_color_name(color)
                             garment.secondary_colors = [normalize_color_name(c) for c in secondary_colors]
                             garment.style = style
@@ -1322,13 +1353,36 @@ with tab3:
     if "form_dress_level" not in st.session_state:
         st.session_state.form_dress_level = "medio"
 
+    if "form_uploader_key" not in st.session_state:
+        st.session_state.form_uploader_key = 0
+    
     if st.session_state.get("add_saved_message"):
         st.success(st.session_state["add_saved_message"])
         del st.session_state["add_saved_message"]
 
+    if "form_subcategory" not in st.session_state:
+        st.session_state.form_subcategory = None
+
+    if st.session_state.get("reset_add_form"):
+        st.session_state.form_name = ""
+        st.session_state.form_category = "top"
+        st.session_state.form_subcategory = None
+        st.session_state.form_accessory_type = "reloj"
+        st.session_state.form_color = "negro"
+        st.session_state.form_secondary_color = "ninguno"
+        st.session_state.form_pattern = "liso"
+        st.session_state.form_style = "casual"
+        st.session_state.form_secondary_styles = []
+        st.session_state.form_warmth = "templado"
+        st.session_state.form_waterproof = False
+        st.session_state.form_sexiness = 0
+        st.session_state.form_dress_level = "medio"
+        del st.session_state["reset_add_form"]
+
     uploaded_file = st.file_uploader(
         "Sube una foto de la prenda",
-        type=["jpg", "jpeg", "png"]
+        type=["jpg", "jpeg", "png"],
+        key=f"form_uploader_{st.session_state.form_uploader_key}"
     )
 
     suggested_name = ""
@@ -1343,6 +1397,16 @@ with tab3:
 
         if inferred.get("category") in CATEGORY_OPTIONS:
             st.session_state.form_category = inferred["category"]
+
+        inferred_subcategory = inferred.get("subcategory")
+        current_category = st.session_state.form_category
+        valid_subcategories = SUBCATEGORY_OPTIONS.get(current_category, [])
+
+        if st.session_state.form_subcategory not in valid_subcategories:
+            st.session_state.form_subcategory = None
+
+        if st.session_state.form_subcategory is None and inferred_subcategory in valid_subcategories:
+            st.session_state.form_subcategory = inferred_subcategory
 
         if inferred.get("accessory_type") in ACCESSORY_TYPE_OPTIONS:
             st.session_state.form_accessory_type = inferred["accessory_type"]
@@ -1397,7 +1461,18 @@ with tab3:
         key="form_category",
         format_func=lambda c: CATEGORY_LABELS_ES.get(c, c)
     )
+    subcategory = None
 
+    if category in SUBCATEGORY_OPTIONS:
+        subcategory = st.selectbox(
+            "Subcategoría",
+            [None] + SUBCATEGORY_OPTIONS[category],
+            key="form_subcategory",
+            format_func=lambda x: "— ninguna —" if x is None else x
+        )
+    else:
+        subcategory = None
+    
     name = st.text_input("Nombre de la prenda", key="form_name")
 
     if category == "accessory":
@@ -1524,6 +1599,7 @@ with tab3:
             id=max([g.id for g in st.session_state.wardrobe], default=0) + 1,
             name=name,
             category=category,
+            subcategory=subcategory,
             accessory_type=accessory_type,
             color=normalize_color_name(color),
             secondary_colors=[normalize_color_name(secondary_color)] if secondary_color != "ninguno" else [],
@@ -1539,7 +1615,9 @@ with tab3:
 
         st.session_state.wardrobe.append(garment)
         save_wardrobe(DATA_FILE, st.session_state.wardrobe)
-        st.success("Tu prenda quedó guardada.")
+        st.session_state["add_saved_message"] = "Tu prenda quedó guardada."
+        st.session_state["reset_add_form"] = True
+        st.session_state.form_uploader_key += 1
         st.rerun()
 # =========================================================
 # TAB 4: PLANIFICADOR SEMANAL
