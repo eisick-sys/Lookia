@@ -93,6 +93,7 @@ COLOR_OPTIONS = [
 
     "verde",
     "verde oliva",
+    "verde olivo",
     "verde oscuro",
 
     "rojo",
@@ -151,6 +152,7 @@ COLOR_ALIASES = {
     "orange": "naranja",
     "yellow": "amarillo",
     "green": "verde",
+    "verde olivo" : "verde oliva",
     "blue": "azul",
     "red": "rojo",
     "white": "blanco",

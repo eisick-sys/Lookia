@@ -3,6 +3,7 @@
 # =========================================================
 
 from typing import Any, Dict, List, Optional
+from unicodedata import category
 
 
 # =========================================================
@@ -163,7 +164,25 @@ def garment_base_score(
 
             if any(x in name for x in ["ajust", "skinny", "tight"]):
                 score -= 6
-        
+
+    # shoe_formal_priority_matrimonio_gala
+    if category == "shoes":
+        lower_name = g.name.lower()
+
+        is_heel_like = any(x in lower_name for x in ["taco", "tacón", "tacon", "heel"])
+        is_sandal_like = any(x in lower_name for x in ["sandalia", "sandalias"])
+        is_boot_like = any(x in lower_name for x in ["botin", "botín", "bota", "bototo", "boot"])
+
+        if occasion in ["matrimonio", "gala"]:
+            if is_heel_like:
+                score += 60
+
+            if is_sandal_like and (garment_has_style(g, "elegante") or garment_has_style(g, "formal")):
+                score += 50
+
+            if is_boot_like:
+                score -= 25
+
     if category == "one_piece":
         score += 18
 

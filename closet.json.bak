@@ -593,23 +593,6 @@
     "image_name": "garment_77.jpg"
   },
   {
-    "id": 78,
-    "name": "pantalon leopardo",
-    "category": "bottom",
-    "color": "negro",
-    "style": "casual",
-    "subcategory": "pantalon",
-    "secondary_colors": [],
-    "secondary_styles": [],
-    "pattern": "liso",
-    "warmth": "caluroso",
-    "waterproof": false,
-    "dress_level": "relajado",
-    "sexiness": 0,
-    "accessory_type": null,
-    "image_name": "garment_78.jpg"
-  },
-  {
     "id": 79,
     "name": "cardigan amarillo",
     "category": "midlayer",
@@ -627,25 +610,8 @@
     "image_name": "garment_79.jpg"
   },
   {
-    "id": 80,
-    "name": "cardigan amarillo",
-    "category": "midlayer",
-    "color": "amarillo",
-    "style": "casual",
-    "subcategory": "cardigan",
-    "secondary_colors": [],
-    "secondary_styles": [],
-    "pattern": "liso",
-    "warmth": "caluroso",
-    "waterproof": false,
-    "dress_level": "relajado",
-    "sexiness": 0,
-    "accessory_type": null,
-    "image_name": "garment_80.jpg"
-  },
-  {
     "id": 81,
-    "name": "zapatos rojos",
+    "name": "tacos rojos",
     "category": "shoes",
     "color": "rojo",
     "style": "casual",
@@ -659,27 +625,6 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_81.jpg"
-  },
-  {
-    "id": 82,
-    "name": "abrigo leopardo",
-    "category": "outerwear",
-    "color": "negro",
-    "style": "casual",
-    "subcategory": "abrigo",
-    "secondary_colors": [
-      "café"
-    ],
-    "secondary_styles": [
-      "urbano"
-    ],
-    "pattern": "animal_print",
-    "warmth": "frio",
-    "waterproof": false,
-    "dress_level": "relajado",
-    "sexiness": 0,
-    "accessory_type": null,
-    "image_name": "garment_82.jpg"
   },
   {
     "id": 83,
@@ -701,5 +646,95 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_83.jpg"
+  },
+  {
+    "id": 84,
+    "name": "polar negro",
+    "category": "midlayer",
+    "color": "negro",
+    "style": "casual",
+    "subcategory": "polar",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "sport",
+      "urbano"
+    ],
+    "pattern": "liso",
+    "warmth": "frio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_84.jpg"
+  },
+  {
+    "id": 85,
+    "name": "sweater cuello v",
+    "category": "midlayer",
+    "color": "negro",
+    "style": "casual",
+    "subcategory": "sweater",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "caluroso",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_85.jpg"
+  },
+  {
+    "id": 86,
+    "name": "parka verde",
+    "category": "outerwear",
+    "color": "verde",
+    "style": "casual",
+    "subcategory": "parka",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "urbano"
+    ],
+    "pattern": "liso",
+    "warmth": "frio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_86.jpg"
+  },
+  {
+    "id": 87,
+    "name": "vestido cafe",
+    "category": "one_piece",
+    "color": "café",
+    "style": "casual",
+    "subcategory": "vestido",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "medio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": null
+  },
+  {
+    "id": 88,
+    "name": "sweater grueso",
+    "category": "midlayer",
+    "color": "azul",
+    "style": "casual",
+    "subcategory": "sweater",
+    "secondary_colors": [],
+    "secondary_styles": [],
+    "pattern": "liso",
+    "warmth": "frio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_88.jpg"
   }
 ]

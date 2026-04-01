@@ -1342,7 +1342,7 @@ with tab3:
         st.session_state.form_secondary_styles = []
 
     if "form_warmth" not in st.session_state:
-        st.session_state.form_warmth = "templado"
+        st.session_state.form_warmth = "medio"
 
     if "form_waterproof" not in st.session_state:
         st.session_state.form_waterproof = False
@@ -1351,7 +1351,7 @@ with tab3:
         st.session_state.form_sexiness = 0
 
     if "form_dress_level" not in st.session_state:
-        st.session_state.form_dress_level = "medio"
+        st.session_state.form_dress_level = "flexible"
 
     if "form_uploader_key" not in st.session_state:
         st.session_state.form_uploader_key = 0
@@ -1373,10 +1373,10 @@ with tab3:
         st.session_state.form_pattern = "liso"
         st.session_state.form_style = "casual"
         st.session_state.form_secondary_styles = []
-        st.session_state.form_warmth = "templado"
+        st.session_state.form_warmth = "medio"
         st.session_state.form_waterproof = False
         st.session_state.form_sexiness = 0
-        st.session_state.form_dress_level = "medio"
+        st.session_state.form_dress_level = "flexible"
         del st.session_state["reset_add_form"]
 
     uploaded_file = st.file_uploader(
@@ -1454,6 +1454,38 @@ with tab3:
         preview = Image.open(uploaded_file)
         preview = ImageOps.exif_transpose(preview)
         st.image(preview, caption="Vista previa", width=220)
+# manual_name_inference_tab3
+    if uploaded_file is None and st.session_state.form_name.strip():
+        inferred = infer_attributes_from_name(st.session_state.form_name.strip())
+
+        if inferred.get("category") in CATEGORY_OPTIONS:
+            st.session_state.form_category = inferred["category"]
+
+        inferred_subcategory = inferred.get("subcategory")
+        current_category = st.session_state.form_category
+        valid_subcategories = SUBCATEGORY_OPTIONS.get(current_category, [])
+
+        if st.session_state.form_subcategory not in valid_subcategories:
+            st.session_state.form_subcategory = None
+
+        if st.session_state.form_subcategory is None and inferred_subcategory in valid_subcategories:
+            st.session_state.form_subcategory = inferred_subcategory
+
+        if inferred.get("accessory_type") in ACCESSORY_TYPE_OPTIONS:
+            st.session_state.form_accessory_type = inferred["accessory_type"]
+
+        inferred_color = COLOR_ALIASES.get(
+            str(inferred.get("color", "")).strip().lower(),
+            str(inferred.get("color", "")).strip().lower()
+        )
+        if inferred_color in COLOR_OPTIONS:
+            st.session_state.form_color = inferred_color
+
+        if inferred.get("pattern") in PATTERN_OPTIONS:
+            st.session_state.form_pattern = inferred["pattern"]
+
+        if inferred.get("warmth") in WARMTH_OPTIONS:
+            st.session_state.form_warmth = inferred["warmth"]
 
     category = st.selectbox(
         "Categoría",

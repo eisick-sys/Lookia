@@ -100,11 +100,11 @@ def infer_category_from_name(name: str) -> Optional[str]:
         ],
         "midlayer": [
             "blazer", "cardigan", "chaleco", "sweater", "sueter",
-            "tejido", "hoodie"
+            "tejido", "hoodie", "polar",
         ],
         "outerwear": [
             "chaqueta", "abrigo", "parka", "impermeable", "trench",
-            "cortaviento", "anorak", "polar", "poncho"
+            "cortaviento", "anorak", "poncho"
         ],
         "bottom": [
             "jeans", "pantalon", "falda", "short", "shorts",
