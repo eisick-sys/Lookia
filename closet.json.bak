@@ -5,7 +5,7 @@
     "category": "top",
     "color": "negro",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "polera",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -25,7 +25,7 @@
     "category": "top",
     "color": "blanco",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "polera",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -45,7 +45,7 @@
     "category": "bottom",
     "color": "azul",
     "style": "urbano",
-    "subcategory": null,
+    "subcategory": "jeans",
     "secondary_colors": [],
     "secondary_styles": [
       "casual"
@@ -64,7 +64,7 @@
     "category": "bottom",
     "color": "azul",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "jeans",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -83,7 +83,7 @@
     "category": "bottom",
     "color": "azul oscuro",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "pantalon",
     "secondary_colors": [],
     "secondary_styles": [
       "casual",
@@ -103,7 +103,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "sport",
-    "subcategory": null,
+    "subcategory": "pantalon",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -122,7 +122,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "sport",
-    "subcategory": null,
+    "subcategory": "zapatilla_deporte",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -139,7 +139,7 @@
     "category": "top",
     "color": "blanco",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "blusa",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -176,7 +176,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "taco_alto",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -212,7 +212,7 @@
     "category": "top",
     "color": "blanco",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "polera",
     "secondary_colors": [
       "gris"
     ],
@@ -233,7 +233,7 @@
     "category": "shoes",
     "color": "blanco",
     "style": "urbano",
-    "subcategory": null,
+    "subcategory": "zapatilla_urbana",
     "secondary_colors": [],
     "secondary_styles": [
       "casual"
@@ -292,7 +292,7 @@
     "category": "accessory",
     "color": "plateado",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "aros",
     "secondary_colors": [],
     "secondary_styles": [
       "formal",
@@ -313,7 +313,7 @@
     "category": "top",
     "color": "negro",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "blusa",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -333,7 +333,7 @@
     "category": "bottom",
     "color": "café",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "pantalon",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano",
@@ -354,7 +354,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "urbano",
-    "subcategory": null,
+    "subcategory": "zapatilla_urbana",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -371,7 +371,7 @@
     "category": "bottom",
     "color": "café",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "falda_midi",
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -390,7 +390,7 @@
     "category": "shoes",
     "color": "negro",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "botin",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -407,7 +407,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "falda_corta",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -426,7 +426,7 @@
     "category": "accessory",
     "color": "beige",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "gorro",
     "secondary_colors": [],
     "secondary_styles": [
       "urbano"
@@ -445,7 +445,7 @@
     "category": "top",
     "color": "café",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "top",
     "secondary_colors": [
       "beige",
       "negro"
@@ -467,7 +467,7 @@
     "category": "top",
     "color": "café",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "polera",
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -505,7 +505,7 @@
     "category": "outerwear",
     "color": "azul",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "impermeable",
     "secondary_colors": [],
     "secondary_styles": [
       "formal"
@@ -524,7 +524,7 @@
     "category": "outerwear",
     "color": "celeste",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "parka",
     "secondary_colors": [],
     "secondary_styles": [
       "sport"
@@ -543,7 +543,7 @@
     "category": "bottom",
     "color": "gris",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "short_elegante",
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -562,7 +562,7 @@
     "category": "outerwear",
     "color": "café",
     "style": "casual",
-    "subcategory": null,
+    "subcategory": "chaqueta",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -579,7 +579,7 @@
     "category": "one_piece",
     "color": "rosado",
     "style": "elegante",
-    "subcategory": null,
+    "subcategory": "vestido_elegante",
     "secondary_colors": [],
     "secondary_styles": [
       "formal"
@@ -615,7 +615,7 @@
     "category": "shoes",
     "color": "rojo",
     "style": "casual",
-    "subcategory": "taco",
+    "subcategory": "taco_alto",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
@@ -726,7 +726,7 @@
     "category": "bottom",
     "color": "negro",
     "style": "casual",
-    "subcategory": "falda",
+    "subcategory": "falda_corta",
     "secondary_colors": [
       "blanco"
     ],
@@ -834,5 +834,25 @@
     "sexiness": 0,
     "accessory_type": "cinturón",
     "image_name": "garment_94.jpg"
+  },
+  {
+    "id": 95,
+    "name": "parka pluma negra",
+    "category": "outerwear",
+    "color": "negro",
+    "style": "casual",
+    "subcategory": "parka",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "urbano",
+      "sport"
+    ],
+    "pattern": "liso",
+    "warmth": "frio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_95.jpg"
   }
 ]

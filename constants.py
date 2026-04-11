@@ -42,21 +42,28 @@ SUBCATEGORY_OPTIONS = {
     "bottom": [
         "jeans",
         "pantalon",
-        "falda",
-        "short",
+        "falda_corta",
+        "falda_midi",
+        "falda_larga",
+        "short_casual",
+        "short_elegante",
         "legging",
     ],
     "one_piece": [
-        "vestido",
+        "vestido_casual",
+        "vestido_elegante",
+        "vestido_coctel",
         "enterito",
     ],
     "shoes": [
-        "zapatilla",
+        "zapatilla_urbana",
+        "zapatilla_deporte",
         "zapato",
         "botin",
         "bota",
         "sandalia",
-        "taco",
+        "taco_bajo",
+        "taco_alto",
         "mocasin",
     ],
     "accessory": [
@@ -211,3 +218,69 @@ MOOD_OPTIONS = ["relajado", "urbano", "elegante", "sexy", "comodo"]
 ACTIVITY_OPTIONS = ["normal", "caminar", "formal", "entrenar"]
 
 THERMAL_ACCESSORIES = ["bufanda", "pañuelo", "gorro", "guantes"]
+
+# =========================================================
+# ETIQUETAS EN ESPAÑOL PARA SUBCATEGORÍAS
+# =========================================================
+
+SUBCATEGORY_LABELS_ES = {
+    # top
+    "polera": "Polera",
+    "blusa": "Blusa",
+    "camisa": "Camisa",
+    "top": "Top",
+    "body": "Body",
+    "crop_top": "Crop top",
+    "peto": "Peto",
+    # midlayer
+    "sweater": "Sweater",
+    "cardigan": "Cárdigan",
+    "chaleco": "Chaleco",
+    "blazer": "Blazer",
+    "hoodie": "Hoodie",
+    "polar": "Polar",
+    # outerwear
+    "chaqueta": "Chaqueta",
+    "abrigo": "Abrigo",
+    "parka": "Parka",
+    "trench": "Trench",
+    "impermeable": "Impermeable",
+    "poncho": "Poncho",
+    # bottom
+    "jeans": "Jeans",
+    "pantalon": "Pantalón",
+    "falda_corta": "Falda corta",
+    "falda_midi": "Falda midi",
+    "falda_larga": "Falda larga",
+    "short_casual": "Short casual",
+    "short_elegante": "Short elegante",
+    "legging": "Legging",
+    # one_piece
+    "vestido_casual": "Vestido casual",
+    "vestido_elegante": "Vestido elegante",
+    "vestido_coctel": "Vestido cóctel",
+    "enterito": "Enterito",
+    # shoes
+    "zapatilla_urbana": "Zapatilla urbana",
+    "zapatilla_deporte": "Zapatilla deporte",
+    "zapato": "Zapato",
+    "botin": "Botín",
+    "bota": "Bota",
+    "sandalia": "Sandalia",
+    "taco_bajo": "Taco bajo",
+    "taco_alto": "Taco alto",
+    "mocasin": "Mocasín",
+    # accessory
+    "reloj": "Reloj",
+    "collar": "Collar",
+    "pulsera": "Pulsera",
+    "anillo": "Anillo",
+    "aros": "Aros",
+    "cinturon": "Cinturón",
+    "bolso": "Bolso",
+    "cartera": "Cartera",
+    "bufanda": "Bufanda",
+    "pañuelo": "Pañuelo",
+    "gorro": "Gorro",
+    "guantes": "Guantes",
+}

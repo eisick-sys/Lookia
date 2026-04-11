@@ -2,7 +2,7 @@
 from typing import List
 
 from models import Garment
-from utils.garment_utils import garment_has_style, all_styles
+from utils.garment_utils import garment_has_style, all_styles, is_shoe_heel
 
 
 def dress_score(dress_level: str, occasion: str) -> int:
@@ -338,7 +338,7 @@ def practicality_penalty(
                         penalty += 45
         if mood == "comodo":
             if g.category == "shoes":
-                if any(x in name for x in ["taco", "tacón", "heel", "heels", "stiletto"]):
+                if is_shoe_heel(g):
                     penalty += 50
         if rain:
             if g.category == "outerwear":
@@ -351,7 +351,7 @@ def practicality_penalty(
                     penalty += 60
         if rain:
             if g.category == "shoes":
-                if any(x in name for x in ["taco", "tacón", "heel", "heels", "stiletto"]):
+                if is_shoe_heel(g):
                     penalty += 35
 
         if temp >= 26:

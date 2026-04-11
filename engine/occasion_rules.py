@@ -1,6 +1,13 @@
 #occasion_rules.py
 from models import Garment
-from utils.garment_utils import all_styles, garment_has_style
+from utils.garment_utils import (
+    all_styles,
+    garment_has_style,
+    is_shoe_sneaker_like,
+    is_shoe_sport_sneaker,
+    is_bottom_short_or_light,
+    is_bottom_short,
+)
 
 
 def get_weather_tag(temp: int, rain: bool) -> str:
@@ -94,7 +101,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
         return False, f"No te recomiendo usar {garment.name} para {occasion}."
 
     if garment.category == "bottom":
-        if any(x in lower_name for x in ["short", "shorts", "mini", "minifalda"]):
+        if is_bottom_short_or_light(garment):
             if rain:
                 return False, f"{garment.name} no es adecuada para lluvia."
             if temp <= 10:
@@ -111,7 +118,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                     return False, f"No te recomiendo usar {garment.name} para {occasion}."
 
         if garment.category == "bottom":
-            if any(x in lower_name for x in ["short", "shorts"]):
+            if is_bottom_short(garment):
                 return False, f"{garment.name} no va con un {occasion}."
             if any(x in lower_name for x in ["buzo", "jogger", "joggers"]):
                 return False, f"{garment.name} no va con un {occasion}."
@@ -119,7 +126,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                 return False, f"{garment.name} no va con un {occasion}."
 
         if garment.category == "shoes":
-            if "zapatilla" in lower_name:
+            if is_shoe_sneaker_like(garment):
                 return False, f"{garment.name} no va con un {occasion}."
 
         if garment.category == "accessory":
@@ -135,7 +142,11 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
 
     if occasion == "trabajo":
         if garment.category == "bottom":
-            if any(x in lower_name for x in ["mini", "minifalda"]) and garment.sexiness >= 3:
+            is_mini = (
+                garment.subcategory == "falda_corta"
+                or any(x in lower_name for x in ["mini", "minifalda"])
+            )
+            if is_mini and garment.sexiness >= 3:
                 return False, f"{garment.name} puede ser demasiado atrevida para trabajo — pero tú decides."
 
         if "sport" in garment_styles and garment.category != "shoes":
@@ -159,7 +170,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                 return False, f"{garment.name} no va para una cita."
 
         if garment.category == "shoes":
-            if any(x in lower_name for x in ["zapatilla deporte", "zapatillas deporte", "running", "training"]):
+            if is_shoe_sport_sneaker(garment):
                 return False, f"{garment.name} no va para una cita."
 
     # =========================================================
@@ -180,11 +191,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
             return False, f"{garment.name} es demasiado sport para salida nocturna."
 
         if garment.category == "shoes":
-            if (
-                "zapatilla" in lower_name
-                or "sneaker" in lower_name
-                or "sport" in garment_styles
-            ):
+            if is_shoe_sneaker_like(garment) or "sport" in garment_styles:
                 return False, f"{garment.name} no va con una salida nocturna."
 
     return True, ""

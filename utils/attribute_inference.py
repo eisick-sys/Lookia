@@ -113,7 +113,8 @@ def infer_category_from_name(name: str) -> Optional[str]:
         "shoes": [
             "zapatillas", "zapatilla", "zapatos", "zapato", "botines",
             "botin", "botas", "bota", "sandalias", "sandalia",
-            "mocasines", "mocasin", "tacos", "taco", "mocasin"
+            "mocasines", "mocasin", "tacos", "taco", "mocasin",
+            "stiletto", "stilettos"
         ],
         "accessory": [
             "reloj", "collar", "pulsera", "anillo", "aros", "cinturon",
@@ -162,24 +163,33 @@ def infer_subcategory_from_name(name: str, category: Optional[str] = None) -> Op
             "poncho": ["poncho"],
         },
         "bottom": {
+            # más específicas primero para que no caigan en el fallback
+            "falda_corta": ["minifalda", "falda corta", "mini"],
+            "falda_larga": ["falda larga", "maxi falda", "maxi"],
+            "falda_midi": ["falda midi", "midi falda", "falda"],  # fallback genérico
+            "short_elegante": ["short elegante", "short formal"],
+            "short_casual": ["short", "shorts"],  # fallback genérico
             "jeans": ["jeans", "jean", "denim"],
             "pantalon": ["pantalon"],
-            "falda": ["falda", "minifalda", "mini"],
-            "short": ["short", "shorts"],
             "legging": ["legging", "leggings", "calza", "calzas"],
         },
         "one_piece": {
-            "vestido": ["vestido"],
+            "vestido_elegante": ["vestido elegante", "vestido formal", "vestido de noche"],
+            "vestido_coctel": ["vestido coctel", "vestido cóctel", "vestido fiesta", "coctel"],
+            "vestido_casual": ["vestido casual", "vestido basico", "vestido"],  # fallback genérico
             "enterito": ["enterito", "mono", "jumpsuit", "overall"],
         },
         "shoes": {
-            "zapatilla": ["zapatilla", "zapatillas", "sneaker", "sneakers"],
+            # más específicas primero
+            "zapatilla_deporte": ["zapatilla deporte", "zapatillas deporte", "running", "training"],
+            "zapatilla_urbana": ["zapatilla", "zapatillas", "sneaker", "sneakers"],  # fallback genérico
             "zapato": ["zapato", "zapatos"],
             "botin": ["botin", "botines"],
             "bota": ["bota", "botas"],
             "sandalia": ["sandalia", "sandalias"],
-            "taco": ["taco", "tacos", "tacon", "tacones"],
-            "mocasin": ["mocasin", "mocasin", "mocasines", "loafer", "loafers"],
+            "taco_bajo": ["taco bajo", "kitten heel", "kitten", "tacón bajo"],
+            "taco_alto": ["taco", "tacos", "tacon", "tacones", "heel", "heels", "stiletto", "stilettos"],
+            "mocasin": ["mocasin", "mocasines", "loafer", "loafers"],
         },
         "accessory": {
             "reloj": ["reloj"],

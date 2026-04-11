@@ -67,6 +67,7 @@ from constants import (
     OCCASION_OPTIONS,
     PATTERN_OPTIONS,
     STYLE_OPTIONS,
+    SUBCATEGORY_LABELS_ES,
     SUBCATEGORY_OPTIONS,
     THERMAL_ACCESSORIES,
     WARMTH_OPTIONS,
@@ -1226,7 +1227,8 @@ with tab2:
                             "Subcategoría",
                             subcategory_options,
                             index=subcategory_options.index(current_subcategory)
-                            if current_subcategory in subcategory_options else 0
+                            if current_subcategory in subcategory_options else 0,
+                            format_func=lambda x: "— ninguna —" if x == "— ninguna —" else SUBCATEGORY_LABELS_ES.get(x, x)
                         )
 
                         if subcategory == "— ninguna —":
@@ -1535,7 +1537,7 @@ with tab3:
             "Subcategoría",
             [None] + SUBCATEGORY_OPTIONS[category],
             key="form_subcategory",
-            format_func=lambda x: "— ninguna —" if x is None else x
+            format_func=lambda x: "— ninguna —" if x is None else SUBCATEGORY_LABELS_ES.get(x, x)
         )
     else:
         subcategory = None
