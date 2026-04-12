@@ -658,6 +658,13 @@ def shoe_context_bonus(
         ):
             bonus += 8
 
+    if occasion in ["cita", "salida nocturna"]:
+        subcategory = getattr(garment, "subcategory", None)
+        if subcategory in ["taco_alto", "taco_bajo", "sandalia"]:
+            bonus += 20
+        elif subcategory == "mocasin":
+            bonus -= 10
+
     return bonus
 
 # =========================================================
