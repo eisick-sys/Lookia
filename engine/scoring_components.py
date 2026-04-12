@@ -211,13 +211,23 @@ def mood_bonus(garment: Garment, mood: str) -> int:
     soft_hits = sum(1 for s in config["soft"] if s in garment_styles)
 
     if strong_hits >= 2:
-        return 10
-    if strong_hits == 1:
-        return 8
-    if soft_hits >= 1:
-        return 5
+        base = 10
+    elif strong_hits == 1:
+        base = 8
+    elif soft_hits >= 1:
+        base = 5
+    else:
+        base = 2
 
-    return 2
+    if mood == "urbano":
+        urban_prints = ["animal_print", "estampado", "grafico", "floral"]
+        urban_colors = ["fucsia", "rojo", "mostaza", "verde olivo", "burdeo", "naranja"]
+        if getattr(garment, "pattern", None) in urban_prints:
+            base += 4
+        if getattr(garment, "color", None) in urban_colors:
+            base += 3
+
+    return base
 
 
 def sexiness_bonus(garment: Garment, mood: str, occasion: str, activity: str) -> int:
