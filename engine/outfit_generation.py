@@ -526,6 +526,8 @@ def generate_outfits(
     shoes_usage = {}
     outerwear_usage = {}
     accessory_usage_in_batch = {}
+    accessory_outfits_count = 0
+    max_accessory_outfits = top_n if occasion in ["matrimonio", "gala"] else random.choice([1, 1, 2])
     max_same_top = 2 if top_n >= 3 else 1
     max_same_shoes = 2 if top_n >= 3 else 1
     _n_waterproof_outer = sum(1 for g in top_candidates["outerwear"] if g.waterproof)
@@ -559,6 +561,8 @@ def generate_outfits(
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
                 continue
             if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
+                continue
+            if acc_id is not None and accessory_outfits_count >= max_accessory_outfits:
                 continue
 
             too_similar = False
@@ -605,6 +609,7 @@ def generate_outfits(
         if outerwear_id is not None:
             outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
         if acc_id is not None:
+            accessory_outfits_count += 1
             accessory_usage_in_batch[acc_id] = accessory_usage_in_batch.get(acc_id, 0) + 1
 
     # Fallback: si no llegamos a 3 outfits, segunda pasada sin filtro is_too_similar
