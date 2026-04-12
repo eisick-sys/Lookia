@@ -330,6 +330,14 @@ def coherence_penalty(items: List[Garment], occasion: str) -> int:
     if bold_items and relaxed_base_count >= 3:
         penalty += 10
 
+    # Penalización por exceso de colores distintos
+    unique_colors = {g.color for g in items if getattr(g, "color", None)}
+    if len(unique_colors) >= 4:
+        if occasion in ["cita", "salida nocturna", "matrimonio", "gala"]:
+            penalty += 35
+        else:
+            penalty += 20
+
     return penalty
 
 
