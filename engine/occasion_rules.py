@@ -68,6 +68,12 @@ def build_required_categories(occasion: str, rain: bool = False, temp: int = 15)
             if "outerwear" in optional:
                 optional.remove("outerwear")
 
+    if temp <= 8 and occasion not in ["deporte", "gala", "matrimonio"]:
+        if "outerwear" not in required:
+            required.append("outerwear")
+        if "outerwear" in optional:
+            optional.remove("outerwear")
+
     return {
         "required": required,
         "optional": optional,
