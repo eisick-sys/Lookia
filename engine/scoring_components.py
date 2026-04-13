@@ -53,7 +53,7 @@ def dress_score(dress_level: str, occasion: str) -> int:
 
     return matrix.get(occasion, {}).get(dress_level, 0)
 
-def weather_score(garment: Garment, temp: int, rain: bool) -> int:
+def weather_score(garment: Garment, temp: int, rain: bool, occasion: str = "", mood: str = "") -> int:
     score = 0
 
     # Un outerwear impermeable es siempre válido con lluvia; se diferencia por warmth según temp
@@ -87,6 +87,14 @@ def weather_score(garment: Garment, temp: int, rain: bool) -> int:
             score += 8
         else:  # frio
             score -= 12
+
+    # Boost a jeans con frío por ocasión y mood
+    if temp <= 10 and garment.category == "bottom" and garment.subcategory == "jeans":
+        cold_moods = ["relajado", "urbano", "comodo"]
+        if occasion in ["casual", "salida nocturna"]:
+            score += 10
+        elif occasion in ["cita", "trabajo"] and mood in cold_moods:
+            score += 8
 
     # lluvia
     if rain:
@@ -378,6 +386,8 @@ def practicality_penalty(
             if "short" in name:
                 if rain or temp <= 14:
                     penalty += 60
+            if temp <= 8 and g.subcategory in ["falda_midi", "falda_larga"]:
+                penalty += 35
         if rain:
             if g.category == "shoes":
                 if is_shoe_heel(g):

@@ -77,7 +77,7 @@ def garment_base_score(
 
     # Componentes base
     score += dress_score(g.dress_level, occasion)
-    score += weather_score(g, temp, rain)
+    score += weather_score(g, temp, rain, occasion, mood)
     score += activity_bonus(g, activity, occasion)
 
     # Reglas específicas por categoría
@@ -671,7 +671,7 @@ def explain_outfit_score(
     # =========================================================
     # CLIMA
     # =========================================================
-    weather_points = sum(weather_score(g, temp, rain) for g in items)
+    weather_points = sum(weather_score(g, temp, rain, occasion, mood) for g in items)
     if weather_points >= len(items) * 15:
         reasons.append(random.choice([
             "✅ Muy adecuado para el clima de hoy",
