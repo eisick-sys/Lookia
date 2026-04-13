@@ -510,7 +510,11 @@ def generate_outfits(
             )
 
         # 🔥 regla fuerte: mismo tipo de bottom + mismo tipo de calzado
-        if same_bottom_type and same_shoes_type:
+        # Excepción: si ambos combos tienen outerwear distinto, no son demasiado similares
+        ow1 = ids1.get("outerwear")
+        ow2 = ids2.get("outerwear")
+        different_outerwear = (ow1 is not None and ow2 is not None and ow1 != ow2)
+        if same_bottom_type and same_shoes_type and not different_outerwear:
             return True
 
         # reglas existentes (más suaves)
@@ -671,6 +675,11 @@ def generate_outfits(
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
                 continue
             # max_same_outerwear relajado: permitir repetir outerwear cuando es el único disponible
+            # Umbral mínimo: el combo debe tener al menos 35% del score del mejor outfit aceptado
+            if diverse_outfits:
+                threshold = diverse_outfits[0][0] * 0.35
+                if score < threshold:
+                    continue
             diverse_outfits.append((score, combo))
             existing_ids.add(id(combo))
             if top_id is not None:
