@@ -85,10 +85,13 @@ def generate_outfits(
         "one_piece": [g for _, g in ranked["one_piece"][:base_top_limit]],
     }
     # Shuffle impermeables para rotar cuál aparece primero y evitar siempre el mismo
-    _waterproof_outer = [g for _, g in ranked["outerwear"] if g.waterproof]
-    _non_waterproof_outer = [g for _, g in ranked["outerwear"] if not g.waterproof]
-    random.shuffle(_waterproof_outer)
-    top_candidates["outerwear"] = (_waterproof_outer + _non_waterproof_outer)[:4]
+    if rain:
+        _waterproof_outer = [g for _, g in ranked["outerwear"] if g.waterproof]
+        _non_waterproof_outer = [g for _, g in ranked["outerwear"] if not g.waterproof]
+        random.shuffle(_waterproof_outer)
+        top_candidates["outerwear"] = (_waterproof_outer + _non_waterproof_outer)[:4]
+    else:
+        top_candidates["outerwear"] = [g for _, g in ranked["outerwear"]][:4]
     # Shuffle accesorios para rotar cuál aparece en cada tanda y evitar siempre el mismo
     _accessories = [g for _, g in ranked["accessory"][:max(accessory_limit + 3, 5)]]
     random.shuffle(_accessories)
