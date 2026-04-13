@@ -60,7 +60,7 @@ def generate_outfits(
     base_bottom_limit = 5
     base_shoes_limit = 4
     mid_limit = 2
-    outer_limit = 2
+    outer_limit = 3
     accessory_limit = 1
 
     if occasion in ["matrimonio", "gala", "cita", "salida nocturna"]:
@@ -71,7 +71,7 @@ def generate_outfits(
 
     if activity == "caminar" or rain:
         base_shoes_limit = 5
-        outer_limit = 2
+        outer_limit = 3
 
     if top_n >= 8:
         base_top_limit += 1
@@ -736,7 +736,7 @@ def generate_outfits_from_selected_garment(
     base_bottom_limit = 5
     base_shoes_limit = 4
     mid_limit = 2
-    outer_limit = 2
+    outer_limit = 3
     accessory_limit = 1
 
     if occasion in ["matrimonio", "gala", "cita", "salida nocturna"]:
@@ -747,7 +747,7 @@ def generate_outfits_from_selected_garment(
 
     if activity == "caminar" or rain:
         base_shoes_limit = 5
-        outer_limit = 2
+        outer_limit = 3
 
     top_candidates = {
         "top": [g for _, g in ranked["top"][:base_top_limit]],

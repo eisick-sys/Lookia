@@ -800,7 +800,8 @@ def outerwear_context_penalty(
             penalty += 10
 
     if not rain:
-        if garment.waterproof and not is_outerwear_formal_friendly(garment):
+        is_rain_functional = garment.subcategory in ["impermeable", "parka"]
+        if garment.waterproof and (is_rain_functional or not is_outerwear_formal_friendly(garment)):
             penalty += 18
 
         if temp >= 16:
