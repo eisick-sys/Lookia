@@ -413,7 +413,7 @@ def practicality_penalty(
                 if is_shoe_heel(g):
                     penalty += 35
                 if g.subcategory == "mocasin":
-                    penalty += 35
+                    penalty += 60
 
         if temp >= 26:
             if g.category == "outerwear":
