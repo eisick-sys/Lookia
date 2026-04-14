@@ -205,6 +205,10 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                 if not (mood in ["relajado", "comodo", "urbano"] and garment.subcategory == "zapatilla_urbana"):
                     return False, f"{garment.name} no va con una salida nocturna."
 
+        if garment.category == "bottom":
+            if garment.subcategory in ["buzo", "jogger"]:
+                return False, f"{garment.name} no va con una salida nocturna."
+
     # =========================================================
     # OUTERWEAR IMPERMEABLE SPORT EN OCASIONES ELEGANTES/FORMALES
     # =========================================================

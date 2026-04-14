@@ -268,12 +268,41 @@ LOOKIA_CITY=Punta Arenas
 
 ---
 
+### Sesión 8 — abril 2026
+
+**Motor — reglas de ocasión**
+- ✅ Zapatilla urbana permitida en salida nocturna con mood urbano (agregado a relajado/cómodo)
+- ✅ Buzo/jogger bloqueado en salida nocturna
+- ✅ `garment_allowed_for_occasion` recibe mood y temp en `app.py` línea 875 (fix)
+
+**Motor — scoring**
+- ✅ Vestido elegante/cóctel penalizado en `garment_base_score` con mood relajado/urbano: -150
+- ✅ Boost animal_print/estampado/grafico/floral en mood urbano: +4 → +15
+- ✅ Tacos penalizados en salida nocturna mood urbano: taco_alto +35, taco_bajo +20
+- ✅ Zapatilla urbana boosteada en salida nocturna mood urbano: -50
+
+**Motor — generación de outfits**
+- ✅ Umbral fallback tercera pasada calculado contra mejor score global (no solo tercera pasada)
+- ✅ Umbral solo aplica cuando hay 2+ outfits aceptados — garantiza siempre 3 outfits
+
+**Datos — closet.json**
+- ✅ Abrigo leopardo (83): agregado tag secundario "urbano" en `secondary_styles`
+- ⬜ Top leopardo (63): revisar si necesita tag "urbano" en `secondary_styles`
+
+**Pruebas completadas**
+- ✅ Salida nocturna · relajado · frío (6°C) sin lluvia
+- ✅ Salida nocturna · relajado · frío (6°C) con lluvia
+- ✅ Salida nocturna · relajado · calor (28-29°C)
+- ✅ Salida nocturna · relajado · umbral (24-25°C)
+- ✅ Salida nocturna · urbano · frío (5°C)
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Pruebas pendientes
-- ⬜ Salida nocturna moods urbano, elegante, sexy, cómodo
-- ⬜ Salida nocturna con lluvia todos los moods
-- ⬜ Salida nocturna calor (24-25°C)
+- ⬜ Salida nocturna · moods: elegante, sexy, cómodo
+- ⬜ Salida nocturna · lluvia con todos los moods
 - ⬜ Matrimonio y gala
 - ⬜ Deporte
 - ⬜ Seleccionar prenda específica en distintos escenarios
@@ -286,10 +315,11 @@ LOOKIA_CITY=Punta Arenas
 - ⬜ Mayor diversidad de tops en mood urbano (ajuste fino)
 
 ### Clóset
+- ⬜ Verificar top leopardo (63) — agregar tag urbano en `secondary_styles` si corresponde
 - ⬜ Agregar sandalias, ballerinas y chalas al clóset
 
 ### UI
-- ⬜ Botón "Mostrar de todos modos" cuando prenda forzada está bloqueada por mood (requiere cambio en app.py)
+- ⬜ Botón "Mostrar de todos modos" cuando prenda forzada está bloqueada por mood (requiere cambio en `app.py`)
 - ⬜ Tip de pantys: mostrar máximo una vez por tanda (pendiente UI definitiva)
 - ⬜ Al hacer clic en "Revisar" prenda, scroll automático al formulario (pendiente UI definitiva)
 - ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
@@ -303,7 +333,7 @@ LOOKIA_CITY=Punta Arenas
 
 ### Técnico — próximo gran paso
 - ✅ `wardrobe_images/` y `__pycache__/` agregados a `.gitignore`
-- ⬜ **Migrar a Supabase** — base de datos real para multi-usuario
+- ⬜ **Migrar a Supabase** — base de datos real para multi-usuario (retomar cuando llegues a casa)
 - ⬜ **UI definitiva** (React o similar) — reemplazar Streamlit
 
 

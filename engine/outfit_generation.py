@@ -667,6 +667,7 @@ def generate_outfits(
             key=lambda x: x[0],
             reverse=True,
         )
+        best_score = diverse_outfits[0][0] if diverse_outfits else 0
         for score, combo in all_remaining:
             if len(diverse_outfits) >= min_outfits:
                 break
@@ -680,9 +681,9 @@ def generate_outfits(
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
                 continue
             # max_same_outerwear relajado: permitir repetir outerwear cuando es el único disponible
-            # Umbral mínimo: el combo debe tener al menos 35% del score del mejor outfit aceptado
-            if diverse_outfits:
-                threshold = diverse_outfits[0][0] * 0.35
+            # Umbral mínimo: solo aplicar cuando ya hay 2+ outfits aceptados
+            if len(diverse_outfits) >= 2 and best_score > 0:
+                threshold = best_score * 0.35
                 if score < threshold:
                     continue
             diverse_outfits.append((score, combo))

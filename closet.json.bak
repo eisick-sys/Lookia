@@ -187,11 +187,13 @@
     "style": "formal",
     "subcategory": "taco_alto",
     "secondary_colors": [],
-    "secondary_styles": [],
+    "secondary_styles": [
+      "elegante"
+    ],
     "pattern": "liso",
     "warmth": "medio",
     "waterproof": false,
-    "dress_level": "arreglado",
+    "dress_level": "elegante",
     "sexiness": 2,
     "accessory_type": null,
     "image_name": "33.jpg",
@@ -530,11 +532,11 @@
     "name": "chaqueta impermeable azul",
     "category": "outerwear",
     "color": "azul",
-    "style": "casual",
+    "style": "formal",
     "subcategory": "impermeable",
     "secondary_colors": [],
     "secondary_styles": [
-      "formal"
+      "casual"
     ],
     "pattern": "liso",
     "warmth": "frio",
@@ -550,16 +552,16 @@
     "name": "parka impermeable celeste",
     "category": "outerwear",
     "color": "celeste",
-    "style": "casual",
+    "style": "sport",
     "subcategory": "parka",
     "secondary_colors": [],
     "secondary_styles": [
-      "sport"
+      "casual"
     ],
     "pattern": "liso",
     "warmth": "frio",
     "waterproof": true,
-    "dress_level": "flexible",
+    "dress_level": "relajado",
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "74.jpg",
@@ -646,15 +648,15 @@
     "name": "tacos rojos",
     "category": "shoes",
     "color": "rojo",
-    "style": "casual",
+    "style": "elegante",
     "subcategory": "taco_alto",
     "secondary_colors": [],
     "secondary_styles": [],
     "pattern": "liso",
     "warmth": "caluroso",
     "waterproof": false,
-    "dress_level": "relajado",
-    "sexiness": 0,
+    "dress_level": "arreglado",
+    "sexiness": 1,
     "accessory_type": null,
     "image_name": "garment_81.jpg",
     "is_new": false
@@ -670,7 +672,8 @@
       "café"
     ],
     "secondary_styles": [
-      "elegante"
+      "elegante",
+      "urbano"
     ],
     "pattern": "animal_print",
     "warmth": "frio",
@@ -925,10 +928,13 @@
     "name": "impermeable negro",
     "category": "outerwear",
     "color": "negro",
-    "style": "casual",
+    "style": "sport",
     "subcategory": "impermeable",
     "secondary_colors": [],
-    "secondary_styles": [],
+    "secondary_styles": [
+      "casual",
+      "urbano"
+    ],
     "pattern": "liso",
     "warmth": "medio",
     "waterproof": true,
@@ -1042,17 +1048,18 @@
     "id": 103,
     "name": "abrigo impermeable verde",
     "category": "outerwear",
-    "color": "verde oliva",
-    "style": "casual",
+    "color": "verde olivo",
+    "style": "elegante",
     "subcategory": "abrigo",
     "secondary_colors": [],
     "secondary_styles": [
-      "formal"
+      "formal",
+      "casual"
     ],
     "pattern": "liso",
     "warmth": "frio",
     "waterproof": true,
-    "dress_level": "flexible",
+    "dress_level": "arreglado",
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_103.jpg",
@@ -1144,7 +1151,7 @@
     "category": "accessory",
     "color": "plateado",
     "style": "formal",
-    "subcategory": null,
+    "subcategory": "reloj",
     "secondary_colors": [],
     "secondary_styles": [
       "elegante"
@@ -1156,7 +1163,7 @@
     "sexiness": 0,
     "accessory_type": "reloj",
     "image_name": "garment_108.jpg",
-    "is_new": true
+    "is_new": false
   },
   {
     "id": 109,
@@ -1176,6 +1183,26 @@
     "sexiness": 0,
     "accessory_type": null,
     "image_name": "garment_109.jpg",
+    "is_new": true
+  },
+  {
+    "id": 110,
+    "name": "zapatillas urbanas negras ",
+    "category": "shoes",
+    "color": "negro",
+    "style": "urbano",
+    "subcategory": "zapatilla_urbana",
+    "secondary_colors": [],
+    "secondary_styles": [
+      "casual"
+    ],
+    "pattern": "liso",
+    "warmth": "medio",
+    "waterproof": false,
+    "dress_level": "relajado",
+    "sexiness": 0,
+    "accessory_type": null,
+    "image_name": "garment_110.jpg",
     "is_new": true
   }
 ]

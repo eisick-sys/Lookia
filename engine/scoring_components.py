@@ -244,7 +244,7 @@ def mood_bonus(garment: Garment, mood: str) -> int:
         urban_prints = ["animal_print", "estampado", "grafico", "floral"]
         urban_colors = ["fucsia", "rojo", "mostaza", "verde olivo", "burdeo", "naranja"]
         if getattr(garment, "pattern", None) in urban_prints:
-            base += 4
+            base += 15
         if getattr(garment, "color", None) in urban_colors:
             base += 3
 
