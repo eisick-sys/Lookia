@@ -202,13 +202,13 @@ def load_cached_image(path):
     return img
 
 
-def render_garment_image(garment: Garment, width: int = 120):
+def render_garment_image(garment: Garment, user_id: str, width: int = 120):
     if not garment.image_name:
         st.caption("Sin foto")
         return
 
-    user_id = st.session_state["user"].id
     url = get_garment_image_url(user_id, garment.image_name)
+    print(f"[DEBUG] render_garment_image | image_name={garment.image_name} | url={url}")
     if url:
         st.image(url, width=width)
     else:
@@ -926,7 +926,7 @@ with tab1:
                     with st.container():
                         st.markdown(f"**{g.name}**")
                         st.caption(f"{CATEGORY_LABELS_ES.get(g.category, g.category)} · {garment_color_label(g)}")
-                        render_garment_image(g, width=140)
+                        render_garment_image(g, user_id=user_id, width=140)
 
             explanation = explain_outfit_score(
                 combo,
@@ -1084,7 +1084,7 @@ with tab2:
             for i, g in enumerate(filtered_wardrobe):
                 with cols[i % 5]:
                     with st.container(border=True):
-                        render_garment_image(g, width=120)
+                        render_garment_image(g, user_id=user_id, width=120)
                         st.markdown(f"**{g.name[:18]}**")
                         if getattr(g, "is_new", False):
                             st.caption("🆕 Nueva")
@@ -1409,10 +1409,15 @@ with tab2:
                             garment.is_new = False
 
                             if new_uploaded_file:
-                                image_name = upload_garment_image(user_id, garment.id, new_uploaded_file)
-                                garment.image_name = image_name
+                                print(f"[DEBUG] Subiendo imagen para garment.id={garment.id}")
+                                uploaded_image_name = upload_garment_image(user_id, garment.id, new_uploaded_file)
+                                print(f"[DEBUG] upload_garment_image() retornó: {uploaded_image_name}")
+                                if uploaded_image_name:
+                                    garment.image_name = uploaded_image_name
 
-                            update_garment_cloud(user_id, garment)
+                            print(f"[DEBUG] garment.image_name antes de update: {garment.image_name}")
+                            result = update_garment_cloud(user_id, garment)
+                            print(f"[DEBUG] update_garment_cloud() retornó: {result}")
                             st.session_state["edit_saved_message"] = garment.id
                             st.success("Edición guardada.")
 
@@ -2064,5 +2069,5 @@ with tab4:
 
             for i, g in enumerate(outfit):
                 with cols[i]:
-                    render_garment_image(g, width=120)
+                    render_garment_image(g, user_id=user_id, width=120)
                     st.caption(g.name)

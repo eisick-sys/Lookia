@@ -180,6 +180,7 @@ def get_garment_image_url(user_id: str, image_name: str) -> Optional[str]:
         sb = get_supabase()
         storage_path = f"{user_id}/{image_name}"
         result = sb.storage.from_("garment-images").get_public_url(storage_path)
+        print(f"[DEBUG] get_garment_image_url | storage_path={storage_path} | url={result}")
         return result
     except Exception as e:
         print(f"Error obteniendo URL de imagen: {e}")
