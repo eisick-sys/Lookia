@@ -208,7 +208,6 @@ def render_garment_image(garment: Garment, user_id: str, width: int = 120):
         return
 
     url = get_garment_image_url(user_id, garment.image_name)
-    print(f"[DEBUG] render_garment_image | image_name={garment.image_name} | url={url}")
     if url:
         st.image(url, width=width)
     else:
@@ -241,7 +240,7 @@ def render_feedback_buttons(combo, outfit_index, ctx, weather_tag, section="tab1
             user_id = st.session_state["user"].id
             add_feedback_cloud(user_id, new_feedback)
             st.session_state.feedback = load_feedback_cloud(user_id)
-            st.toast("Guardado. Tendré en cuenta que este outfit te gustó.", icon="👍")
+            st.session_state["pending_toast"] = ("Guardado. Tendré en cuenta que este outfit te gustó.", "👍")
             st.rerun()
 
     with col_dislike:
@@ -262,7 +261,7 @@ def render_feedback_buttons(combo, outfit_index, ctx, weather_tag, section="tab1
             user_id = st.session_state["user"].id
             add_feedback_cloud(user_id, new_feedback)
             st.session_state.feedback = load_feedback_cloud(user_id)
-            st.toast("Guardado. Evitaré priorizar este outfit en contextos parecidos.", icon="👎")
+            st.session_state["pending_toast"] = ("Guardado. Evitaré priorizar este outfit en contextos parecidos.", "👎")
             st.rerun()
 
 
@@ -683,6 +682,10 @@ if st.session_state.closet_profile is None:
 
 st.caption(f"Perfil del clóset: {st.session_state.closet_profile}")
 debug_mode = st.toggle("🔧 Modo debug", value=False, key="debug_mode")
+
+if "pending_toast" in st.session_state:
+    msg, icon = st.session_state.pop("pending_toast")
+    st.toast(msg, icon=icon)
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "🌤️ Hoy",
@@ -1172,7 +1175,6 @@ with tab2:
 
                     if garment.image_name:
                         current_url = get_garment_image_url(user_id, garment.image_name)
-                        print(f"[DEBUG] Imagen actual | garment.image_name={garment.image_name} | user_id={user_id} | url={current_url}")
                         if current_url:
                             st.image(current_url, caption=garment.name, width=260)
                         else:
@@ -1410,15 +1412,11 @@ with tab2:
                             garment.is_new = False
 
                             if new_uploaded_file:
-                                print(f"[DEBUG] Subiendo imagen para garment.id={garment.id}")
                                 uploaded_image_name = upload_garment_image(user_id, garment.id, new_uploaded_file, access_token=st.session_state.get("access_token"))
-                                print(f"[DEBUG] upload_garment_image() retornó: {uploaded_image_name}")
                                 if uploaded_image_name:
                                     garment.image_name = uploaded_image_name
 
-                            print(f"[DEBUG] garment.image_name antes de update: {garment.image_name}")
-                            result = update_garment_cloud(user_id, garment)
-                            print(f"[DEBUG] update_garment_cloud() retornó: {result}")
+                            update_garment_cloud(user_id, garment)
                             st.session_state["edit_saved_message"] = garment.id
                             st.success("Edición guardada.")
 
