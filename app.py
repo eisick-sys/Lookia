@@ -1022,7 +1022,7 @@ with tab2:
     else:
         st.markdown("### Galería de prendas")
 
-        col_f1, col_f2 = st.columns(2)
+        col_f1, col_f2, col_f3 = st.columns([2, 2, 1])
 
         with col_f1:
             filter_category = st.selectbox(
@@ -1031,6 +1031,10 @@ with tab2:
                 key="filter_category_tab2",
                 format_func=lambda c: "Todas" if c == "todas" else CATEGORY_LABELS_ES.get(c, c)
             )
+
+        with col_f3:
+            st.markdown("<div style='margin-top: 1.9rem;'></div>", unsafe_allow_html=True)
+            filter_new_only = st.checkbox("🆕 Nuevas", key="filter_new_only_tab2")
 
         with col_f2:
             color_icons = {
@@ -1078,6 +1082,9 @@ with tab2:
 
         if filter_color != "todos":
             filtered_wardrobe = [g for g in filtered_wardrobe if normalize_color_name(g.color) == filter_color]
+
+        if filter_new_only:
+            filtered_wardrobe = [g for g in filtered_wardrobe if getattr(g, "is_new", False)]
 
         if not filtered_wardrobe:
             st.info("No hay prendas que coincidan con ese filtro.")
