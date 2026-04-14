@@ -440,6 +440,12 @@ def practicality_penalty(
                 penalty += 20
             elif g.subcategory == "zapatilla_urbana":
                 penalty -= 50
+                if rain and not g.waterproof:
+                    light_colors = {"blanco", "crema", "beige", "celeste", "gris claro", "amarillo", "rosado", "lila"}
+                    if getattr(g, "color", None) and g.color.lower() in light_colors:
+                        penalty += 30
+                    else:
+                        penalty += 15
 
         if temp >= 26:
             if g.category == "outerwear":
