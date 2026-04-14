@@ -1411,7 +1411,7 @@ with tab2:
 
                             if new_uploaded_file:
                                 print(f"[DEBUG] Subiendo imagen para garment.id={garment.id}")
-                                uploaded_image_name = upload_garment_image(user_id, garment.id, new_uploaded_file)
+                                uploaded_image_name = upload_garment_image(user_id, garment.id, new_uploaded_file, access_token=st.session_state.get("access_token"))
                                 print(f"[DEBUG] upload_garment_image() retornó: {uploaded_image_name}")
                                 if uploaded_image_name:
                                     garment.image_name = uploaded_image_name
@@ -1561,7 +1561,7 @@ with tab3:
                 style_val = inferred.get("style") if inferred.get("style") in STYLE_OPTIONS else "casual"
 
                 next_id = max([g.id for g in st.session_state.wardrobe], default=0) + 1
-                image_name = upload_garment_image(user_id, next_id, uf)
+                image_name = upload_garment_image(user_id, next_id, uf, access_token=st.session_state.get("access_token"))
 
                 garment = Garment(
                     id=next_id,
@@ -1853,7 +1853,7 @@ with tab3:
         image_name = None
 
         if uploaded_file is not None:
-            image_name = upload_garment_image(user_id, next_id, uploaded_file)
+            image_name = upload_garment_image(user_id, next_id, uploaded_file, access_token=st.session_state.get("access_token"))
 
         garment = Garment(
             id=next_id,

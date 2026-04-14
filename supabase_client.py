@@ -13,3 +13,9 @@ def get_supabase() -> Client:
     if _client is None:
         _client = create_client(SUPABASE_URL, SUPABASE_KEY)
     return _client
+
+
+def get_supabase_for_user(access_token: str) -> Client:
+    client = create_client(SUPABASE_URL, SUPABASE_KEY)
+    client.auth.set_session(access_token, "")
+    return client

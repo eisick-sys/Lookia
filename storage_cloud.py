@@ -6,7 +6,7 @@ from typing import List, Optional
 from PIL import Image, ImageOps
 
 from models import Garment, OutfitFeedback, UsedOutfit
-from supabase_client import get_supabase
+from supabase_client import get_supabase, get_supabase_for_user
 
 
 # =========================================================
@@ -136,13 +136,13 @@ def delete_garment_cloud(user_id: str, garment_id: int) -> bool:
 # IMÁGENES
 # =========================================================
 
-def upload_garment_image(user_id: str, garment_id: int, uploaded_file) -> Optional[str]:
+def upload_garment_image(user_id: str, garment_id: int, uploaded_file, access_token: str = None) -> Optional[str]:
     """
     Sube imagen a Supabase Storage y devuelve el nombre del archivo (image_name).
     Las imágenes se guardan en: garment-images/{user_id}/garment_{garment_id}.jpg
     """
     try:
-        sb = get_supabase()
+        sb = get_supabase_for_user(access_token) if access_token else get_supabase()
 
         uploaded_file.seek(0)
         image = Image.open(uploaded_file)
