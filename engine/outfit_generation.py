@@ -714,6 +714,7 @@ def generate_outfits_from_selected_garment(
     user_profile = build_user_style_profile(feedback_list, garments)
 
     rules = build_required_categories(occasion, rain, temp)
+    required = rules["required"]
     optional = rules["optional"]
 
     if not ignore_occasion_for_selected:
@@ -888,6 +889,23 @@ def generate_outfits_from_selected_garment(
         has_midlayer = any(g.category == "midlayer" for g in base)
         has_outerwear = any(g.category == "outerwear" for g in base)
         has_accessory = any(g.category == "accessory" for g in base)
+
+        outerwear_required = "outerwear" in required and not has_outerwear and not top_is_outer_like
+
+        if outerwear_required:
+            if "midlayer" in optional and not has_midlayer:
+                for mid in top_candidates["midlayer"][:3]:
+                    for outer in top_candidates["outerwear"][:4]:
+                        add_combo(base + [mid, outer])
+            for outer in top_candidates["outerwear"][:3]:
+                add_combo(base + [outer])
+                if "accessory" in optional and include_accessory and not has_accessory:
+                    for acc in top_candidates["accessory"][:2]:
+                        if should_include_accessory(
+                            acc, occasion, mood, activity, temp, rain, base + [outer]
+                        ):
+                            add_combo(base + [outer, acc])
+            return
 
         add_combo(base)
 
