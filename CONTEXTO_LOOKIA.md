@@ -298,6 +298,28 @@ LOOKIA_CITY=Punta Arenas
 
 ---
 
+### Sesión 9 — abril 2026
+
+**Motor — scoring**
+- ✅ Penalización zapatilla urbana con lluvia en salida nocturna mood urbano: +15 color oscuro, +30 color claro (no aplica si waterproof=True)
+- ✅ Reducción 90% de penalización warmth outerwear "medio" cuando hay midlayer warmth "frio" en el outfit
+- ✅ Umbral bloqueo shorts/mini subido de temp <= 10 a temp <= 13 (general) y temp <= 15 para salida nocturna y cita
+
+**UI**
+- ✅ Botón "Mostrar de todos modos" aparece siempre que hay prenda seleccionada, bypasea todos los bloqueos de garment_allowed_for_occasion sin excepción
+
+**Datos**
+- ✅ Trench (ID 102): dress_level cambiado de "flexible" a "arreglado"
+- ✅ version-sana sincronizada con main
+
+**Pendiente para próximas sesiones**
+- ⬜ Verificar que el trench aparece en salida nocturna elegante con los cambios aplicados
+- ⬜ Renombrar dress_level "flexible" a "intermedio" en refactor futuro (Supabase)
+- ⬜ Continuar pruebas: salida nocturna moods sexy y cómodo
+- ⬜ Matrimonio, gala, deporte
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Pruebas pendientes
