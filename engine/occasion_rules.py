@@ -194,8 +194,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
 
     if occasion == "salida nocturna":
         if "sport" in garment_styles and garment.category != "shoes":
-            # Excepción: con mood relajado, parkas/chaquetas outerwear son permitidas
-            if not (mood == "relajado" and garment.category == "outerwear" and garment.subcategory in ["parka", "chaqueta"]):
+            if not (mood == "relajado" and garment.category == "outerwear"):
                 return False, f"{garment.name} es demasiado sport para salida nocturna."
 
         if garment.category == "shoes":
