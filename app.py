@@ -789,7 +789,7 @@ with tab1:
     selected_allowed = True
 
     if selected_garment is not None:
-        selected_allowed, reason = garment_allowed_for_occasion(selected_garment, occasion, rain)
+        selected_allowed, reason = garment_allowed_for_occasion(selected_garment, occasion, rain, mood=mood, temp=temp)
         if not selected_allowed:
             st.warning(reason)
 
