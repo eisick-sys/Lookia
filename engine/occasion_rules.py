@@ -193,7 +193,7 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
     # =========================================================
 
     if occasion == "salida nocturna":
-        if "sport" in garment_styles and garment.category != "shoes":
+        if garment.style == "sport" and garment.category != "shoes":
             if not (mood == "relajado" and garment.category == "outerwear"):
                 return False, f"{garment.name} es demasiado sport para salida nocturna."
 
