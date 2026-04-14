@@ -1171,9 +1171,10 @@ with tab2:
                     st.markdown("##### Imagen actual")
 
                     if garment.image_name:
-                        current_image_path = os.path.join(IMAGES_DIR, garment.image_name)
-                        if os.path.exists(current_image_path):
-                            st.image(current_image_path, caption=garment.name, width=260)
+                        current_url = get_garment_image_url(user_id, garment.image_name)
+                        print(f"[DEBUG] Imagen actual | garment.image_name={garment.image_name} | user_id={user_id} | url={current_url}")
+                        if current_url:
+                            st.image(current_url, caption=garment.name, width=260)
                         else:
                             st.warning(f"No se encontró la imagen: {garment.image_name}")
                     else:
