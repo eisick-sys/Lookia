@@ -241,7 +241,7 @@ def render_feedback_buttons(combo, outfit_index, ctx, weather_tag, section="tab1
             user_id = st.session_state["user"].id
             add_feedback_cloud(user_id, new_feedback)
             st.session_state.feedback = load_feedback_cloud(user_id)
-            st.success("Guardado. Tendré en cuenta que este outfit te gustó.")
+            st.toast("Guardado. Tendré en cuenta que este outfit te gustó.", icon="👍")
             st.rerun()
 
     with col_dislike:
@@ -262,7 +262,7 @@ def render_feedback_buttons(combo, outfit_index, ctx, weather_tag, section="tab1
             user_id = st.session_state["user"].id
             add_feedback_cloud(user_id, new_feedback)
             st.session_state.feedback = load_feedback_cloud(user_id)
-            st.warning("Guardado. Evitaré priorizar este outfit en contextos parecidos.")
+            st.toast("Guardado. Evitaré priorizar este outfit en contextos parecidos.", icon="👎")
             st.rerun()
 
 
@@ -915,7 +915,7 @@ with tab1:
                 st.markdown(f"### Outfit {idx}")        
             
             if st.session_state.get("outfit_used_message_idx") == idx:
-                st.success(st.session_state.get("outfit_used_message_text", "Outfit guardado como usado."))
+                st.toast(st.session_state.get("outfit_used_message_text", "Outfit guardado como usado."), icon="✅")
                 del st.session_state["outfit_used_message_idx"]
                 del st.session_state["outfit_used_message_text"]
 
