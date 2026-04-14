@@ -681,7 +681,10 @@ if st.session_state.closet_profile is None:
 # =========================================================
 
 st.caption(f"Perfil del clóset: {st.session_state.closet_profile}")
-debug_mode = st.toggle("🔧 Modo debug", value=False, key="debug_mode")
+if os.getenv("LOOKIA_ENV") != "production":
+    debug_mode = st.toggle("🔧 Modo debug", value=False, key="debug_mode")
+else:
+    debug_mode = False
 
 if "pending_toast" in st.session_state:
     msg, icon = st.session_state.pop("pending_toast")
@@ -1526,12 +1529,17 @@ with tab3:
         for item in summary["items"]:
             st.markdown(f"- **{item['name']}** — {item['attrs']}")
 
-    bulk_files = st.file_uploader(
-        "Selecciona hasta 5 fotos",
-        type=["jpg", "jpeg", "png", "webp"],
-        accept_multiple_files=True,
-        key=f"bulk_uploader_{st.session_state.bulk_uploader_key}"
-    )
+    prendas_con_imagen = sum(1 for g in st.session_state.wardrobe if g.image_name)
+    if prendas_con_imagen >= 5:
+        st.warning("El límite es 5 fotos. Elimina una imagen existente para subir una nueva.")
+        bulk_files = []
+    else:
+        bulk_files = st.file_uploader(
+            "Selecciona hasta 5 fotos",
+            type=["jpg", "jpeg", "png", "webp"],
+            accept_multiple_files=True,
+            key=f"bulk_uploader_{st.session_state.bulk_uploader_key}"
+        )
 
     if bulk_files:
         if len(bulk_files) > 5:
