@@ -242,6 +242,10 @@ LOOKIA_CITY=Punta Arenas
 - ✅ Penalización impermeables (subcategory parka/impermeable) sin lluvia independiente del estilo
 - ✅ Boost parkas con frío sin lluvia en salida nocturna mood relajado
 
+**Motor — generación con prenda forzada**
+- ✅ `generate_outfits_from_selected_garment` respeta `required_categories` (outerwear incluido con lluvia y frío extremo)
+- ✅ Penalización +80 vestido elegante/cóctel con mood relajado (en vez de bloqueo duro)
+
 **Fixes de datos**
 - ✅ __pycache__/ y wardrobe_images/ agregados a .gitignore
 
@@ -273,6 +277,7 @@ LOOKIA_CITY=Punta Arenas
 - ⬜ Mayor diversidad de tops en mood urbano (ajuste fino)
 
 ### UI
+- ⬜ Botón "Mostrar de todos modos" cuando prenda forzada está bloqueada por mood (requiere cambio en app.py)
 - ⬜ Tip de pantys: mostrar máximo una vez por tanda (pendiente UI definitiva)
 - ⬜ Al hacer clic en "Revisar" prenda, scroll automático al formulario (pendiente UI definitiva)
 - ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
