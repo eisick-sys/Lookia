@@ -5,7 +5,7 @@
 
 ## ¿Qué es Lookia?
 App de recomendación de outfits basada en personalidad, ocasión, mood, actividad y clima.
-Desarrollada en Python + Streamlit. El usuario no es programador, aprendió con IA.
+Desarrollada en Python + Streamlit. La usuaria no es programadora, aprendió con IA.
 
 ---
 
@@ -19,7 +19,7 @@ proyecto app/
 ├── storage.py              # Guardar/cargar JSON con backup automático
 ├── weather.py              # Conexión OpenWeather (actual + pronóstico semanal)
 ├── requirements.txt        # streamlit, pillow, pandas, requests, python-dotenv
-├── closet.json             # Clóset de la usuaria
+├── closet.json             # Clóset de la usuaria (~60 prendas)
 ├── feedback.json           # Historial de likes/dislikes
 ├── used_outfits.json       # Outfits realmente usados
 ├── .env                    # Variables de entorno (NO subir a GitHub)
@@ -51,7 +51,7 @@ LOOKIA_CITY=Punta Arenas
 
 ## Tabs de la app
 1. **🌤️ Hoy** — Recomendador principal con clima real, ajustes manuales y prenda forzada
-2. **👕 Mi clóset** — Galería de prendas con edición
+2. **👕 Mi clóset** — Galería de prendas con edición y análisis de inconsistencias
 3. **➕ Agregar prenda** — Subida múltiple (hasta 5 fotos) + formulario individual
 4. **📅 Planificador semanal** — Outfits para la semana evitando repetir prendas
 
@@ -64,24 +64,45 @@ LOOKIA_CITY=Punta Arenas
 4. Actividad
 5. Ajustes manuales
 
----
-
 ## Filosofía del motor
 - El motor sugiere y advierte, pero la usuaria decide (botón "Mostrar de todos modos")
 - Las recomendaciones son tan buenas como el clóset que las alimenta
 - Flexibilidad sobre rigidez — nunca bloquear sin dar opción de forzar
-- Cada cambio en su lugar — las reglas van en el archivo que corresponde según la arquitectura
+- El motor no impone criterios estéticos — si la usuaria tiene una prenda, es porque la usa
+- El feedback entrena el motor para personalizar según el estilo real de la usuaria
+- Cada cambio en su lugar — las reglas van en el archivo que corresponde según arquitectura
 
 ---
 
-## Cambios realizados (sesión 1 — abril 2026)
+## Estado del repositorio
+- Rama activa de desarrollo: **main**
+- Rama testers: **version-sana**
+- Ambas ramas deben estar siempre sincronizadas (idénticas)
+- Flujo correcto: desarrollar en main → al terminar sesión, actualizar version-sana igual a main
+- Comando para correr la app: `python -m streamlit run app.py`
+- Retomar Claude Code: `claude --resume [session_id]` o simplemente `claude` en la carpeta
+- **SIEMPRE verificar que .env no esté en el commit antes de hacer push**
 
-### Seguridad
+---
+
+## Notas técnicas importantes
+- La app usa archivos JSON locales — funciona para 1 usuaria, no escala sin refactor
+- `wardrobe_images/` contiene fotos de prendas — no va al repositorio (agregar a .gitignore)
+- `__pycache__/` tampoco va al repositorio (agregar a .gitignore)
+- Claude Code tiende a incluir .env en commits — siempre verificar antes del push
+- El "Ignorar" de badges de advertencia en clóset solo persiste en session_state (no en JSON) — al recargar vuelven a aparecer. Pendiente persistencia real cuando se migre a Supabase.
+
+---
+
+## Historial de cambios por sesión
+
+### Sesión 1 — abril 2026
+**Seguridad**
 - ✅ API key movida de `app.py` a `.env`
 - ✅ `.gitignore` creado con `.env`
 - ✅ Ciudad hardcodeada movida a `.env` como `LOOKIA_CITY`
 
-### Motor
+**Motor**
 - ✅ Ajustes manuales de clima activados
 - ✅ Interior + frío: fuerza al menos 1 outfit sin outerwear
 - ✅ 24-25°C: mantiene opción de midlayer liviana
@@ -89,16 +110,15 @@ LOOKIA_CITY=Punta Arenas
 - ✅ Filtro `is_too_similar` relajado
 - ✅ Gorro/beanie bloqueado en gala y matrimonio
 
-### UI
+**UI**
 - ✅ Score eliminado de la UI (reemplazado por modo debug con toggle)
 - ✅ Explicaciones con más variedad de lenguaje
 - ✅ Tip de pantys con falda + frío/lluvia
 
 ---
 
-## Cambios realizados (sesión 2 — abril 2026)
-
-### Motor
+### Sesión 2 — abril 2026
+**Motor**
 - ✅ Tacos penalizados con lluvia (+35) y mood cómodo (+50) en `practicality_penalty`
 - ✅ `practicality_penalty` recibe `mood` como parámetro
 - ✅ Vestido elegante bloqueado en trabajo + mood cómodo
@@ -108,14 +128,13 @@ LOOKIA_CITY=Punta Arenas
 - ✅ `garment_allowed_for_occasion` recibe `mood` y `temp`
 - ✅ `occasion_rules.py` reordenado por ocasión
 
-### UI
+**UI**
 - ✅ Tip de pantys extendido a short con frío/lluvia
 
 ---
 
-## Cambios realizados (sesión 3 — abril 2026)
-
-### Subcategorías
+### Sesión 3 — abril 2026
+**Subcategorías**
 - ✅ bottom: `falda_corta`, `falda_midi`, `falda_larga`, `short_casual`, `short_elegante`
 - ✅ one_piece: `vestido_casual`, `vestido_elegante`, `vestido_coctel`
 - ✅ shoes: `zapatilla_urbana`, `zapatilla_deporte`, `taco_bajo`, `taco_alto`
@@ -125,21 +144,15 @@ LOOKIA_CITY=Punta Arenas
 - ✅ `attribute_inference.py` — inferencia específica antes que genérica, "stiletto" agregado
 - ✅ 46+ prendas migradas con subcategoría correcta en `closet.json`
 
-### Motor — variedad outerwear (EN PROGRESO - NO SUBIR AÚN)
+**Motor — variedad outerwear**
 - ✅ Penalización de outerwear entre tandas aumentada de 10 a 24
 - ✅ Control dinámico `max_same_outerwear` según cantidad de impermeables
 - ✅ `weather_score` — outerwear impermeable retorna 15 con lluvia
-- ⚠️ **BUG PENDIENTE**: impermeable negro no aparece en top_candidates con lluvia
-  - Tiene warmth "frio", waterproof True, estilo casual
-  - Debug muestra solo 2 impermeables (celeste y azul) en top_candidates
-  - Causa desconocida — investigar qué filtro lo descarta
-  - **NO hacer git push hasta resolver**
 
 ---
 
-## Cambios realizados (sesión 4 — abril 2026)
-
-### UI — Subida múltiple de fotos
+### Sesión 4 — abril 2026
+**UI — Subida múltiple de fotos**
 - ✅ Nueva sección "📸 Agregar fotos" en tab ➕ Agregar prenda
 - ✅ Subida de hasta 5 fotos a la vez (jpg, jpeg, png, webp)
 - ✅ Atributos inferidos automáticamente desde nombre del archivo
@@ -147,72 +160,133 @@ LOOKIA_CITY=Punta Arenas
 - ✅ Formulario individual conservado como "➕ Agregar prenda manualmente"
 - ✅ Formulario individual actualizado para aceptar webp también
 
-### UI — Badge "Nueva"
+**UI — Badge "Nueva"**
 - ✅ `models.py` — campo `is_new: bool = False` agregado a Garment
 - ✅ `storage.py` — carga `is_new` desde JSON (default False para prendas existentes)
-- ✅ Prendas nuevas (subida múltiple y formulario) se guardan con `is_new=True`
-- ✅ Badge "🆕 Nueva" visible en galería "Mi clóset" cuando `is_new=True`
+- ✅ Prendas nuevas se guardan con `is_new=True`
+- ✅ Badge "🆕 Nueva" visible en galería cuando `is_new=True`
 - ✅ Al editar y guardar una prenda, `is_new` cambia a `False`
+
+---
+
+### Sesión 5 — abril 2026
+**Motor — rotación de impermeables y garantía de 3 outfits**
+- ✅ Bug resuelto: impermeables ya rotan con lluvia
+- ✅ `scoring_components.py` — `weather_score` diferencia impermeables por warmth según temperatura
+- ✅ `outfit_generation.py` — shuffle aleatorio de impermeables antes del slice [:4]
+- ✅ `outfit_generation.py` — segunda pasada que relaja `is_too_similar` para garantizar 3 outfits
+- ✅ Prints de debug eliminados
+
+**Fixes varios**
+- ✅ Color "verde oliva" eliminado — queda solo "verde olivo"
+- ✅ COLOR_ALIASES corregido
+- ✅ Formulario de accesorios: subcategoría oculta cuando categoría es "accessory"
+- ✅ Subcategorías buzo/jogger agregadas a bottom
+- ✅ 2 prendas migradas en closet.json con subcategoría buzo/jogger correcta
+
+---
+
+### Sesión 6 — abril 2026
+
+**Bugs resueltos**
+- ✅ **Tab 2 edición** — `st.selectbox` de patrón sin key y slider sexiness con key fija impedían editar prendas. Fix: `key=f"edit_pattern_{garment.id}"` y `key=f"edit_sexiness_{garment.id}"`
+- ✅ **Tab 3 agregar** — atributos inferidos se sobreescribían en cada re-render. Fix: bandera `form_inferred_done` en session_state, se resetea al guardar
+- ✅ **2 outfits con lluvia** — fallback de segunda pasada no respetaba `max_same_outerwear`. Fix: eliminar esa restricción en el fallback
+- ✅ **Repetición de outerwear en tanda** — fallback tampoco respetaba `max_same_outerwear` en loop principal. Fix: agregar check faltante
+- ✅ **Git** — merge de commit perdido `6f72a0f` (mejoras motor sesión anterior) incorporado a main. main y version-sana sincronizadas.
+
+**Motor — mejoras**
+- ✅ `max_accessory_outfits` aleatorio por tanda: `random.choice([1, 1, 2])` — accesorios en 1 o 2 outfits por tanda, nunca en los 3 (salvo matrimonio/gala)
+- ✅ Boost colores vivos y prints en mood urbano (+4 animal_print/estampado/grafico, +3 colores vivos) en `mood_bonus`
+- ✅ Bonus vestido_elegante/vestido_coctel en cita y salida nocturna (+25/+20) en `category_rules.py`
+- ✅ Penalización calzado informal con vestido elegante (-30 mocasín/zapatilla/botín) en `compatibility.py`
+- ✅ Boost calzado elegante en cita/salida nocturna (+35 taco_alto/taco_bajo/sandalia, -20 mocasín) en `category_rules.py`
+- ✅ `max_same_shoes = 1` en cita/salida nocturna cuando hay 2+ zapatos elegantes — mejor rotación de tacos
+- ✅ Penalización 4+ colores distintos en outfit (+35 en ocasiones elegantes, +20 resto) en `coherence_penalty`
+- ✅ Bloqueo impermeables sport (dress_level relajado/flexible + style sport) en cita/salida nocturna/trabajo elegante y matrimonio/gala
+- ✅ `generate_outfits_from_selected_garment` — propagación correcta de `mood` y `temp` al check de prendas del combo
+
+**UI — mejoras**
+- ✅ Mensaje informativo cuando se generan menos de 3 outfits
+- ✅ Función `detect_garment_issues()` — detecta inconsistencias en atributos de prendas
+- ✅ Badge ⚠️ en tarjetas de galería para prendas con posibles inconsistencias
+- ✅ Botones "Ignorar" y "✏️ Revisar" en cada badge (ignorar persiste solo en session_state)
+- ✅ Inconsistencias detectadas: taco con dress_level relajado, zapatilla deporte formal, mocasín sport, impermeable sport en ocasiones elegantes, buzo/jogger formal, short/mini warmth frío, top liviano warmth frío, prenda abrigada warmth caluroso, "impermeable" en nombre sin waterproof activado
+
+---
+
+### Sesión 7 — abril 2026
+
+**Motor — ajustes de scoring con frío**
+- ✅ Boost a jeans con temp <= 10°C según ocasión/mood (casual/salida nocturna: +10, cita/trabajo mood relajado/urbano/cómodo: +8)
+- ✅ Boost adicional a jeans +15 cuando temp <= 8°C
+- ✅ Penalización faldas midi/larga con temp <= 8°C: +35
+- ✅ Penalización pantalón por warmth con temp <= 8°C: caluroso +25, medio +12, frío -15
+- ✅ Penalización mocasín con lluvia: +60
+- ✅ Boost outerwear abrigado (parka/chaqueta warmth frío) en salida nocturna mood relajado temp <= 8°C: -20
+
+**Motor — reglas de ocasión**
+- ✅ Outerwear sport permitido en salida nocturna con mood relajado
+- ✅ Outerwear sport permitido en cita con mood relajado
+- ✅ Bloqueo sport en salida nocturna y cita evalúa solo style principal (no secondary_styles)
+- ✅ Vestido elegante/cóctel bloqueado con mood relajado (todas las ocasiones excepto deporte)
+- ✅ Outerwear required cuando temp <= 8°C en todas las ocasiones excepto gala/matrimonio/deporte
+
+**Motor — generación de outfits**
+- ✅ Bug resuelto: waterproof-first solo aplica con lluvia, sin lluvia ordena por score puro
+- ✅ outer_limit subido de 2 a 3 para más variedad de outerwear
+- ✅ max_same_outerwear = 1 sin lluvia para forzar rotación de outerwear por score
+- ✅ is_too_similar: outfits con outerwear distinto nunca se consideran demasiado similares
+- ✅ Tercera pasada del fallback con umbral mínimo de score (35% del primer outfit)
+- ✅ Bug resuelto: 3 outfits garantizados con lluvia — tercera pasada relaja max_same_outerwear
+- ✅ Penalización impermeables (subcategory parka/impermeable) sin lluvia independiente del estilo
+- ✅ Boost parkas con frío sin lluvia en salida nocturna mood relajado
+
+**Fixes de datos**
+- ✅ __pycache__/ y wardrobe_images/ agregados a .gitignore
+
+**Pendiente para próximas sesiones**
+- ⬜ Pruebas: salida nocturna moods urbano, elegante, sexy, cómodo
+- ⬜ Pruebas: salida nocturna con lluvia todos los moods
+- ⬜ Pruebas: salida nocturna calor (24-25°C)
+- ⬜ Pruebas: matrimonio, gala, deporte
+- ⬜ taco_bajo permitido en mood cómodo, penalizado en relajado
+- ⬜ taco_alto penalizado en cómodo, bloqueado en relajado
+- ⬜ Mayor diversidad de tops en mood urbano
 
 ---
 
 ## Pendiente para próximas sesiones
 
-### INMEDIATO — Resolver bug outerwear
-- Impermeable negro no aparece en top_candidates con lluvia
-- Investigar qué filtro lo descarta antes de llegar a outfit_generation
-- Una vez resuelto, hacer git push de todo lo pendiente
+### Pruebas pendientes
+- ⬜ Salida nocturna moods urbano, elegante, sexy, cómodo
+- ⬜ Salida nocturna con lluvia todos los moods
+- ⬜ Salida nocturna calor (24-25°C)
+- ⬜ Matrimonio y gala
+- ⬜ Deporte
+- ⬜ Seleccionar prenda específica en distintos escenarios
 
 ### Motor
-- ⬜ Continuar pruebas cita (calor, 24-25°) + moods elegante, sexy, urbano, cómodo
-- ⬜ Pruebas salida nocturna, casual, matrimonio, gala, deporte
+- ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
+- ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
+- ⬜ Calzado plano de trabajo para calor
+- ⬜ Mayor diversidad de tops en mood urbano (ajuste fino)
 
-### Subcategorías pendientes
-- taco_bajo → permitido en mood cómodo, penalizado en relajado
-- taco_alto → penalizado en cómodo, bloqueado en relajado
+### UI
+- ⬜ Tip de pantys: mostrar máximo una vez por tanda (pendiente UI definitiva)
+- ⬜ Al hacer clic en "Revisar" prenda, scroll automático al formulario (pendiente UI definitiva)
+- ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
 
 ### Funcionalidades nuevas
 - ⬜ Estadísticas en tab "Mi clóset"
 - ⬜ Perfil de usuario completo
+- ⬜ Detección de color automática con Pillow al subir foto (antes de IA)
 - ⬜ Integración IA Anthropic (foto → atributos, explicaciones con personalidad, modelo virtual)
 - ⬜ Login de usuario
-- ⬜ Calzado plano de trabajo para calor
 
-### Técnico
-- ⬜ Migrar a base de datos real (Supabase) para multi-usuario
+### Técnico — próximo gran paso
+- ✅ `wardrobe_images/` y `__pycache__/` agregados a `.gitignore`
+- ⬜ **Migrar a Supabase** — base de datos real para multi-usuario
+- ⬜ **UI definitiva** (React o similar) — reemplazar Streamlit
 
----
 
-## Notas importantes
-- La app usa archivos JSON locales — funciona para 1 usuaria, no escala sin refactor
-- Rama activa de desarrollo: **main** | Rama testers: **version sana**
-- Claude Code tiende a incluir .env en commits — siempre verificar antes del push
-- Comando para correr la app: `python -m streamlit run app.py`
-- Retomar Claude Code: `claude --resume [session_id]` o simplemente `claude` en la carpeta
-- Al sugerir cambios: cada regla va en el archivo que corresponde según arquitectura
-
-### Fixes UI y motor
-- ✅ Color "verde oliva" eliminado de COLOR_OPTIONS — queda solo "verde olivo"
-- ✅ COLOR_ALIASES corregido: "verde oliva" → "verde olivo" (antes estaba al revés)
-- ✅ Todas las ocurrencias de "verde oliva" actualizadas en compatibility.py y app.py
-- ✅ Formulario de accesorios: subcategoría oculta cuando categoría es "accessory" (campo duplicado eliminado)
-
-### Subcategorías buzo/jogger
-- ✅ "buzo" y "jogger" agregados a SUBCATEGORY_OPTIONS["bottom"] y SUBCATEGORY_LABELS_ES
-- ✅ attribute_inference.py — inferencia de subcategoría buzo/jogger desde nombre de archivo
-- ✅ occasion_rules.py — bloqueos en matrimonio, gala y cita usan subcategory además de nombre
-- ✅ scoring_components.py — activity_bonus y coherence_penalty usan subcategory además de nombre
-- ✅ closet.json — 2 prendas migradas: "pantalon buzo 2" (pantalon → buzo) y "buzo blanco" (null → buzo)
-
-Luego hacer commit de CONTEXTO_LOOKIA.md con el mensaje "docs: actualizar contexto sesión 5" y push a main y version-sana.
-
-Agrega a CONTEXTO_LOOKIA.md dentro de "## Cambios realizados (sesión 5 — abril 2026)" una nueva sección:
-
-### Rotación de impermeables y garantía de 3 outfits
-- ✅ Bug resuelto: impermeables ya rotan con lluvia (antes siempre salía la parka celeste)
-- ✅ scoring_components.py — weather_score diferencia impermeables por warmth según temperatura en lugar de retornar 15 fijo
-- ✅ outfit_generation.py — shuffle aleatorio de impermeables antes del slice [:4] para romper empates de score
-- ✅ outfit_generation.py — segunda pasada que relaja is_too_similar para garantizar siempre 3 outfits cuando hay prendas suficientes
-- ✅ Prints de debug eliminados
-
-Luego commit "docs: actualizar contexto sesión 5" y push a main y version-sana.
