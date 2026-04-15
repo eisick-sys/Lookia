@@ -67,7 +67,6 @@ from engine.recommender import (
 )
 
 from constants import (
-    ACCESSORY_TYPE_OPTIONS,
     ACTIVITY_OPTIONS,
     CATEGORY_LABELS_ES,
     CATEGORY_OPTIONS,
@@ -1339,20 +1338,10 @@ with tab2:
                         if subcategory == "— ninguna —":
                             subcategory = None
 
-                        accessory_type = None
-                        if category == "accessory":
-                            current_accessory_type = getattr(garment, "accessory_type", None) or "reloj"
-                            accessory_type = st.selectbox(
-                                "Tipo de accesorio",
-                                ACCESSORY_TYPE_OPTIONS,
-                                index=ACCESSORY_TYPE_OPTIONS.index(current_accessory_type)
-                                if current_accessory_type in ACCESSORY_TYPE_OPTIONS else 0
-                            )
-                        
                         warmth = "medio"
                         show_warmth = (
                             category in ["top", "midlayer", "outerwear", "bottom", "shoes"]
-                            or (category == "accessory" and accessory_type in THERMAL_ACCESSORIES)
+                            or (category == "accessory" and subcategory in THERMAL_ACCESSORIES)
                         )
 
                         if show_warmth:
@@ -1418,7 +1407,7 @@ with tab2:
                             garment.waterproof = waterproof
                             garment.dress_level = dress_level
                             garment.sexiness = sexiness
-                            garment.accessory_type = accessory_type if category == "accessory" else None
+                            garment.accessory_type = None
                             garment.is_new = False
 
                             if new_uploaded_file:
@@ -1456,9 +1445,6 @@ with tab3:
 
     if "form_category" not in st.session_state:
         st.session_state.form_category = "top"
-
-    if "form_accessory_type" not in st.session_state:
-        st.session_state.form_accessory_type = "reloj"
 
     if "form_color" not in st.session_state:
         st.session_state.form_color = "negro"
@@ -1501,7 +1487,6 @@ with tab3:
         st.session_state.form_name = ""
         st.session_state.form_category = "top"
         st.session_state.form_subcategory = None
-        st.session_state.form_accessory_type = "reloj"
         st.session_state.form_color = "negro"
         st.session_state.form_secondary_color = "ninguno"
         st.session_state.form_pattern = "liso"
@@ -1529,22 +1514,18 @@ with tab3:
         for item in summary["items"]:
             st.markdown(f"- **{item['name']}** — {item['attrs']}")
 
-    prendas_con_imagen = sum(1 for g in st.session_state.wardrobe if g.image_name)
-    if prendas_con_imagen >= 5:
-        st.warning("El límite es 5 fotos. Elimina una imagen existente para subir una nueva.")
-        bulk_files = []
-    else:
-        bulk_files = st.file_uploader(
-            "Selecciona hasta 5 fotos",
-            type=["jpg", "jpeg", "png", "webp"],
-            accept_multiple_files=True,
-            key=f"bulk_uploader_{st.session_state.bulk_uploader_key}"
-        )
+    bulk_files = st.file_uploader(
+        "Selecciona hasta 5 fotos",
+        type=["jpg", "jpeg", "png", "webp"],
+        accept_multiple_files=True,
+        key=f"bulk_uploader_{st.session_state.bulk_uploader_key}"
+    )
+
+    if bulk_files and len(bulk_files) > 5:
+        st.warning("El límite es 5 fotos por tanda.")
+        bulk_files = bulk_files[:5]
 
     if bulk_files:
-        if len(bulk_files) > 5:
-            st.warning("Solo se procesarán las primeras 5 fotos.")
-            bulk_files = bulk_files[:5]
 
         if st.button("Agregar prendas automáticamente", key="bulk_add_btn"):
             added_items = []
@@ -1560,8 +1541,6 @@ with tab3:
                 sub = inferred.get("subcategory")
                 if sub not in SUBCATEGORY_OPTIONS.get(cat, []):
                     sub = None
-                acc_type = inferred.get("accessory_type") if inferred.get("accessory_type") in ACCESSORY_TYPE_OPTIONS else None
-
                 raw_color = COLOR_ALIASES.get(
                     str(inferred.get("color", "")).strip().lower(),
                     str(inferred.get("color", "")).strip().lower()
@@ -1581,7 +1560,7 @@ with tab3:
                     name=suggested,
                     category=cat,
                     subcategory=sub,
-                    accessory_type=acc_type,
+                    accessory_type=None,
                     color=normalize_color_name(color_val),
                     secondary_colors=[],
                     pattern=pattern_val,
@@ -1646,9 +1625,6 @@ with tab3:
             if st.session_state.form_subcategory is None and inferred_subcategory in valid_subcategories:
                 st.session_state.form_subcategory = inferred_subcategory
 
-            if inferred.get("accessory_type") in ACCESSORY_TYPE_OPTIONS:
-                st.session_state.form_accessory_type = inferred["accessory_type"]
-
             inferred_color = COLOR_ALIASES.get(
                 str(inferred.get("color", "")).strip().lower(),
                 str(inferred.get("color", "")).strip().lower()
@@ -1712,9 +1688,6 @@ with tab3:
             if st.session_state.form_subcategory is None and inferred_subcategory in valid_subcategories:
                 st.session_state.form_subcategory = inferred_subcategory
 
-            if inferred.get("accessory_type") in ACCESSORY_TYPE_OPTIONS:
-                st.session_state.form_accessory_type = inferred["accessory_type"]
-
             inferred_color = COLOR_ALIASES.get(
                 str(inferred.get("color", "")).strip().lower(),
                 str(inferred.get("color", "")).strip().lower()
@@ -1738,7 +1711,7 @@ with tab3:
     )
     subcategory = None
 
-    if category in SUBCATEGORY_OPTIONS and category != "accessory":
+    if category in SUBCATEGORY_OPTIONS:
         subcategory = st.selectbox(
             "Subcategoría",
             [None] + SUBCATEGORY_OPTIONS[category],
@@ -1747,17 +1720,8 @@ with tab3:
         )
     else:
         subcategory = None
-    
-    name = st.text_input("Nombre de la prenda", key="form_name")
 
-    if category == "accessory":
-        accessory_type = st.selectbox(
-            "Tipo de accesorio",
-            ACCESSORY_TYPE_OPTIONS,
-            key="form_accessory_type"
-        )
-    else:
-        accessory_type = None
+    name = st.text_input("Nombre de la prenda", key="form_name")
 
     color_icons = {
         "amarillo": "🟡",
@@ -1873,7 +1837,7 @@ with tab3:
             name=name,
             category=category,
             subcategory=subcategory,
-            accessory_type=accessory_type,
+            accessory_type=None,
             color=normalize_color_name(color),
             secondary_colors=[normalize_color_name(secondary_color)] if secondary_color != "ninguno" else [],
             pattern=pattern,

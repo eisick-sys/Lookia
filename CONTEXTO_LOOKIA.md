@@ -411,3 +411,20 @@ LOOKIA_ENV = "production"
 - ⬜ **UI definitiva** (React o similar) — reemplazar Streamlit
 
 
+### Sesión 11 — abril 2026
+
+**Infraestructura**
+- ✅ `supabase_client.py` — agregado `load_dotenv()` y eliminada anon key hardcodeada
+- ✅ SUPABASE_KEY actualizada en `.env`, Streamlit Cloud (main y version-sana)
+- ✅ `gotrue` bajado a versión 1.3.0 para compatibilidad con Python 3.14
+- ✅ Contraseña de usuario reseteada via SQL directo en Supabase
+
+**UI — Agregar prenda**
+- ✅ Límite de 5 fotos corregido — aplica a tanda de subida, no al clóset total
+- ✅ Campo "Tipo de accesorio" eliminado de formularios agregar y editar — reemplazado por subcategoría
+- ✅ Subcategoría ahora se muestra también para accesorios
+
+**Pendiente para próximas sesiones**
+- ⬜ Pruebas salida nocturna: elegante, sexy, cómodo
+- ⬜ Pruebas salida nocturna con lluvia todos los moods
+- ⬜ Matrimonio, gala, deporte
