@@ -42,7 +42,7 @@ from engine.scoring_components import (
     weather_score,
 )
 
-from engine.history_utils import repetition_penalty
+from utils.history_utils import repetition_penalty
 
 from engine.compatibility import (
     garment_color_compatibility,
@@ -54,7 +54,7 @@ from engine.compatibility import (
 # PERFIL DE USUARIO / PERSONALIZACIÓN
 # =========================================================
 
-from engine.user_profile import (
+from utils.user_profile import (
     calculate_feedback_bonus,
     user_style_bonus,
 )

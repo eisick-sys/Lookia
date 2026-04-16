@@ -5,7 +5,7 @@ from typing import List, Optional
 
 from PIL import Image, ImageOps
 
-from models import Garment, OutfitFeedback, UsedOutfit
+from models import Garment, OutfitFeedback, UsedOutfit, UserProfile
 from supabase_client import get_supabase, get_supabase_for_user
 
 
@@ -114,7 +114,6 @@ def update_garment_cloud(user_id: str, garment: Garment) -> bool:
         data = asdict(garment)
         data.pop("id", None)
         data["user_id"] = user_id
-
         sb.table("garments").update(data).eq("id", garment.id).eq("user_id", user_id).execute()
         return True
     except Exception as e:
@@ -259,3 +258,42 @@ def get_next_used_outfit_id(used_outfits: List[UsedOutfit]) -> int:
     if not used_outfits:
         return 1
     return max(safe_int(item.id, 0) for item in used_outfits) + 1
+
+
+def load_user_profile_cloud(user_id: str) -> Optional[UserProfile]:
+    try:
+        sb = get_supabase()
+        response = sb.table("user_profiles").select("*").eq("user_id", user_id).execute()
+        if response.data:
+            item = response.data[0]
+            return UserProfile(
+                user_id=user_id,
+                display_name=str(item.get("display_name") or ""),
+                closet_type=str(item.get("closet_type") or "mixto"),
+                city=str(item.get("city") or "Punta Arenas"),
+                frequent_occasions=list(item.get("frequent_occasions") or []),
+                dominant_style=str(item.get("dominant_style") or "casual"),
+            )
+        return None
+    except Exception as e:
+        print(f"Error cargando perfil: {e}")
+        return None
+
+
+def save_user_profile_cloud(profile: UserProfile) -> bool:
+    try:
+        sb = get_supabase()
+        data = {
+            "user_id": profile.user_id,
+            "display_name": profile.display_name,
+            "closet_type": profile.closet_type,
+            "city": profile.city,
+            "frequent_occasions": profile.frequent_occasions,
+            "dominant_style": profile.dominant_style,
+            "updated_at": "now()",
+        }
+        sb.table("user_profiles").upsert(data).execute()
+        return True
+    except Exception as e:
+        print(f"Error guardando perfil: {e}")
+        return False

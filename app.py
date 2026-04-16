@@ -15,6 +15,7 @@ from storage_cloud import (
     delete_garment_cloud, load_feedback_cloud, add_feedback_cloud,
     load_used_outfits_cloud, add_used_outfit_cloud, get_next_used_outfit_id,
     upload_garment_image, get_garment_image_url,
+    load_user_profile_cloud, save_user_profile_cloud,
 )
 
 st.set_page_config(
@@ -54,8 +55,10 @@ with st.sidebar:
     st.caption("─────────────────")
     if st.button("↩ cerrar sesión", key="logout_btn", type="tertiary"):
         logout()
+    if st.sidebar.button("⚙️ Mi perfil", key="open_profile", type="tertiary"):
+        st.session_state["show_profile"] = not st.session_state.get("show_profile", False)
 
-from models import Garment, OutfitFeedback, UsedOutfit
+from models import Garment, OutfitFeedback, UsedOutfit, UserProfile
 from weather import format_weather_label, get_current_weather, get_week_forecast
 
 from engine.occasion_rules import garment_allowed_for_occasion, get_weather_tag
@@ -70,6 +73,7 @@ from constants import (
     ACTIVITY_OPTIONS,
     CATEGORY_LABELS_ES,
     CATEGORY_OPTIONS,
+    CHILEAN_CITIES,
     COLOR_ALIASES,
     COLOR_OPTIONS,
     DRESS_LEVEL_OPTIONS,
@@ -598,8 +602,11 @@ def garment_color_label(g) -> str:
 # ESTADO DE LA APLICACIÓN (SESSION STATE)
 # =========================================================
 
-if "closet_profile" not in st.session_state:
-    st.session_state.closet_profile = None
+if "user_profile" not in st.session_state:
+    st.session_state.user_profile = load_user_profile_cloud(user_id)
+
+if "show_profile" not in st.session_state:
+    st.session_state["show_profile"] = False
 
 if "photo_uploader_key" not in st.session_state:
     st.session_state.photo_uploader_key = 0
@@ -607,8 +614,9 @@ if "photo_uploader_key" not in st.session_state:
 if "selected_garment_id" not in st.session_state:
     st.session_state.selected_garment_id = None
 
-if "wardrobe" not in st.session_state:
+if "wardrobe" not in st.session_state or st.session_state.get("just_logged_in"):
     st.session_state.wardrobe = load_wardrobe_cloud(user_id)
+    st.session_state["just_logged_in"] = False
 
 if "feedback" not in st.session_state:
     st.session_state.feedback = load_feedback_cloud(user_id)
@@ -658,18 +666,48 @@ def is_recent_outfit(combo):
 # ONBOARDING PERFIL DEL CLÓSET
 # =========================================================
 
-if st.session_state.closet_profile is None:
-    st.subheader("Configura tu clóset")
+if st.session_state.user_profile is None:
+    st.subheader("¡Bienvenida a Lookia! 👋")
+    st.caption("Cuéntanos un poco sobre ti para personalizar tus recomendaciones.")
 
-    profile = st.radio(
-        "¿Cómo describirías tu clóset?",
-        ["mayormente femenino", "mayormente masculino", "mixto"],
-        horizontal=True,
-        key="closet_profile_radio"
-    )
+    with st.form("onboarding_form"):
+        display_name = st.text_input("¿Cómo te llamamos?", placeholder="Tu nombre o apodo")
 
-    if st.button("Guardar perfil del clóset", key="save_closet_profile"):
-        st.session_state.closet_profile = profile
+        closet_type = st.radio(
+            "¿Cómo describirías tu clóset?",
+            ["femenino", "masculino", "mixto"],
+            horizontal=True,
+        )
+
+        city = st.selectbox(
+            "Ciudad",
+            options=CHILEAN_CITIES,
+            index=CHILEAN_CITIES.index("Punta Arenas"),
+        )
+
+        frequent_occasions = st.multiselect(
+            "¿Para qué ocasiones te vistes más seguido?",
+            OCCASION_OPTIONS,
+        )
+
+        dominant_style = st.selectbox(
+            "¿Cuál es tu estilo dominante?",
+            ["casual", "formal", "elegante", "urbano", "sport", "mixto"],
+        )
+
+        submitted = st.form_submit_button("Empezar →", use_container_width=True)
+
+    if submitted:
+        profile = UserProfile(
+            user_id=user_id,
+            display_name=display_name.strip(),
+            closet_type=closet_type,
+            city=city.strip() or "Punta Arenas",
+            frequent_occasions=frequent_occasions,
+            dominant_style=dominant_style,
+        )
+        save_user_profile_cloud(profile)
+        st.session_state.user_profile = profile
         st.rerun()
 
     st.stop()
@@ -679,7 +717,9 @@ if st.session_state.closet_profile is None:
 # UI
 # =========================================================
 
-st.caption(f"Perfil del clóset: {st.session_state.closet_profile}")
+profile = st.session_state.user_profile
+greeting = f"Hola, {profile.display_name} 👋" if profile.display_name else "Hola 👋"
+st.caption(greeting)
 if os.getenv("LOOKIA_ENV") != "production":
     debug_mode = st.toggle("🔧 Modo debug", value=False, key="debug_mode")
 else:
@@ -688,6 +728,67 @@ else:
 if "pending_toast" in st.session_state:
     msg, icon = st.session_state.pop("pending_toast")
     st.toast(msg, icon=icon)
+
+if st.session_state.get("show_profile"):
+    profile = st.session_state.user_profile
+    st.subheader("⚙️ Mi perfil")
+
+    with st.form("profile_form"):
+        display_name = st.text_input("Nombre o apodo", value=profile.display_name)
+
+        closet_type = st.radio(
+            "Tipo de clóset",
+            ["femenino", "masculino", "mixto"],
+            index=["femenino", "masculino", "mixto"].index(profile.closet_type),
+            horizontal=True,
+        )
+
+        city = st.selectbox(
+            "Ciudad",
+            options=CHILEAN_CITIES,
+            index=CHILEAN_CITIES.index(profile.city) if profile.city in CHILEAN_CITIES else 0,
+        )
+
+        frequent_occasions = st.multiselect(
+            "Ocasiones frecuentes",
+            OCCASION_OPTIONS,
+            default=profile.frequent_occasions,
+        )
+
+        dominant_style = st.selectbox(
+            "Estilo dominante",
+            ["casual", "formal", "elegante", "urbano", "sport", "mixto"],
+            index=["casual", "formal", "elegante", "urbano", "sport", "mixto"].index(profile.dominant_style),
+        )
+
+        col_save, col_cancel = st.columns(2)
+        with col_save:
+            saved = st.form_submit_button("Guardar cambios", use_container_width=True)
+        with col_cancel:
+            cancelled = st.form_submit_button("Cancelar", use_container_width=True)
+
+    if saved:
+        updated = UserProfile(
+            user_id=user_id,
+            display_name=display_name.strip(),
+            closet_type=closet_type,
+            city=city.strip() or "Punta Arenas",
+            frequent_occasions=frequent_occasions,
+            dominant_style=dominant_style,
+        )
+        if save_user_profile_cloud(updated):
+            st.session_state.user_profile = updated
+            st.session_state["show_profile"] = False
+            st.session_state["pending_toast"] = ("Perfil actualizado.", "✅")
+            st.rerun()
+        else:
+            st.error("No se pudo guardar. Intenta de nuevo.")
+
+    if cancelled:
+        st.session_state["show_profile"] = False
+        st.rerun()
+
+    st.stop()
 
 tab1, tab2, tab3, tab4 = st.tabs([
     "🌤️ Hoy",
@@ -713,11 +814,12 @@ with tab1:
         use_real_weather = st.toggle("Usar clima real", value=True)
 
         if use_real_weather:
-            weather_data = get_current_weather(DEFAULT_CITY, WEATHER_API_KEY)
+            _weather_city = st.session_state.user_profile.city if st.session_state.get("user_profile") else DEFAULT_CITY
+            weather_data = get_current_weather(_weather_city, WEATHER_API_KEY)
             if weather_data:
                 temp = weather_data["temp"]
                 rain = weather_data["rain"]
-                st.success(f"{DEFAULT_CITY} · {format_weather_label(weather_data)}")
+                st.success(f"{_weather_city} · {format_weather_label(weather_data)}")
             else:
                 st.warning("No se pudo obtener el clima. Usa ajuste manual.")
                 temp = st.slider("Temperatura (°C)", 0, 35, 16)

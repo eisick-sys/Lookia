@@ -81,3 +81,16 @@ class UsedOutfit:
     weather_tag: str
 
     used_at: str
+
+
+# =========================================================
+# PERFIL DE USUARIO
+# =========================================================
+@dataclass
+class UserProfile:
+    user_id: str
+    display_name: str = ""
+    closet_type: str = "mixto"
+    city: str = "Punta Arenas"
+    frequent_occasions: List[str] = field(default_factory=list)
+    dominant_style: str = "casual"

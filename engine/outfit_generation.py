@@ -9,7 +9,7 @@ from engine.recommender import (
     outfit_score,
 )
 
-from engine.user_profile import build_user_style_profile
+from utils.user_profile import build_user_style_profile
 
 from engine.occasion_rules import (
     build_required_categories,

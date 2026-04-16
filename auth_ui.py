@@ -47,6 +47,7 @@ def render_auth_screen():
                         })
                         st.session_state["user"] = response.user
                         st.session_state["access_token"] = response.session.access_token
+                        st.session_state["just_logged_in"] = True
                         st.rerun()
                     except Exception as e:
                         st.error("Email o contraseña incorrectos.")

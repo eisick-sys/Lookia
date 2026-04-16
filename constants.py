@@ -224,6 +224,23 @@ THERMAL_ACCESSORIES = ["bufanda", "pañuelo", "gorro", "guantes"]
 # ETIQUETAS EN ESPAÑOL PARA SUBCATEGORÍAS
 # =========================================================
 
+CHILEAN_CITIES = [
+    "Arica", "Iquique", "Alto Hospicio", "Antofagasta", "Calama",
+    "Copiapó", "La Serena", "Coquimbo", "Ovalle", "Vallenar",
+    "Viña del Mar", "Valparaíso", "Quilpué", "Villa Alemana",
+    "San Antonio", "Rancagua", "Machalí", "San Fernando",
+    "Curicó", "Talca", "Linares", "Constitución",
+    "Chillán", "Los Ángeles", "Concepción", "Talcahuano",
+    "Hualpén", "Coronel", "Lota", "San Pedro de la Paz",
+    "Temuco", "Padre Las Casas", "Angol", "Victoria",
+    "Valdivia", "Osorno", "Puerto Montt", "Castro", "Ancud",
+    "Coyhaique", "Puerto Aysén",
+    "Punta Arenas", "Puerto Natales", "Porvenir",
+    "Santiago", "Puente Alto", "Maipú", "La Florida",
+    "Las Condes", "Ñuñoa", "Providencia", "San Bernardo",
+    "Peñalolén", "Lo Barnechea",
+]
+
 SUBCATEGORY_LABELS_ES = {
     # top
     "polera": "Polera",
