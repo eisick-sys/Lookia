@@ -370,6 +370,35 @@ LOOKIA_ENV = "production"
 
 ---
 
+### Sesión 12 — abril 2026
+
+**Perfil de usuario**
+- ✅ Tabla `user_profiles` creada en Supabase (user_id, display_name, closet_type, city, frequent_occasions, dominant_style, created_at, updated_at) con RLS habilitado
+- ✅ `models.py` — dataclass `UserProfile` agregada
+- ✅ `storage_cloud.py` — funciones `load_user_profile_cloud` y `save_user_profile_cloud`
+- ✅ `app.py` — onboarding de primera vez (pantalla bloqueante con formulario)
+- ✅ `app.py` — botón ⚙️ Mi perfil en sidebar, panel con formulario de edición y botón cancelar
+- ✅ Ciudad usa `st.selectbox` con lista `CHILEAN_CITIES` (50 ciudades chilenas) en vez de text_input
+- ✅ `CHILEAN_CITIES` agregada a `constants.py`
+- ✅ Estilo dominante corregido — lista incluye "formal": ["casual", "formal", "elegante", "urbano", "sport", "mixto"]
+- ✅ DEFAULT_CITY reemplazado por `st.session_state.user_profile.city` para clima real
+
+**Fixes**
+- ✅ `is_new` al editar — el update llega correctamente a Supabase (estaba funcionando, datos legacy tenían is_new=true)
+- ✅ SQL de limpieza ejecutado en Supabase para poner is_new=false en prendas existentes
+- ✅ Wardrobe vacío al re-login — fix con flag `just_logged_in` en session_state y auth_ui.py
+
+**Limpieza y reorganización**
+- ✅ Archivos legacy eliminados: `storage.py`, `closet.json`, `closet.json.bak`, `feedback.json`, `feedback.json.bak`, `used_outfits.json`, `used_outfits.json.bak`, `migrate_local_data.py`
+- ✅ Helpers movidos de `engine/` a `utils/`: `history_utils.py`, `user_profile.py`, `selection_utils.py`
+- ✅ Imports actualizados en `recommender.py` y `outfit_generation.py`
+
+**Motor**
+- ✅ Penalización jeans con calor: temp >= 30° → +80, temp >= 28° → +50, temp >= 24° → +20
+- ✅ Campos irrelevantes ocultos en formularios agregar/editar para accesorios no térmicos (warmth, waterproof, sexiness ocultos cuando category=accessory y subcategory no está en THERMAL_ACCESSORIES)
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Pruebas pendientes
@@ -377,38 +406,43 @@ LOOKIA_ENV = "production"
 - ⬜ Salida nocturna · lluvia con todos los moods
 - ⬜ Matrimonio y gala
 - ⬜ Deporte
-- ⬜ Seleccionar prenda específica en distintos escenarios
+- ⬜ Planificador semanal — polera sin midlayer con frío (bug detectado)
 
 ### Motor
-- ⬜ Refactor `generate_outfits_from_selected_garment` — alinear lógica completa con `generate_outfits` (ocasión, mood, temp, required_categories, scoring completo)
+- ⬜ Refactor `generate_outfits_from_selected_garment` — alinear lógica completa con `generate_outfits`
 - ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
 - ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
 - ⬜ Calzado plano de trabajo para calor
-- ⬜ Mayor diversidad de tops en mood urbano (ajuste fino)
+- ⬜ Mayor diversidad de tops en mood urbano
+- ⬜ Planificador — polera sin midlayer con frío extremo
 
 ### Clóset
-- ⬜ Verificar top leopardo (63) — agregar tag urbano en `secondary_styles` si corresponde
+- ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
 - ⬜ Agregar sandalias, ballerinas y chalas al clóset
+- ⬜ Más bottoms livianos para calor (pantalones de tela, faldas) — motor limitado por clóset
 
 ### UI
-- ⬜ Botón "Mostrar de todos modos" cuando prenda forzada está bloqueada por mood (requiere cambio en `app.py`)
-- ⬜ Tip de pantys: mostrar máximo una vez por tanda (pendiente UI definitiva)
-- ⬜ Al hacer clic en "Revisar" prenda, scroll automático al formulario (pendiente UI definitiva)
+- ⬜ Formulario editar prenda — scroll automático o inline en galería (pendiente UI definitiva)
+- ⬜ Tip de pantys: mostrar máximo una vez por tanda
 - ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
+- ⬜ Ocasiones frecuentes del perfil ordenadas primero en selectbox del recomendador
+
+### Técnico
+- ⬜ **Moderación de fotos** — bloquear nudes/menores/contenido inapropiado en subida (urgente)
+- ⬜ **UI definitiva** — migrar de Streamlit a React o similar
+- ⬜ Dividir app.py en módulos por tab (pendiente para cuando esté más estable)
+- ⬜ Renombrar dress_level "flexible" a "intermedio" en refactor futuro
 
 ### Funcionalidades nuevas
 - ⬜ Estadísticas en tab "Mi clóset"
-- ⬜ Perfil de usuario completo
-- ⬜ Detección de color automática con Pillow al subir foto (antes de IA)
-- ⬜ Integración IA Anthropic (foto → atributos, explicaciones con personalidad, modelo virtual)
-- ⬜ Login de usuario
-
-### Técnico
-- ✅ `wardrobe_images/` y `__pycache__/` agregados a `.gitignore`
-- ✅ **Migrado a Supabase** — Auth, PostgreSQL (garments, outfit_feedback, used_outfits), Storage (garment-images)
-- ⬜ **Moderación de fotos** — bloquear nudes/menores/contenido inapropiado en subida (**urgente**)
-- ⬜ **Persistencia del "Ignorar"** en badges de inconsistencias (guardar en Supabase)
-- ⬜ **UI definitiva** (React o similar) — reemplazar Streamlit
+- ⬜ Perfil de usuario completo (foto, preferencias avanzadas)
+- ⬜ Detección de color automática con Pillow al subir foto
+- ⬛ **INTEGRACIÓN IA ANTHROPIC (PRIORITARIO — implementar al terminar de pulir el motor)**
+  - Moderación de fotos en subida (nudes, menores, contenido inapropiado) — urgente para más testers
+  - Inferencia de atributos desde imagen (categoría, color, subcategoría, patrón, estilo, warmth)
+  - Ambas funciones en una sola llamada a Claude Haiku — costo ~$0.002 por foto
+  - Reemplaza inferencia actual por nombre que es muy limitada
+- ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
 
 
 ### Sesión 11 — abril 2026
