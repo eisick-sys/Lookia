@@ -650,6 +650,9 @@ if "garment_just_saved" not in st.session_state:
 if "has_generated_outfits" not in st.session_state:
     st.session_state.has_generated_outfits = False
 
+if "missing_categories" not in st.session_state:
+    st.session_state.missing_categories = []
+
 if "week_plan" not in st.session_state:
     st.session_state.week_plan = None
 
@@ -925,7 +928,7 @@ with tab1:
 
     if generate_clicked or show_anyway_clicked:
         if selected_garment:
-            outfits = generate_outfits_from_selected_garment(
+            outfits, _missing = generate_outfits_from_selected_garment(
                 garments=st.session_state.wardrobe,
                 selected_garment=selected_garment,
                 occasion=occasion,
@@ -938,8 +941,9 @@ with tab1:
                 recent_outfits=recent_memory,
                 ignore_occasion_for_selected=show_anyway_clicked,
             )
+            st.session_state.missing_categories = _missing
         else:
-            outfits = generate_outfits(
+            outfits, _missing = generate_outfits(
                 garments=st.session_state.wardrobe,
                 occasion=occasion,
                 temp=temp,
@@ -950,6 +954,7 @@ with tab1:
                 feedback_list=st.session_state.feedback,
                 recent_outfits=recent_memory,
             )
+            st.session_state.missing_categories = _missing
 
             # Si es interior con frío, forzar al menos 1 outfit sin outerwear
             if indoor_outdoor == "interior" and temp <= 14:
@@ -959,7 +964,7 @@ with tab1:
                 )
 
                 if not tiene_sin_abrigo and len(outfits) >= 2:
-                    outfits_sin_abrigo = generate_outfits(
+                    outfits_sin_abrigo, _ = generate_outfits(
                         garments=st.session_state.wardrobe,
                         occasion=occasion,
                         temp=temp + 6,
@@ -982,7 +987,8 @@ with tab1:
 
         remember_shown_outfits(outfits)
         st.session_state.last_outfits = outfits
-    
+        st.session_state.has_generated_outfits = True
+
     elif surprise_clicked:
         surprise_candidates = [
             g for g in st.session_state.wardrobe
@@ -992,7 +998,7 @@ with tab1:
         if surprise_candidates:
             forced = random.choice(surprise_candidates)
 
-            outfits = generate_outfits_from_selected_garment(
+            outfits, _missing = generate_outfits_from_selected_garment(
                 garments=st.session_state.wardrobe,
                 selected_garment=forced,
                 occasion=occasion,
@@ -1004,16 +1010,31 @@ with tab1:
                 feedback_list=st.session_state.feedback,
                 recent_outfits=recent_memory,
             )
+            st.session_state.missing_categories = _missing
         else:
             outfits = []
+            st.session_state.missing_categories = []
 
         remember_shown_outfits(outfits)
         st.session_state.last_outfits = outfits
+        st.session_state.has_generated_outfits = True
 
     st.markdown("## Resultados")
 
     if not outfits and st.session_state.has_generated_outfits:
-        st.info("No hay prendas suficientes para armar este outfit.")
+        missing_cats = st.session_state.get("missing_categories", [])
+        cat_labels = {
+            "top": "una parte de arriba (polera, blusa, etc.)",
+            "bottom": "una parte de abajo (pantalón, falda, etc.)",
+            "shoes": "calzado",
+            "outerwear": "un abrigo o chaqueta",
+            "midlayer": "una prenda intermedia (blazer, sweater, etc.)",
+        }
+        if missing_cats:
+            faltantes = ", ".join(cat_labels.get(c, c) for c in missing_cats)
+            st.warning(f"No tengo prendas suficientes para armar este outfit. Te falta agregar: **{faltantes}**.")
+        else:
+            st.warning("Tienes las prendas pero ninguna combinación pasó los filtros para esta ocasión. Intenta cambiar el mood o la actividad.")
     else:
         for idx, (score, combo) in enumerate(outfits, start=1):
             if debug_mode:

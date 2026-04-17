@@ -22,6 +22,18 @@ from engine.compatibility import invalid_pattern_combo
 
 from utils.garment_utils import garment_has_style
 
+def get_missing_categories(top_candidates, required):
+    missing = []
+    for cat in required:
+        if cat == "top":
+            has_top = bool(top_candidates.get("top")) or bool(top_candidates.get("one_piece"))
+            if not has_top:
+                missing.append("top")
+        elif not top_candidates.get(cat):
+            missing.append(cat)
+    return missing
+
+
 def generate_outfits(
     garments: List[Garment],
     occasion: str,
@@ -155,6 +167,10 @@ def generate_outfits(
     else:
         top_candidates["midlayer"] = top_candidates["midlayer"][:mid_limit]
         top_candidates["outerwear"] = top_candidates["outerwear"][:outer_limit]
+
+    missing = get_missing_categories(top_candidates, required)
+    if missing:
+        return [], missing
 
     unique = {}
 
@@ -470,6 +486,9 @@ def generate_outfits(
                         ):
                             register_combo(combo)
 
+    if not unique:
+        return [], []
+
     final_outfits = sorted(unique.values(), key=lambda x: x[0], reverse=True)
 
     def is_too_similar(c1, c2):
@@ -693,7 +712,7 @@ def generate_outfits(
             if shoes_id is not None:
                 shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
 
-    return diverse_outfits[:top_n]
+    return diverse_outfits[:top_n], []
 
 
 def generate_outfits_from_selected_garment(
@@ -721,7 +740,7 @@ def generate_outfits_from_selected_garment(
     if not ignore_occasion_for_selected:
         selected_allowed, _ = garment_allowed_for_occasion(selected_garment, occasion, rain, mood, temp)
         if not selected_allowed:
-            return []
+            return [], []
 
     garments_by_category = {
         "top": [g for g in garments if g.category == "top" and g.id != selected_garment.id],
@@ -833,6 +852,17 @@ def generate_outfits_from_selected_garment(
             g for g in top_candidates["shoes"]
             if not any(x in g.name.lower() for x in ["zapatilla", "converse"])
         ]
+
+    tc_for_check = dict(top_candidates)
+    sel_cat = selected_garment.category
+    if sel_cat == "one_piece":
+        tc_for_check["top"] = [selected_garment] + tc_for_check.get("top", [])
+        tc_for_check["one_piece"] = [selected_garment] + tc_for_check.get("one_piece", [])
+    else:
+        tc_for_check[sel_cat] = [selected_garment] + tc_for_check.get(sel_cat, [])
+    missing = get_missing_categories(tc_for_check, required)
+    if missing:
+        return [], missing
 
     outfits = []
     selected_category = selected_garment.category
@@ -1055,6 +1085,9 @@ def generate_outfits_from_selected_garment(
                 base = [one_piece, shoes, selected_garment]
                 maybe_add_extras(base)
 
+    if not outfits:
+        return [], []
+
     # =========================================================
     # DEDUPLICAR Y ORDENAR — igual que generate_outfits
     # =========================================================
@@ -1095,7 +1128,7 @@ def generate_outfits_from_selected_garment(
         if len(diverse) >= top_n:
             break
 
-    return diverse[:top_n]
+    return diverse[:top_n], []
 
 
 def generate_week_plan(
@@ -1132,7 +1165,7 @@ def generate_week_plan(
             for planned_combo in week_plan.values()
         ]
 
-        outfits = generate_outfits(
+        outfits, _ = generate_outfits(
             garments=garments,
             occasion=context["occasion"],
             temp=day_temp,
@@ -1145,7 +1178,7 @@ def generate_week_plan(
         )
 
         if not outfits:
-            outfits = generate_outfits(
+            outfits, _ = generate_outfits(
                 garments=garments,
                 occasion=context["occasion"],
                 temp=day_temp,
