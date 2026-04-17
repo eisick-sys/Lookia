@@ -119,7 +119,7 @@ def infer_category_from_name(name: str) -> Optional[str]:
         "accessory": [
             "reloj", "collar", "pulsera", "anillo", "aros", "cinturon",
             "bolso", "cartera", "bufanda", "panuelo",
-            "gorro", "guantes", "lentes"
+            "gorro", "guantes", "lentes", "jockey", "gorra", "cap", "visera"
         ],
     }
 
@@ -204,7 +204,7 @@ def infer_subcategory_from_name(name: str, category: Optional[str] = None) -> Op
             "cartera": ["cartera"],
             "bufanda": ["bufanda"],
             "pañuelo": ["panuelo", "pañuelo"],
-            "gorro": ["gorro", "beanie"],
+            "gorro": ["gorro", "beanie", "jockey", "gorra", "cap", "visera"],
             "guantes": ["guantes", "guante"],
         },
     }
@@ -290,6 +290,98 @@ def infer_warmth_from_name(name: str) -> Optional[str]:
     return None
 
 
+def infer_attributes_from_subcategory(subcategory: str, current_attrs: dict) -> dict:
+    """
+    Complementa atributos inferidos aplicando reglas deterministas por subcategoría.
+    Solo sobreescribe si el atributo no fue inferido por nombre (es None).
+    """
+    result = dict(current_attrs)
+
+    warmth_map = {
+        "parka": "frio",
+        "abrigo": "frio",
+        "polar": "frio",
+        "sweater": "frio",
+        "cardigan": "medio",
+        "chaleco": "medio",
+        "blazer": "medio",
+        "hoodie": "medio",
+        "chaqueta": "medio",
+        "trench": "medio",
+        "impermeable": "medio",
+        "polera": "caluroso",
+        "top": "caluroso",
+        "blusa": "caluroso",
+        "camisa": "caluroso",
+        "body": "caluroso",
+        "crop_top": "caluroso",
+        "sandalia": "caluroso",
+        "taco_alto": "caluroso",
+        "taco_bajo": "caluroso",
+        "falda_corta": "caluroso",
+        "short_casual": "caluroso",
+        "short_elegante": "caluroso",
+    }
+
+    dress_level_map = {
+        "vestido_elegante": "elegante",
+        "vestido_coctel": "elegante",
+        "blazer": "arreglado",
+        "trench": "arreglado",
+        "falda_midi": "arreglado",
+        "vestido_casual": "flexible",
+        "camisa": "flexible",
+        "pantalon": "flexible",
+        "botin": "flexible",
+        "zapato": "flexible",
+        "mocasin": "flexible",
+        "buzo": "relajado",
+        "jogger": "relajado",
+        "hoodie": "relajado",
+        "polar": "relajado",
+        "zapatilla_urbana": "relajado",
+        "zapatilla_deporte": "relajado",
+        "short_casual": "relajado",
+        "legging": "relajado",
+        "gorro": "relajado",
+    }
+
+    sexiness_map = {
+        "vestido_coctel": 2,
+        "vestido_elegante": 1,
+        "taco_alto": 1,
+        "crop_top": 1,
+        "falda_corta": 1,
+    }
+
+    style_map = {
+        "vestido_elegante": "elegante",
+        "vestido_coctel": "elegante",
+        "blazer": "formal",
+        "trench": "formal",
+        "buzo": "sport",
+        "jogger": "sport",
+        "polar": "sport",
+        "zapatilla_deporte": "sport",
+        "hoodie": "casual",
+    }
+
+    if subcategory:
+        if result.get("warmth") is None and subcategory in warmth_map:
+            result["warmth"] = warmth_map[subcategory]
+
+        if result.get("dress_level") is None and subcategory in dress_level_map:
+            result["dress_level"] = dress_level_map[subcategory]
+
+        if result.get("sexiness") is None and subcategory in sexiness_map:
+            result["sexiness"] = sexiness_map[subcategory]
+
+        if result.get("style") is None and subcategory in style_map:
+            result["style"] = style_map[subcategory]
+
+    return result
+
+
 def infer_attributes_from_name(name: str) -> Dict[str, Optional[object]]:
     inferred_category = infer_category_from_name(name)
     inferred_accessory_type = infer_accessory_type_from_name(name)
@@ -300,7 +392,7 @@ def infer_attributes_from_name(name: str) -> Dict[str, Optional[object]]:
 
     inferred_subcategory = infer_subcategory_from_name(name, inferred_category)
 
-    return {
+    result = {
         "category": inferred_category,
         "subcategory": inferred_subcategory,
         "pattern": infer_pattern_from_name(name),
@@ -308,7 +400,17 @@ def infer_attributes_from_name(name: str) -> Dict[str, Optional[object]]:
         "waterproof": infer_waterproof_from_name(name),
         "warmth": infer_warmth_from_name(name),
         "accessory_type": inferred_accessory_type,
+        "dress_level": None,
+        "sexiness": None,
+        "style": None,
     }
+
+    # Aplicar inferencia cruzada por subcategoría
+    inferred_subcategory = result.get("subcategory") or inferred_subcategory
+    if inferred_subcategory:
+        result = infer_attributes_from_subcategory(inferred_subcategory, result)
+
+    return result
 
 
 def suggest_name_from_filename(filename: str) -> str:

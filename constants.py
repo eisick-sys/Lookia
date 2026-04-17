@@ -176,6 +176,15 @@ COLOR_ALIASES = {
 
 STYLE_OPTIONS = ["casual", "formal", "urbano", "sport", "elegante"]
 
+STYLE_LABELS_ES = {
+    "casual": "Casual",
+    "formal": "Formal",
+    "urbano": "Urbano",
+    "sport": "Deporte",
+    "elegante": "Elegante",
+    "mixto": "Mixto",
+}
+
 WARMTH_OPTIONS = ["caluroso", "medio", "frio"]
 
 DRESS_LEVEL_OPTIONS = ["relajado", "flexible", "arreglado", "elegante"]

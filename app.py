@@ -80,6 +80,7 @@ from constants import (
     MOOD_OPTIONS,
     OCCASION_OPTIONS,
     PATTERN_OPTIONS,
+    STYLE_LABELS_ES,
     STYLE_OPTIONS,
     SUBCATEGORY_LABELS_ES,
     SUBCATEGORY_OPTIONS,
@@ -129,12 +130,12 @@ def detect_garment_issues(garment: Garment) -> Optional[str]:
         if sub == "zapatilla_deporte" and dl in ["elegante", "arreglado"]:
             return "Zapatilla deporte con nivel formal alto — ¿es correcto?"
         if sub == "mocasin" and style == "sport":
-            return "Mocasín con estilo sport — ¿querías decir casual o formal?"
+            return "Mocasín con estilo deporte — ¿querías decir casual o formal?"
 
     # Outerwear
     if garment.category == "outerwear":
         if garment.waterproof and "sport" in all_s and dl in ["relajado", "flexible"]:
-            return "Impermeable sport — quedará bloqueado en citas y salidas elegantes"
+            return "Impermeable deporte — quedará bloqueado en citas y salidas elegantes"
         if any(x in name for x in ["parka", "celeste", "impermeable"]) and dl == "elegante":
             return "Parka marcada como elegante — ¿es correcto?"
 
@@ -147,7 +148,7 @@ def detect_garment_issues(garment: Garment) -> Optional[str]:
 
     # General
     if "sport" in all_s and dl == "elegante":
-        return "Estilo sport + nivel elegante — posible contradicción"
+        return "Estilo deporte + nivel elegante — posible contradicción"
 
     # Inconsistencias térmicas
     if garment.category == "bottom":
@@ -519,77 +520,6 @@ def normalize_text(text: str) -> str:
     return text.strip().lower()
 
 
-def infer_from_filename(filename: str):
-    name = normalize_text(filename)
-
-    category = "top"
-    color = "negro"
-    style = "casual"
-    warmth = "medio"
-    waterproof = False
-    dress_level = "flexible"
-
-    garment_name = (
-        filename
-        .rsplit(".", 1)[0]
-        .replace("_", " ")
-        .replace("-", " ")
-        .title()
-    )
-
-    if any(x in name for x in ["camisa", "polera", "blusa", "top", "shirt"]):
-        category = "top"
-    elif any(x in name for x in ["jean", "pantalon", "falda", "short", "bottom", "jogger"]):
-        category = "bottom"
-    elif any(x in name for x in ["zapato", "zapatilla", "bota", "shoe", "sneaker"]):
-        category = "shoes"
-    elif any(x in name for x in ["blazer", "chaleco", "sweater", "sueter", "cardigan", "cárdigan"]):
-        category = "midlayer"
-    elif any(x in name for x in ["chaqueta", "abrigo", "parka", "impermeable", "jacket"]):
-        category = "outerwear"
-    elif any(x in name for x in ["reloj", "collar", "cinturon", "cinturón", "accesorio", "accessory"]):
-        category = "accessory"
-
-    sorted_colors = sorted(COLOR_OPTIONS + list(COLOR_ALIASES.keys()), key=len, reverse=True)
-
-    for c in sorted_colors:
-        if c in name:
-            color = normalize_color_name(c)
-            break
-
-    if any(x in name for x in ["elegante", "formal", "blazer"]):
-        style = "elegante"
-        dress_level = "elegante"
-    elif any(x in name for x in ["urbano", "street"]):
-        style = "urbano"
-        dress_level = "flexible"
-    elif any(x in name for x in ["sport", "deporte", "running", "gym", "buzo"]):
-        style = "sport"
-        dress_level = "relajado"
-    else:
-        style = "casual"
-
-    if any(x in name for x in ["polar", "parka", "abrigo", "invierno", "lana"]):
-        warmth = "frio"
-    elif any(x in name for x in ["polera", "short", "verano", "liviano"]):
-        warmth = "caluroso"
-    else:
-        warmth = "medio"
-
-    if any(x in name for x in ["impermeable", "rain", "agua"]):
-        waterproof = True
-
-    return {
-        "name": garment_name,
-        "category": category,
-        "color": color,
-        "style": style,
-        "secondary_styles": [],
-        "warmth": warmth,
-        "waterproof": waterproof,
-        "dress_level": dress_level,
-        "image_name": filename,
-    }
 
 def garment_color_label(g) -> str:
     secondary = getattr(g, "secondary_colors", []) or []
@@ -696,6 +626,7 @@ if st.session_state.user_profile is None:
         dominant_style = st.selectbox(
             "¿Cuál es tu estilo dominante?",
             ["casual", "formal", "elegante", "urbano", "sport", "mixto"],
+            format_func=lambda s: STYLE_LABELS_ES.get(s, s),
         )
 
         submitted = st.form_submit_button("Empezar →", use_container_width=True)
@@ -762,6 +693,7 @@ if st.session_state.get("show_profile"):
             "Estilo dominante",
             ["casual", "formal", "elegante", "urbano", "sport", "mixto"],
             index=["casual", "formal", "elegante", "urbano", "sport", "mixto"].index(profile.dominant_style),
+            format_func=lambda s: STYLE_LABELS_ES.get(s, s),
         )
 
         col_save, col_cancel = st.columns(2)
@@ -1328,7 +1260,8 @@ with tab2:
                         "Estilo principal",
                         STYLE_OPTIONS,
                         index=STYLE_OPTIONS.index(garment.style) if garment.style in STYLE_OPTIONS else 0,
-                        key=f"edit_style_{garment.id}"
+                        key=f"edit_style_{garment.id}",
+                        format_func=lambda s: STYLE_LABELS_ES.get(s, s),
                     )
 
                     available_secondary_styles = [s for s in STYLE_OPTIONS if s != style]
@@ -1349,7 +1282,8 @@ with tab2:
                     secondary_styles = st.multiselect(
                         "Estilos secundarios",
                         available_secondary_styles,
-                        key=secondary_styles_key
+                        key=secondary_styles_key,
+                        format_func=lambda s: STYLE_LABELS_ES.get(s, s),
                     )
 
                     current_pattern = getattr(garment, "pattern", "liso")
@@ -1480,7 +1414,7 @@ with tab2:
 
                     warmth = "medio"
                     show_warmth = (
-                        category in ["top", "midlayer", "outerwear", "bottom", "shoes"]
+                        category in ["top", "midlayer", "outerwear", "bottom", "shoes", "one_piece"]
                         or (category == "accessory" and subcategory in THERMAL_ACCESSORIES)
                     )
 
@@ -1721,7 +1655,7 @@ with tab3:
                     secondary_styles=[],
                     warmth=warmth_val,
                     waterproof=waterproof_val,
-                    sexiness=0,
+                    sexiness=inferred.get("sexiness") if isinstance(inferred.get("sexiness"), int) else 0,
                     dress_level=dress_level_val,
                     image_name=image_name,
                     is_new=True,
@@ -1856,6 +1790,22 @@ with tab3:
 
             st.session_state.form_inferred_done = True
 
+    def _reinfer_category_from_name():
+        name = st.session_state.form_name.strip()
+        if not name or len(name) < 3:
+            return
+        inferred = infer_attributes_from_name(name)
+
+        if inferred.get("category") in CATEGORY_OPTIONS:
+            st.session_state.form_category = inferred["category"]
+
+            inferred_subcategory = inferred.get("subcategory")
+            valid_subcategories = SUBCATEGORY_OPTIONS.get(inferred["category"], [])
+            if inferred_subcategory in valid_subcategories:
+                st.session_state.form_subcategory = inferred_subcategory
+            else:
+                st.session_state.form_subcategory = None
+
     category = st.selectbox(
         "Categoría",
         CATEGORY_OPTIONS,
@@ -1874,7 +1824,7 @@ with tab3:
     else:
         subcategory = None
 
-    name = st.text_input("Nombre de la prenda", key="form_name")
+    name = st.text_input("Nombre de la prenda", key="form_name", on_change=_reinfer_category_from_name)
 
     color_icons = {
         "amarillo": "🟡",
@@ -1935,7 +1885,8 @@ with tab3:
     style = st.selectbox(
         "Estilo principal",
         STYLE_OPTIONS,
-        key="form_style"
+        key="form_style",
+        format_func=lambda s: STYLE_LABELS_ES.get(s, s),
     )
 
     available_secondary_styles = [s for s in STYLE_OPTIONS if s != style]
@@ -1948,7 +1899,8 @@ with tab3:
     secondary_styles = st.multiselect(
         "Estilos secundarios",
         available_secondary_styles,
-        key="form_secondary_styles"
+        key="form_secondary_styles",
+        format_func=lambda s: STYLE_LABELS_ES.get(s, s),
     )
 
     with st.form("add_garment_form", clear_on_submit=True):

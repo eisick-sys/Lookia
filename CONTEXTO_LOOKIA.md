@@ -402,19 +402,17 @@ LOOKIA_ENV = "production"
 ## Pendiente para próximas sesiones
 
 ### Pruebas pendientes
-- ⬜ Salida nocturna · moods: elegante, sexy, cómodo
-- ⬜ Salida nocturna · lluvia con todos los moods
 - ⬜ Matrimonio y gala
 - ⬜ Deporte
 - ⬜ Planificador semanal — polera sin midlayer con frío (bug detectado)
 
 ### Motor
-- ⬜ Refactor `generate_outfits_from_selected_garment` — alinear lógica completa con `generate_outfits`
 - ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
 - ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
 - ⬜ Calzado plano de trabajo para calor
 - ⬜ Mayor diversidad de tops en mood urbano
 - ⬜ Planificador — polera sin midlayer con frío extremo
+- ⬜ Chaleco cuello V — genera combinaciones incoherentes, revisar tags y penalizaciones
 
 ### Clóset
 - ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
@@ -444,6 +442,25 @@ LOOKIA_ENV = "production"
   - Reemplaza inferencia actual por nombre que es muy limitada
 - ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
 
+
+### Sesión 14 — abril 2026
+
+**Motor — diagnóstico de outfits vacíos**
+- ✅ `get_missing_categories(top_candidates, required)` — función helper que retorna lista de categorías requeridas sin candidatos (entiende que `one_piece` satisface el requisito de `top`)
+- ✅ `generate_outfits` retorna tupla `(outfits, missing_categories)` en todos los paths:
+  - Early return `[], missing` si hay categorías requeridas sin prendas (antes del loop)
+  - `[], []` si el loop corrió pero ninguna combinación pasó los filtros de scoring/pattern
+  - `diverse_outfits[:top_n], []` en el caso exitoso
+- ✅ `generate_outfits_from_selected_garment` retorna tupla con misma semántica; el check de missing_categories considera que la prenda seleccionada llena su propia categoría
+- ✅ `generate_week_plan` actualizado para desempacar `outfits, _ = generate_outfits(...)`
+
+**UI — app.py**
+- ✅ Todas las llamadas a `generate_outfits` y `generate_outfits_from_selected_garment` desempacadas como tuplas
+- ✅ `st.session_state.missing_categories` guardado después de cada llamada
+- ✅ `st.session_state.has_generated_outfits = True` ahora se setea correctamente al hacer clic en los botones (antes nunca se seteaba — bug)
+- ✅ Mensaje de outfits vacíos diferenciado: si hay categorías faltantes → `st.warning` con nombres en español de qué agregar; si las prendas existen pero no pasaron filtros → mensaje distinto sobre mood/actividad
+
+---
 
 ### Sesión 11 — abril 2026
 
