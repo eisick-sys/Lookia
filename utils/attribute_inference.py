@@ -382,6 +382,25 @@ def infer_attributes_from_subcategory(subcategory: str, current_attrs: dict) -> 
     return result
 
 
+def infer_style_from_name(name: str) -> Optional[str]:
+    text = normalize_text(name)
+
+    style_keywords = {
+        "elegante": ["elegante", "formal", "vestir", "fino", "fina"],
+        "formal": ["formal", "traje", "sastre"],
+        "urbano": ["urbano", "urbana", "street", "streetwear"],
+        "sport": ["sport", "deportivo", "deportiva", "running", "training", "gym"],
+        "casual": ["casual", "diario", "everyday"],
+    }
+
+    for style, keywords in style_keywords.items():
+        for keyword in keywords:
+            if normalize_text(keyword) in text:
+                return style
+
+    return None
+
+
 def infer_attributes_from_name(name: str) -> Dict[str, Optional[object]]:
     inferred_category = infer_category_from_name(name)
     inferred_accessory_type = infer_accessory_type_from_name(name)
@@ -402,7 +421,7 @@ def infer_attributes_from_name(name: str) -> Dict[str, Optional[object]]:
         "accessory_type": inferred_accessory_type,
         "dress_level": None,
         "sexiness": None,
-        "style": None,
+        "style": infer_style_from_name(name),
     }
 
     # Aplicar inferencia cruzada por subcategoría

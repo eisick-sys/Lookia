@@ -1488,7 +1488,16 @@ with tab2:
                         save_changes = st.button("Guardar cambios", key=f"save_{garment.id}", type="primary")
 
                     with col_delete:
-                        delete_garment = st.button("Eliminar prenda", key=f"delete_btn_{garment.id}")
+                        with st.popover("🗑️ Eliminar prenda", use_container_width=True):
+                            st.caption(f"¿Segura que quieres eliminar **{garment.name}**? Esta acción no se puede deshacer.")
+                            if st.button("Sí, eliminar definitivamente", key=f"confirm_delete_edit_{garment.id}", type="primary", use_container_width=True):
+                                delete_garment_cloud(user_id, garment.id)
+                                st.session_state.wardrobe = [
+                                    g for g in st.session_state.wardrobe if g.id != garment.id
+                                ]
+                                st.session_state.next_id = get_next_id(st.session_state.wardrobe)
+                                st.session_state.selected_garment_id = None
+                                st.rerun()
 
                     col_cancel_left, col_cancel_right = st.columns([1, 3])
                     with col_cancel_left:
@@ -1522,21 +1531,69 @@ with tab2:
                             st.session_state["edit_saved_message"] = garment.id
                             st.success("Edición guardada.")
 
-                    if delete_garment:
-                        delete_garment_cloud(user_id, garment.id)
-
-                        st.session_state.wardrobe = [
-                            g for g in st.session_state.wardrobe if g.id != garment.id
-                        ]
-                        st.session_state.next_id = get_next_id(st.session_state.wardrobe)
-                        st.session_state.selected_garment_id = None
-                        st.rerun()
-
                     if cancel_edit:
                         st.session_state.selected_garment_id = None
                         if "edit_saved_message" in st.session_state:
                             del st.session_state["edit_saved_message"]
                         st.rerun()
+
+    st.markdown("---")
+    st.markdown("""
+<div style="background-color: #fff0f3; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
+    <p style="margin: 0; font-weight: 600; font-size: 1.1rem;">📊 Estadísticas de tu clóset</p>
+</div>
+""", unsafe_allow_html=True)
+
+    used_outfits = st.session_state.get("used_outfits", [])
+    wardrobe = st.session_state.wardrobe
+    garment_map = {g.id: g for g in wardrobe}
+
+    if not used_outfits:
+        st.info("Aún no has registrado outfits usados. Las estadísticas aparecerán aquí a medida que uses Lookia.")
+    else:
+        from collections import Counter
+
+        garment_counter = Counter()
+        style_counter = Counter()
+        occasion_counter = Counter()
+
+        for ou in used_outfits:
+            for gid in ou.garment_ids:
+                garment_counter[gid] += 1
+                g = garment_map.get(gid)
+                if g:
+                    style_counter[g.style] += 1
+            occasion_counter[ou.occasion] += 1
+
+        top_style = STYLE_LABELS_ES.get(style_counter.most_common(1)[0][0], "—") if style_counter else "—"
+        top_occasion = occasion_counter.most_common(1)[0][0].capitalize() if occasion_counter else "—"
+
+        col_m1, col_m2, col_m3 = st.columns(3)
+        col_m1.metric("Prendas en clóset", len(wardrobe))
+        col_m2.metric("Outfits registrados", len(used_outfits))
+        col_m3.metric("Estilo dominante", top_style)
+
+        st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+
+        col_s, col_o = st.columns(2)
+
+        with col_s:
+            st.markdown("#### Prendas más usadas")
+            top_garments = garment_counter.most_common(5)
+            if top_garments:
+                for gid, count in top_garments:
+                    g = garment_map.get(gid)
+                    name = g.name if g else f"Prenda #{gid}"
+                    cat = CATEGORY_LABELS_ES.get(g.category, g.category) if g else ""
+                    st.markdown(f"- **{name}** ({cat}) — {count} {'vez' if count == 1 else 'veces'}")
+            else:
+                st.caption("Sin datos suficientes.")
+
+        with col_o:
+            st.markdown("#### Ocasiones más frecuentes")
+            for occasion, count in occasion_counter.most_common(5):
+                st.markdown(f"- **{occasion.capitalize()}** — {count} {'vez' if count == 1 else 'veces'}")
+
 # =========================================================
 # TAB 3: AGREGAR PRENDA
 # =========================================================
@@ -1576,9 +1633,6 @@ with tab3:
     if "form_uploader_key" not in st.session_state:
         st.session_state.form_uploader_key = 0
     
-    if st.session_state.get("add_saved_message"):
-        st.success(st.session_state["add_saved_message"])
-        del st.session_state["add_saved_message"]
 
     if "form_subcategory" not in st.session_state:
         st.session_state.form_subcategory = None
@@ -1605,8 +1659,8 @@ with tab3:
     # =========================================================
     # SECCIÓN: SUBIDA MÚLTIPLE DE FOTOS
     # =========================================================
-    st.markdown("### 📸 Agregar fotos")
-    st.caption("Puedes subir hasta 5 prendas a la vez")
+    st.markdown("### 📸 Subida rápida")
+    st.caption("Sube hasta 5 fotos y Lookia detecta los atributos automáticamente desde el nombre del archivo")
 
     if "bulk_uploader_key" not in st.session_state:
         st.session_state.bulk_uploader_key = 0
@@ -1696,7 +1750,8 @@ with tab3:
             st.rerun()
 
     st.divider()
-    st.markdown("### ➕ Agregar prenda manualmente")
+    st.markdown("### ✏️ Agregar con formulario")
+    st.caption("Llena los campos tú misma para mayor precisión")
 
     uploaded_file = st.file_uploader(
         "Sube una foto de la prenda",
@@ -1773,6 +1828,31 @@ with tab3:
         preview = Image.open(uploaded_file)
         preview = ImageOps.exif_transpose(preview)
         st.image(preview, caption="Vista previa", width=220)
+
+    def _reinfer_category_from_name():
+        name = st.session_state.form_name.strip()
+        if not name or len(name) < 3:
+            return
+        inferred = infer_attributes_from_name(name)
+
+        if inferred.get("category") in CATEGORY_OPTIONS:
+            st.session_state.form_category = inferred["category"]
+
+            inferred_subcategory = inferred.get("subcategory")
+            valid_subcategories = SUBCATEGORY_OPTIONS.get(inferred["category"], [])
+            if inferred_subcategory in valid_subcategories:
+                st.session_state.form_subcategory = inferred_subcategory
+            else:
+                st.session_state.form_subcategory = None
+
+    st.markdown("""
+<div style="background-color: #fff0f3; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;">
+    <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 0.95rem;">Nombre de la prenda</p>
+    <p style="margin: 0; font-size: 0.8rem; color: #666;">💡 Lookia infiere la categoría, color y otros atributos desde el nombre — mientras más descriptivo, mejor</p>
+</div>
+""", unsafe_allow_html=True)
+    name = st.text_input("", label_visibility="collapsed", key="form_name", on_change=_reinfer_category_from_name)
+
 # manual_name_inference_tab3
     if uploaded_file is None and st.session_state.form_name.strip():
         inferred = infer_attributes_from_name(st.session_state.form_name.strip())
@@ -1806,22 +1886,6 @@ with tab3:
 
             st.session_state.form_inferred_done = True
 
-    def _reinfer_category_from_name():
-        name = st.session_state.form_name.strip()
-        if not name or len(name) < 3:
-            return
-        inferred = infer_attributes_from_name(name)
-
-        if inferred.get("category") in CATEGORY_OPTIONS:
-            st.session_state.form_category = inferred["category"]
-
-            inferred_subcategory = inferred.get("subcategory")
-            valid_subcategories = SUBCATEGORY_OPTIONS.get(inferred["category"], [])
-            if inferred_subcategory in valid_subcategories:
-                st.session_state.form_subcategory = inferred_subcategory
-            else:
-                st.session_state.form_subcategory = None
-
     category = st.selectbox(
         "Categoría",
         CATEGORY_OPTIONS,
@@ -1839,8 +1903,6 @@ with tab3:
         )
     else:
         subcategory = None
-
-    name = st.text_input("Nombre de la prenda", key="form_name", on_change=_reinfer_category_from_name)
 
     color_icons = {
         "amarillo": "🟡",
@@ -1949,6 +2011,9 @@ with tab3:
         submitted = st.form_submit_button("Guardar prenda")
 
     if submitted:
+        if uploaded_file is None and not name.strip():
+            st.warning("Para agregar tu prenda, sube una foto o ponle un nombre.")
+            st.stop()
         next_id = max([g.id for g in st.session_state.wardrobe], default=0) + 1
         image_name = None
 
@@ -1976,10 +2041,13 @@ with tab3:
 
         st.session_state.wardrobe.append(garment)
         save_garment_cloud(user_id, garment)
-        st.session_state["add_saved_message"] = "Tu prenda quedó guardada."
         st.session_state["reset_add_form"] = True
         st.session_state.form_uploader_key += 1
+        st.session_state["add_saved_message"] = True
         st.rerun()
+
+    if st.session_state.pop("add_saved_message", False):
+        st.success("✅ Tu prenda quedó guardada.")
 # =========================================================
 # TAB 4: PLANIFICADOR SEMANAL
 # =========================================================

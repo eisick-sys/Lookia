@@ -312,3 +312,19 @@ Problema: a 24-25°C el bloque `if temp >= 24` filtraba midlayer a `warmth == "c
   - Ambas funciones en una sola llamada a Claude Haiku — costo ~$0.002 por foto
   - Reemplaza inferencia actual por nombre que es muy limitada
 - ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
+
+### Sesión 19 — abril 2026
+
+**UI — tab3 Agregar prenda**
+- ✅ Sección "Agregar fotos" renombrada a "Subida rápida" con caption descriptivo
+- ✅ Sección "Agregar prenda manualmente" renombrada a "Agregar con formulario" con caption
+- ✅ Orden del formulario: foto → nombre → caption inferencia → categoría → resto de campos
+- ✅ Campo "Nombre de la prenda" destacado con fondo rosado (#fff0f3) y caption de inferencia arriba del input
+- ✅ Mensaje de confirmación "Tu prenda quedó guardada" movido al final del formulario (via session_state + st.success post-rerun)
+- ✅ Validación: impedir guardar prenda sin foto ni nombre, mostrar warning inline
+- ✅ Inferencia de estilo principal desde nombre (infer_style_from_name en attribute_inference.py)
+
+**UI — tab2 Mi clóset**
+- ✅ Botón eliminar con confirmación via st.popover en formulario de editar prenda
+- ✅ Botón eliminar directo en tarjeta de galería — descartado, pendiente migración a React
+- ✅ Sección de estadísticas agregada al final del tab: título con fondo rosado, métricas (prendas, outfits registrados, estilo dominante), prendas más usadas y ocasiones más frecuentes
