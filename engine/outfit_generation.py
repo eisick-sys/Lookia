@@ -110,13 +110,23 @@ def generate_outfits(
     top_candidates["accessory"] = _accessories  # pool completo; la rotación se maneja en la selección
 
     if occasion == "matrimonio":
-        top_candidates["one_piece"] = sorted(
+        _sorted_one_piece = sorted(
             top_candidates["one_piece"],
             key=lambda g: (
                 0 if g.subcategory in ["vestido_elegante", "vestido_coctel"] else
                 1 if g.subcategory == "vestido_casual" else 2
             )
         )[:4]
+
+        if mood == "urbano":
+            _existing_ids = {g.id for g in _sorted_one_piece}
+            _urbano_extra = [
+                g for _, g in ranked["one_piece"]
+                if g.id not in _existing_ids and garment_has_style(g, "urbano")
+            ]
+            top_candidates["one_piece"] = _sorted_one_piece + _urbano_extra
+        else:
+            top_candidates["one_piece"] = _sorted_one_piece
 
         if top_candidates["one_piece"]:
             if mood == "urbano":
@@ -178,9 +188,15 @@ def generate_outfits(
 
     if temp >= 24:
         top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
-        ][:2]
+        if occasion == "matrimonio" and mood == "urbano":
+            top_candidates["midlayer"] = [
+                g for g in top_candidates["midlayer"]
+                if g.subcategory == "blazer"
+            ][:1]
+        else:
+            top_candidates["midlayer"] = [
+                g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
+            ][:2]
 
     elif temp >= 22 and not rain:
         top_candidates["outerwear"] = []
@@ -261,7 +277,6 @@ def generate_outfits(
                     and top.dress_level in ["arreglado", "elegante"]
                 ):
                     continue
-
         top_name = top.name.lower()
         top_is_outer_like = any(
             x in top_name
@@ -280,7 +295,6 @@ def generate_outfits(
                         garment_has_style(bottom, "elegante") or garment_has_style(bottom, "formal") or garment_has_style(bottom, "urbano")
                     ):
                         continue
-
             for shoes in top_candidates["shoes"]:
                 base = [top, bottom, shoes]
                 include_accessory = occasion in ["matrimonio", "gala"] or random.random() < 0.6
@@ -331,6 +345,23 @@ def generate_outfits(
                     continue
 
                 register_combo(base)
+
+                # Midlayer sin outerwear: permitido en matrimonio+urbano con calor
+                if (
+                    occasion == "matrimonio"
+                    and mood == "urbano"
+                    and temp >= 24
+                ):
+                    for mid in top_candidates["midlayer"]:
+                        combo_mid = base + [mid]
+                        register_combo(combo_mid)
+                        if "accessory" in optional and include_accessory:
+                            for acc in top_candidates["accessory"]:
+                                combo_mid_acc = base + [mid, acc]
+                                if should_include_accessory(
+                                    acc, occasion, mood, activity, temp, rain, combo_mid
+                                ):
+                                    register_combo(combo_mid_acc)
 
                 if "midlayer" in optional:
                     midlayer_candidates = top_candidates["midlayer"]
@@ -893,9 +924,15 @@ def generate_outfits_from_selected_garment(
     # =========================================================
     if temp >= 24:
         top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
-        ][:2]
+        if occasion == "matrimonio" and mood == "urbano":
+            top_candidates["midlayer"] = [
+                g for g in top_candidates["midlayer"]
+                if g.subcategory == "blazer"
+            ][:1]
+        else:
+            top_candidates["midlayer"] = [
+                g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
+            ][:2]
 
     elif temp >= 22 and not rain:
         top_candidates["outerwear"] = []
@@ -921,13 +958,23 @@ def generate_outfits_from_selected_garment(
 
     # Filtros especiales por ocasión — igual que generate_outfits
     if occasion == "matrimonio":
-        top_candidates["one_piece"] = sorted(
+        _sorted_one_piece = sorted(
             top_candidates["one_piece"],
             key=lambda g: (
                 0 if g.subcategory in ["vestido_elegante", "vestido_coctel"] else
                 1 if g.subcategory == "vestido_casual" else 2
             )
         )[:4]
+
+        if mood == "urbano":
+            _existing_ids = {g.id for g in _sorted_one_piece}
+            _urbano_extra = [
+                g for _, g in ranked["one_piece"]
+                if g.id not in _existing_ids and garment_has_style(g, "urbano")
+            ]
+            top_candidates["one_piece"] = _sorted_one_piece + _urbano_extra
+        else:
+            top_candidates["one_piece"] = _sorted_one_piece
 
         if top_candidates["one_piece"]:
             if mood == "urbano":

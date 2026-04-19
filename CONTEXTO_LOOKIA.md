@@ -234,10 +234,31 @@ Contexto: para matrimonio "relajado" el motor mostraba poleras y mocasines como 
 
 ---
 
+### Sesión 17 — abril 2026
+
+**Motor — matrimonio mood urbano (continuación)**
+
+- ✅ Pool de candidatos one_piece para matrimonio mood urbano ampliado: incluye prendas con style == "urbano" o "urbano" in secondary_styles, independiente de su subcategoría — en generate_outfits y generate_outfits_from_selected_garment
+- ✅ Vestido urbano elegante agregado al clóset como one_piece vestido_casual, style urbano, secondary_styles [casual, elegante, formal], dress_level arreglado, warmth caluroso
+
+**Pruebas completadas matrimonio + normal**
+
+- ✅ URBANO 8°C sin lluvia — OK
+- ✅ URBANO 8°C con lluvia — OK
+- ✅ URBANO 33°C calor — OK
+- ⬜ URBANO 24-25° — midlayer (blazer) no aparece porque bloque temp >= 24 filtra solo warmth == "caluroso" y ningún blazer del clóset tiene ese valor; pendiente resolver sin tocar norma general preexistente
+
+**Pendiente**
+- ⬜ Matrimonio urbano 24-25° — fix midlayer
+- ⬜ Continuar matriz de pruebas: matrimonio elegante, sexy, cómodo (todas las temperaturas)
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Motor
-- ⬜ Matrimonio urbano — pruebas pendientes: lluvia y calor (24-25°C)
+- ⬜ Matrimonio urbano 24-25° — fix midlayer (blazer no aparece; bloque temp >= 24 filtra solo warmth == "caluroso")
+- ⬜ Continuar matriz de pruebas matrimonio: elegante, sexy, cómodo (todas las temperaturas)
 - ⬜ Accesorios con vestidos en matrimonio — collar/aros no aparecen, investigar `accessory_relevance_penalty` y ranking
 - ⬜ Diversidad de tops en matrimonio outfit 3 — blusa amarilla domina (pocos tops elegantes en clóset)
 - ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado

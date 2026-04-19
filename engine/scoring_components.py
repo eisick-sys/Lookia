@@ -546,6 +546,18 @@ def practicality_penalty(
         ):
             penalty -= 50
 
+        if (
+            temp >= 24
+            and occasion == "matrimonio"
+            and g.category == "midlayer"
+            and g.subcategory == "blazer"
+        ):
+            has_one_piece = any(x.category == "one_piece" for x in items)
+            if has_one_piece:
+                one_piece = next(x for x in items if x.category == "one_piece")
+                if one_piece.warmth != "caluroso":
+                    penalty += 999
+
     # Vestido elegante/cóctel: solo calzado formal y capas elegantes (una vez por outfit)
     has_vestido_elegante = any(
         g.category == "one_piece"
