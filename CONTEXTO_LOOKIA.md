@@ -269,50 +269,6 @@ Problema: a 24-25°C el bloque `if temp >= 24` filtraba midlayer a `warmth == "c
 
 ---
 
-## Pendiente para próximas sesiones
-
-### Motor
-- ⬜ Continuar matriz de pruebas matrimonio: elegante, sexy, cómodo (todas las temperaturas)
-- ⬜ Accesorios con vestidos en matrimonio — collar/aros no aparecen, investigar `accessory_relevance_penalty` y ranking
-- ⬜ Diversidad de tops en matrimonio outfit 3 — blusa amarilla domina (pocos tops elegantes en clóset)
-- ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
-- ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
-- ⬜ Calzado plano de trabajo para calor
-- ⬜ Mayor diversidad de tops en mood urbano
-- ⬜ Planificador — polera sin midlayer con frío extremo
-- ⬜ Chaleco cuello V — genera combinaciones incoherentes, revisar tags y penalizaciones
-- ⬜ Pruebas pendientes: gala, deporte
-
-### Clóset
-- ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
-- ⬜ Agregar sandalias, ballerinas y chalas al clóset
-- ⬜ Más bottoms livianos para calor (pantalones de tela, faldas)
-- ⬜ Más tops elegantes/formales para matrimonio (blusa amarilla domina por falta de opciones)
-
-### UI
-- ⬜ Formulario editar prenda — scroll automático o inline en galería
-- ⬜ Tip de pantys: mostrar máximo una vez por tanda
-- ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
-- ⬜ Ocasiones frecuentes del perfil ordenadas primero en selectbox del recomendador
-
-### Técnico
-- ⬜ **Moderación de fotos** — bloquear nudes/menores/contenido inapropiado en subida (urgente)
-- ⬜ **`generate_outfits_from_selected_garment`** — equiparar todas las reglas de `generate_outfits`
-- ⬜ **UI definitiva** — migrar de Streamlit a React o similar
-- ⬜ Dividir app.py en módulos por tab
-- ⬜ Renombrar dress_level "flexible" a "intermedio" en refactor futuro
-
-### Funcionalidades nuevas
-- ⬜ Estadísticas en tab "Mi clóset"
-- ⬜ Perfil de usuario completo (foto, preferencias avanzadas)
-- ⬜ Detección de color automática con Pillow al subir foto
-- ⬛ **INTEGRACIÓN IA ANTHROPIC (PRIORITARIO)**
-  - Moderación de fotos en subida (urgente para más testers)
-  - Inferencia de atributos desde imagen (categoría, color, subcategoría, patrón, estilo, warmth)
-  - Ambas funciones en una sola llamada a Claude Haiku — costo ~$0.002 por foto
-  - Reemplaza inferencia actual por nombre que es muy limitada
-- ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
-
 ### Sesión 19 — abril 2026
 
 **UI — tab3 Agregar prenda**
@@ -328,3 +284,66 @@ Problema: a 24-25°C el bloque `if temp >= 24` filtraba midlayer a `warmth == "c
 - ✅ Botón eliminar con confirmación via st.popover en formulario de editar prenda
 - ✅ Botón eliminar directo en tarjeta de galería — descartado, pendiente migración a React
 - ✅ Sección de estadísticas agregada al final del tab: título con fondo rosado, métricas (prendas, outfits registrados, estilo dominante), prendas más usadas y ocasiones más frecuentes
+
+**Motor — matrimonio elegante**
+- ✅ Fix diversidad de vestidos: matrimonio_forced ahora fuerza vestidos distintos en slots 1 y 2
+- ✅ Fix vestidos elegantes/cóctel con calor: exentos de penalización warmth en matrimonio a temp >= 26 si warmth != "frio"
+- ✅ Penalización zapato derby en matrimonio mood no urbano (+80)
+- ✅ midlayer (blazer) agregado a optional de matrimonio en occasion_rules.py
+- ✅ Filtro de midlayer en matrimonio: solo blazers elegantes/formales con dress_level arreglado/elegante, pool [:3]
+- ✅ Fix blazer a 24°+: excepción para blazer caluroso aunque vestido sea warmth medio
+- ✅ Fix flujo midlayer con one_piece en matrimonio elegante a todas las temperaturas
+- ✅ max_same_midlayer = 1 cuando 24 <= temp <= 25, top_n en el resto — con tracking en matrimonio_forced
+- ✅ midlayer vaciado cuando temp > 25 en matrimonio elegante
+
+**Pruebas matrimonio elegante completadas**
+- ✅ 5° sin lluvia — OK
+- ✅ 5° con lluvia — OK (tip paraguas correcto)
+- ✅ 31° calor — OK (vestidos dominan, fix warmth funcionando)
+- ✅ 24-25° — OK (1 blazer caluroso aparece en 1 slot)
+- ⬜ 16° — PENDIENTE: blazer negro y blazer gris tienen dress_level: flexible, no pasan filtro → corregir a arreglado en Supabase, luego verificar que los 3 outfits tengan blazer
+
+---
+
+## Pendiente para próximas sesiones
+
+### Motor — matrimonio (continuar)
+- ⬜ Corregir dress_level de blazer negro (id:132) y blazer gris (id:130) a "arreglado" en Supabase
+- ⬜ Verificar 16° matrimonio elegante con 3 blazers disponibles — los 3 outfits deben tener blazer
+- ⬜ Continuar matriz de pruebas: mood sexy, mood cómodo (todas las temperaturas)
+- ⬜ Actividad "formal" en matrimonio — reservar los 3 slots exclusivamente para vestidos elegantes/cóctel
+- ⬜ Boost mayor a vestidos vs faldas en mood elegante
+- ⬜ Accesorios con vestidos en matrimonio — collar/aros no aparecen consistentemente
+
+### Motor (general)
+- ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
+- ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
+- ⬜ Calzado plano de trabajo para calor
+- ⬜ Mayor diversidad de tops en mood urbano
+- ⬜ Planificador — polera sin midlayer con frío extremo
+- ⬜ Chaleco cuello V — genera combinaciones incoherentes
+- ⬜ Pruebas pendientes: gala, deporte
+
+### Clóset
+- ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
+- ⬜ Agregar sandalias, ballerinas y chalas al clóset
+- ⬜ Más bottoms livianos para calor
+
+### UI
+- ⬜ Formulario editar prenda — scroll automático o inline en galería
+- ⬜ Tip de pantys: mostrar máximo una vez por tanda
+- ⬜ Persistencia del "Ignorar" en badge de inconsistencias (pendiente Supabase)
+- ⬜ Ocasiones frecuentes del perfil ordenadas primero en selectbox del recomendador
+- ⬜ Botón eliminar directo en tarjeta de galería — pendiente migración a React
+
+### Técnico
+- ⬜ Moderación de fotos — bloquear nudes/menores/contenido inapropiado en subida (urgente)
+- ⬜ generate_outfits_from_selected_garment — equiparar todas las reglas de generate_outfits
+- ⬜ UI definitiva — migrar de Streamlit a React o similar
+- ⬜ Dividir app.py en módulos por tab
+- ⬜ Renombrar dress_level "flexible" a "intermedio" en refactor futuro
+
+### Funcionalidades nuevas
+- ⬜ Estadísticas en tab "Mi clóset" — ya implementado básico, expandir
+- ⬜ Integración IA Anthropic (PRIORITARIO): moderación de fotos + inferencia de atributos desde imagen en una sola llamada a Claude Haiku
+- ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
