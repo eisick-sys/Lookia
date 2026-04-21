@@ -870,7 +870,7 @@ with tab1:
 
     show_anyway_clicked = False
     if selected_garment:
-        show_anyway_clicked = col_btn3.button("Mostrar de todos modos", use_container_width=True)
+        show_anyway_clicked = col_btn3.button("💪 Mostrar de todos modos", use_container_width=True)
 
     outfits = st.session_state.get("last_outfits", [])
     recent_memory = get_recent_outfit_memory()
@@ -1865,7 +1865,7 @@ with tab3:
     <p style="margin: 0; font-size: 0.8rem; color: #666;">💡 Lookia infiere la categoría, color y otros atributos desde el nombre — mientras más descriptivo, mejor</p>
 </div>
 """, unsafe_allow_html=True)
-    name = st.text_input("", label_visibility="collapsed", key="form_name", on_change=_reinfer_category_from_name)
+    name = st.text_input("Nombre de la prenda", label_visibility="collapsed", key="form_name", on_change=_reinfer_category_from_name)
 
 # manual_name_inference_tab3
     if uploaded_file is None and st.session_state.form_name.strip():
@@ -2219,7 +2219,7 @@ with tab4:
             "description": day_weather.get("description", "sin datos")
         }
 
-    generate_week = st.button("Generar semana", use_container_width=True)
+    generate_week = st.button("📅 Generar semana", use_container_width=True, type="primary")
 
     if generate_week:
         if not st.session_state.wardrobe:
