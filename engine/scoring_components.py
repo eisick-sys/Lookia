@@ -519,7 +519,7 @@ def practicality_penalty(
             and g.category == "shoes"
             and g.subcategory == "zapato"
         ):
-            penalty += 80
+            penalty += 999  # hard block — zapato derby nunca en matrimonio elegante
 
         if not rain:
             if g.category == "outerwear" and g.waterproof:
@@ -527,7 +527,18 @@ def practicality_penalty(
 
         if not rain and temp >= 16:
             if g.category == "outerwear":
-                penalty += 20
+                if occasion == "matrimonio" and mood == "elegante" and temp <= 23:
+                    penalty += 45
+                else:
+                    penalty += 20
+
+        if (
+            occasion == "matrimonio"
+            and mood == "elegante"
+            and 13 <= temp <= 23
+            and g.category == "outerwear"
+        ):
+            penalty += 80
 
         if (
             mood == "relajado"
@@ -629,7 +640,7 @@ def practicality_penalty(
     if occasion == "matrimonio":
         for g in items:
             if g.category == "one_piece" and g.subcategory in ["vestido_elegante", "vestido_coctel"]:
-                penalty -= 160
+                penalty -= 160 if mood != "elegante" else 350
             elif g.category == "one_piece" and g.subcategory == "vestido_casual":
                 penalty -= 60
 
