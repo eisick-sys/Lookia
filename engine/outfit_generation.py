@@ -338,7 +338,7 @@ def generate_outfits(
 
     if temp >= 24:
         top_candidates["outerwear"] = []
-        if occasion == "matrimonio" and mood in ["urbano", "elegante"]:
+        if occasion == "matrimonio" and mood in ["urbano", "sexy"]:
             if temp > 25:
                 top_candidates["midlayer"] = []
             else:
@@ -351,12 +351,6 @@ def generate_outfits(
                 g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
             ][:2]
 
-    elif temp >= 22 and not rain:
-        top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth != "frio"
-        ][:1]
-
     elif temp >= 16 and not rain:
         top_candidates["outerwear"] = []
         top_candidates["midlayer"] = [
@@ -368,6 +362,14 @@ def generate_outfits(
             g for g in top_candidates["outerwear"]
             if g.warmth != "frio" and not g.waterproof
         ][:1]
+
+    elif rain and temp >= 16:
+        top_candidates["midlayer"] = [
+            g for g in top_candidates["midlayer"] if g.warmth != "frio"
+        ][:1]
+        top_candidates["outerwear"] = [
+            g for g in top_candidates["outerwear"]
+        ][:2]
 
     else:
         top_candidates["midlayer"] = top_candidates["midlayer"][:mid_limit]
@@ -647,7 +649,7 @@ def generate_outfits(
 
                 if (
                     occasion == "matrimonio"
-                    and mood in ["urbano", "elegante"]
+                    and mood in ["urbano", "sexy"]
                     and temp >= 24
                     and top_candidates["midlayer"]
                 ):
@@ -666,7 +668,7 @@ def generate_outfits(
 
             if "midlayer" in optional and (
                 occasion not in ["matrimonio", "gala", "salida nocturna", "cita"]
-                or (occasion == "matrimonio" and mood in ["urbano", "elegante"] and top_candidates["midlayer"])
+                or (occasion == "matrimonio" and mood in ["urbano", "sexy"] and top_candidates["midlayer"])
             ):
                 for mid in top_candidates["midlayer"]:
                     combo = base + [mid]
@@ -813,6 +815,12 @@ def generate_outfits(
             return True
 
         if same_top and same_shoes:
+            return True
+
+        if same_top and same_one_piece:
+            return True
+
+        if same_one_piece and same_shoes:
             return True
 
         return False
@@ -1167,7 +1175,7 @@ def generate_outfits_from_selected_garment(
     # =========================================================
     if temp >= 24:
         top_candidates["outerwear"] = []
-        if occasion == "matrimonio" and mood in ["urbano", "elegante"]:
+        if occasion == "matrimonio" and mood in ["urbano", "sexy"]:
             if temp > 25:
                 top_candidates["midlayer"] = []
             else:
@@ -1180,12 +1188,6 @@ def generate_outfits_from_selected_garment(
                 g for g in top_candidates["midlayer"] if g.warmth == "caluroso"
             ][:2]
 
-    elif temp >= 22 and not rain:
-        top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth != "frio"
-        ][:1]
-
     elif temp >= 16 and not rain:
         top_candidates["outerwear"] = []
         top_candidates["midlayer"] = [
@@ -1197,6 +1199,14 @@ def generate_outfits_from_selected_garment(
             g for g in top_candidates["outerwear"]
             if g.warmth != "frio" and not g.waterproof
         ][:1]
+
+    elif rain and temp >= 16:
+        top_candidates["midlayer"] = [
+            g for g in top_candidates["midlayer"] if g.warmth != "frio"
+        ][:1]
+        top_candidates["outerwear"] = [
+            g for g in top_candidates["outerwear"]
+        ][:2]
 
     else:
         top_candidates["midlayer"] = top_candidates["midlayer"][:mid_limit]
@@ -1373,7 +1383,7 @@ def generate_outfits_from_selected_garment(
 
         matrimonio_midlayer_allowed = (
             occasion == "matrimonio"
-            and mood in ["urbano", "elegante"]
+            and mood in ["urbano", "sexy"]
             and temp >= 24
         )
         if (
@@ -1557,12 +1567,54 @@ def generate_outfits_from_selected_garment(
 
         same_top = ids1.get("top") == ids2.get("top")
         same_bottom = ids1.get("bottom") == ids2.get("bottom")
+        same_one_piece = ids1.get("one_piece") == ids2.get("one_piece")
         same_shoes = ids1.get("shoes") == ids2.get("shoes")
 
-        if same_bottom and same_shoes:
+        bottom1 = next((g for g in c1 if g.category == "bottom"), None)
+        bottom2 = next((g for g in c2 if g.category == "bottom"), None)
+
+        shoes1 = next((g for g in c1 if g.category == "shoes"), None)
+        shoes2 = next((g for g in c2 if g.category == "shoes"), None)
+
+        same_bottom_type = False
+        same_shoes_type = False
+
+        if bottom1 and bottom2:
+            name1 = bottom1.name.lower()
+            name2 = bottom2.name.lower()
+
+            same_bottom_type = (
+                ("buzo" in name1 and "buzo" in name2) or
+                ("jean" in name1 and "jean" in name2) or
+                ("short" in name1 and "short" in name2)
+            )
+
+        if shoes1 and shoes2:
+            name1 = shoes1.name.lower()
+            name2 = shoes2.name.lower()
+
+            same_shoes_type = (
+                ("zapatilla" in name1 and "zapatilla" in name2)
+            )
+
+        ow1 = ids1.get("outerwear")
+        ow2 = ids2.get("outerwear")
+        different_outerwear = (ow1 is not None and ow2 is not None and ow1 != ow2)
+        if same_bottom_type and same_shoes_type and not different_outerwear:
             return True
+
         if same_top and same_bottom:
             return True
+
+        if same_top and same_shoes:
+            return True
+
+        if same_top and same_one_piece:
+            return True
+
+        if same_one_piece and same_shoes:
+            return True
+
         return False
 
     diverse = []
