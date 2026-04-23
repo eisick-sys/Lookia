@@ -107,7 +107,10 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
     }
 
     if garment.dress_level in blocked_by_occasion.get(occasion, []):
-        return _ret(False, f"No te recomiendo usar {garment.name} para {occasion}.")
+        if not (occasion == "matrimonio" and mood == "comodo"
+                and garment.category == "shoes"
+                and garment.subcategory in ["botin", "bota", "zapato", "mocasin"]):
+            return _ret(False, f"No te recomiendo usar {garment.name} para {occasion}.")
 
     if garment.category == "bottom":
         if is_bottom_short_or_light(garment):
@@ -144,16 +147,16 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
             if is_shoe_sneaker_like(garment):
                 if not (
                     occasion == "matrimonio"
-                    and mood == "urbano"
+                    and mood in ["urbano", "comodo"]
                     and garment.subcategory == "zapatilla_urbana"
                     and garment.dress_level in ["arreglado", "elegante"]
                 ):
                     return _ret(False, f"{garment.name} no va con un {occasion}.")
             if garment.subcategory in ["botin", "bota"]:
-                if not (occasion == "matrimonio" and mood == "urbano" and garment.dress_level in ["flexible", "arreglado", "elegante"]):
+                if not (occasion == "matrimonio" and mood in ["urbano", "comodo"] and garment.dress_level in ["relajado", "flexible", "arreglado", "elegante"]):
                     return _ret(False, f"{garment.name} no va con un {occasion}.")
             if garment.subcategory == "mocasin":
-                if not (occasion == "matrimonio" and mood == "urbano"):
+                if not (occasion == "matrimonio" and mood in ["urbano", "comodo"]):
                     return _ret(False, f"{garment.name} no va con un {occasion}.")
 
         if garment.category == "accessory":

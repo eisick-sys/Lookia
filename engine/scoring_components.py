@@ -210,7 +210,7 @@ def activity_bonus(garment: Garment, activity: str, occasion: str = "") -> int:
     return 0
 
 
-def mood_bonus(garment: Garment, mood: str) -> int:
+def mood_bonus(garment: Garment, mood: str, occasion: str = "") -> int:
     garment_styles = all_styles(garment)
 
     mood_map = {
@@ -236,10 +236,13 @@ def mood_bonus(garment: Garment, mood: str) -> int:
         },
     }
 
-    config = mood_map.get(mood, {"strong": [], "soft": []})
-
-    strong_hits = sum(1 for s in config["strong"] if s in garment_styles)
-    soft_hits = sum(1 for s in config["soft"] if s in garment_styles)
+    if mood == "comodo" and occasion == "matrimonio":
+        strong_hits = sum(1 for s in ["formal", "elegante"] if s in garment_styles)
+        soft_hits = 1 if garment.dress_level in ["arreglado", "flexible"] else 0
+    else:
+        config = mood_map.get(mood, {"strong": [], "soft": []})
+        strong_hits = sum(1 for s in config["strong"] if s in garment_styles)
+        soft_hits = sum(1 for s in config["soft"] if s in garment_styles)
 
     if strong_hits >= 2:
         base = 10
@@ -389,6 +392,12 @@ def practicality_penalty(
                 if "urbano" in styles and g.dress_level in ["flexible", "relajado"]:
                     penalty += 15
 
+            if occasion == "matrimonio" and mood == "comodo":
+                if g.category == "shoes" and g.subcategory == "taco_alto":
+                    penalty += 80
+                if g.category == "one_piece" and g.subcategory in ["vestido_elegante", "vestido_coctel"]:
+                    penalty += 70
+
         if occasion == "trabajo":
             if g.category == "shoes":
                 if "converse" in name:
@@ -515,7 +524,7 @@ def practicality_penalty(
 
         if (
             occasion == "matrimonio"
-            and mood != "urbano"
+            and mood not in ["urbano", "comodo"]
             and g.category == "shoes"
             and g.subcategory == "zapato"
         ):

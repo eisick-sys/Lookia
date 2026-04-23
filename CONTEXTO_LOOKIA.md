@@ -420,17 +420,54 @@ Diagnóstico completo realizado sobre `generate_outfits` y `generate_outfits_fro
 
 ---
 
+### Sesión 23 — abril 2026
+
+**Motor — matrimonio mood cómodo (implementación completa)**
+
+Contexto: el motor no tenía lógica propia para matrimonio+cómodo. Las prendas caían en el `else` genérico de elegante/sexy/relajado, el scoring con `mood_bonus` penalizaba prendas formales/elegantes, y no había filtros específicos de calzado ni one_piece para este mood.
+
+**`engine/outfit_generation.py`** (aplicado en `generate_outfits` y `generate_outfits_from_selected_garment`)
+- ✅ Bloque `elif mood == "comodo":` propio para one_piece en matrimonio: lista blanca `["vestido_casual", "enterito"]` — excluye vestido_elegante y vestido_coctel del pool
+- ✅ Bloque `elif mood == "comodo":` propio para top/bottom en matrimonio: solo elegante/formal (sin urbano), dress_level arreglado/elegante/flexible
+- ✅ Bloque `elif mood == "comodo":` propio para shoes en matrimonio: bloquea taco_alto y zapatilla_deporte; pool tomado del ranking completo `ranked["shoes"]` (no del slice); un representante por subcategoría via `_seen_subs`; `random.shuffle` para variar entre tandas
+- ✅ `max_same_shoes = 1` para matrimonio+cómodo (forzar variedad de calzado por outfit)
+- ✅ Bloques inline de tops y bottoms en loops: condición ampliada a `mood in ["urbano", "comodo"]` para el `else` permisivo; ambos moods aceptan dress_level flexible en el `else`
+- ✅ Forzado de vestidos desactivado para cómodo: `mood not in ["urbano", "comodo"]` en bloques de reordenamiento final y matrimonio_forced
+
+**`engine/occasion_rules.py`**
+- ✅ Zapatilla_urbana arreglada/elegante permitida para `mood in ["urbano", "comodo"]`
+- ✅ Botín y bota permitidos para `mood in ["urbano", "comodo"]` con cualquier dress_level (relajado a elegante)
+- ✅ Mocasín permitido para `mood in ["urbano", "comodo"]`
+- ✅ Excepción en `blocked_by_occasion`: dress_level "relajado" no bloquea shoes botin/bota/zapato/mocasin cuando `occasion == "matrimonio" and mood == "comodo"`
+
+**`engine/scoring_components.py`**
+- ✅ `mood_bonus` recibe `occasion: str = ""` como parámetro
+- ✅ Branch `if mood == "comodo" and occasion == "matrimonio":` en mood_bonus: strong = ["formal", "elegante"], soft = dress_level arreglado/flexible
+- ✅ `practicality_penalty`: bloque matrimonio+comodo penaliza taco_alto (+80) y vestido_elegante/vestido_coctel (+70)
+- ✅ Hard block zapato derby (`penalty += 999`) ampliado a `mood not in ["urbano", "comodo"]` — zapato derby permitido en matrimonio+cómodo
+
+**`engine/recommender.py`**
+- ✅ Las 5 llamadas a `mood_bonus` actualizadas a `mood_bonus(g, mood, occasion=occasion)`
+
+**Estado WIP**
+- ⚠️ PENDIENTE: resultados aún pueden mostrar demasiado zapato derby y zapatilla elegante en algunos clósets — ajuste fino de scores pendiente
+- ⚠️ PENDIENTE FUTURO: agregar ballerinas como subcategoría de shoes (calzado cómodo por excelencia para matrimonio)
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Motor — matrimonio elegante (pendiente menor)
-- ⬜ mood sexy y mood cómodo — probar matriz completa de temperaturas
+- ⬜ mood sexy — probar matriz completa de temperaturas
+- ⬜ mood cómodo — ajuste fino de scores (WIP, base implementada en sesión 23)
 - ⬜ Actividad "formal" — reservar los 3 slots exclusivamente para vestidos elegantes/cóctel
 - ⬜ generate_outfits_from_selected_garment con ignore_occasion_for_selected=True en 
   matrimonio elegante — el motor genérico no aplica filtros mínimos (no derby, midlayer 
   según temp, no sport). Aceptable por ahora ya que es flujo "Mostrar de todos modos"
 
 ### Motor (general)
-- ⬜ Pruebas pendientes: matrimonio+sexy, matrimonio+cómodo, gala, deporte — todos los moods y temperaturas
+- ⬜ Pruebas pendientes: matrimonio+sexy, gala, deporte — todos los moods y temperaturas
+- ⬜ matrimonio+cómodo — ajuste fino de resultados (lógica base en sesión 23, pendiente validación)
 - ⬜ Compatibilidad de colores — penalizar outfits con 4+ colores sin eje cromático claro. 
   Revisar compatibility.py
 - ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
@@ -444,6 +481,7 @@ Diagnóstico completo realizado sobre `generate_outfits` y `generate_outfits_fro
 ### Clóset
 - ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
 - ⬜ Agregar sandalias, ballerinas y chalas al clóset
+- ⬜ Ballerinas como subcategoría de shoes — calzado cómodo por excelencia para matrimonio+cómodo
 - ⬜ Más bottoms livianos para calor
 
 ### UI

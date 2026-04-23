@@ -87,13 +87,13 @@ def garment_base_score(
 
     # Ajuste por mood general
     if occasion == "trabajo":
-        score += mood_bonus(g, mood) * 0.2
+        score += mood_bonus(g, mood, occasion=occasion) * 0.2
     elif occasion == "salida nocturna":
-        score += mood_bonus(g, mood) * 0.8
+        score += mood_bonus(g, mood, occasion=occasion) * 0.8
     elif occasion == "cita":
-        score += mood_bonus(g, mood) * 0.6
+        score += mood_bonus(g, mood, occasion=occasion) * 0.6
     else:
-        score += mood_bonus(g, mood) * 0.5
+        score += mood_bonus(g, mood, occasion=occasion) * 0.5
 
     # Refinamiento extra para mood urbano
     if mood == "urbano":
@@ -705,7 +705,7 @@ def explain_outfit_score(
     # =========================================================
     # MOOD
     # =========================================================
-    mood_points = sum(mood_bonus(g, mood) for g in items)
+    mood_points = sum(mood_bonus(g, mood, occasion=occasion) for g in items)
     if mood_points >= len(items) * 6:
         reasons.append(random.choice([
             f"✅ Va bien con el mood '{mood}'",
