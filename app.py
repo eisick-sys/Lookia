@@ -58,6 +58,9 @@ with st.sidebar:
     if st.sidebar.button("⚙️ Mi perfil", key="open_profile", type="tertiary"):
         st.session_state["show_profile"] = not st.session_state.get("show_profile", False)
 
+    if st.sidebar.button("❓ ¿Qué es Lookia?", key="open_about", type="tertiary"):
+        st.session_state["show_about"] = not st.session_state.get("show_about", False)
+
 from models import Garment, OutfitFeedback, UsedOutfit, UserProfile
 from weather import format_weather_label, get_current_weather, get_week_forecast
 
@@ -538,6 +541,9 @@ if "user_profile" not in st.session_state:
 if "show_profile" not in st.session_state:
     st.session_state["show_profile"] = False
 
+if "show_about" not in st.session_state:
+    st.session_state["show_about"] = False
+
 if "photo_uploader_key" not in st.session_state:
     st.session_state.photo_uploader_key = 0
 
@@ -726,6 +732,28 @@ if st.session_state.get("show_profile"):
         st.session_state["show_profile"] = False
         st.rerun()
 
+    st.stop()
+
+if st.session_state.get("show_about"):
+    st.subheader("❓ ¿Qué es Lookia?")
+    st.markdown(
+        """
+        **Lookia** es tu asistente personal de estilo. Te sugiere outfits de tu propio clóset
+        según la ocasión, tu estado de ánimo, la actividad del día y el clima real de tu ciudad.
+
+        **Cómo funciona:**
+        - 👗 **Agrega tus prendas** en *Mi clóset* — solo ponle nombre o sube una foto
+        y Lookia infiere automáticamente el color, categoría y estilo.
+        - ✨ **Pide recomendaciones** eligiendo ocasión, mood y actividad.
+        - 👍 **Dale feedback** a los outfits — Lookia aprende de tus gustos con el tiempo.
+        - 📅 **Planifica tu semana** para no repetir looks.
+
+        Tu perfil le ayuda a Lookia a entender mejor tu estilo y darte sugerencias más precisas.
+        """
+    )
+    if st.button("Cerrar", key="close_about"):
+        st.session_state["show_about"] = False
+        st.rerun()
     st.stop()
 
 tab1, tab2, tab3, tab4 = st.tabs([
@@ -1552,21 +1580,55 @@ with tab2:
                         st.rerun()
 
     st.markdown("---")
-    st.markdown("""
-<div style="background-color: #fff0f3; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px;">
-    <p style="margin: 0; font-weight: 600; font-size: 1.1rem;">📊 Estadísticas de tu clóset</p>
-</div>
-""", unsafe_allow_html=True)
+    st.subheader("📊 Estadísticas de tu clóset")
 
     used_outfits = st.session_state.get("used_outfits", [])
     wardrobe = st.session_state.wardrobe
     garment_map = {g.id: g for g in wardrobe}
 
-    if not used_outfits:
-        st.info("Aún no has registrado outfits usados. Las estadísticas aparecerán aquí a medida que uses Lookia.")
-    else:
-        from collections import Counter
+    # --- Métricas principales (siempre visibles) ---
+    col_m1, col_m2, col_m3 = st.columns(3)
+    col_m1.metric("Prendas en clóset", len(wardrobe))
 
+    # --- Desglose por categoría y subcategoría ---
+    from collections import Counter, defaultdict
+
+    category_counts = Counter(g.category for g in wardrobe)
+    subcategory_counts = defaultdict(Counter)
+    for g in wardrobe:
+        if g.subcategory:
+            subcategory_counts[g.category][g.subcategory] += 1
+
+    st.markdown("<div style='margin-top: 1rem;'></div>", unsafe_allow_html=True)
+    st.markdown("#### Prendas por categoría")
+
+    cat_order = ["top", "midlayer", "outerwear", "bottom", "one_piece", "shoes", "accessory"]
+    for cat in cat_order:
+        count = category_counts.get(cat, 0)
+        label = CATEGORY_LABELS_ES.get(cat, cat)
+        with st.expander(f"{label} — {count} prenda{'s' if count != 1 else ''}", expanded=False):
+            subs = subcategory_counts.get(cat, {})
+            valid_subs = SUBCATEGORY_OPTIONS.get(cat, [])
+            if subs:
+                for sub in valid_subs:
+                    n = subs.get(sub, 0)
+                    sub_label = SUBCATEGORY_LABELS_ES.get(sub, sub)
+                    if n == 0:
+                        st.markdown(f"- {sub_label}: **0** — ⚠️ *No tienes ninguna*")
+                    elif n == 1:
+                        st.markdown(f"- {sub_label}: **1** — 💡 *Tienes muy pocas*")
+                    else:
+                        st.markdown(f"- {sub_label}: **{n}**")
+            else:
+                st.caption("Sin prendas registradas en esta categoría.")
+
+    st.markdown("---")
+
+    if not used_outfits:
+        st.info("Aún no has registrado outfits usados. Las estadísticas de uso aparecerán aquí a medida que uses Lookia.")
+        col_m2.metric("Outfits registrados", 0)
+        col_m3.metric("Estilo dominante", "—")
+    else:
         garment_counter = Counter()
         style_counter = Counter()
         occasion_counter = Counter()
@@ -1580,10 +1642,7 @@ with tab2:
             occasion_counter[ou.occasion] += 1
 
         top_style = STYLE_LABELS_ES.get(style_counter.most_common(1)[0][0], "—") if style_counter else "—"
-        top_occasion = occasion_counter.most_common(1)[0][0].capitalize() if occasion_counter else "—"
 
-        col_m1, col_m2, col_m3 = st.columns(3)
-        col_m1.metric("Prendas en clóset", len(wardrobe))
         col_m2.metric("Outfits registrados", len(used_outfits))
         col_m3.metric("Estilo dominante", top_style)
 
