@@ -96,13 +96,12 @@ def _generate_matrimonio_elegante(
         return [], []
 
     if not vestidos:
-        from engine.recommender import generate_outfits
         return generate_outfits(
             garments=garments,
             occasion="matrimonio",
             temp=temp,
             rain=rain,
-            mood=mood,
+            mood="sexy",
             activity=activity,
             top_n=top_n,
             feedback_list=feedback_list,
@@ -123,9 +122,9 @@ def _generate_matrimonio_elegante(
         from engine.scoring_components import weather_score, dress_score
         return weather_score(g, temp, rain) + dress_score(g.dress_level, "matrimonio")
 
-    vestidos = sorted(vestidos, key=score_garment, reverse=True)
     if len(vestidos) > 1:
         random.shuffle(vestidos)
+    vestidos = sorted(vestidos, key=score_garment, reverse=True)
     calzado = sorted(calzado, key=score_garment, reverse=True)
     blazers = sorted(blazers, key=score_garment, reverse=True)
     abrigos = sorted(abrigos, key=score_garment, reverse=True)
@@ -168,6 +167,18 @@ def _generate_matrimonio_elegante(
         result.append((score, combo))
 
     result = [(s, c) for s, c in result if s > -999]
+    if not result:
+        return generate_outfits(
+            garments=garments,
+            occasion="matrimonio",
+            temp=temp,
+            rain=rain,
+            mood="sexy",
+            activity=activity,
+            top_n=top_n,
+            feedback_list=feedback_list,
+            recent_outfits=recent_outfits,
+        )
     result.sort(key=lambda x: x[0], reverse=True)
     return result[:top_n], []
 
@@ -400,9 +411,11 @@ def generate_outfits(
 
     elif temp >= 16 and not rain:
         top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth != "frio"
-        ][:1]
+        _mid_no_frio = [g for g in top_candidates["midlayer"] if g.warmth != "frio"]
+        if occasion == "matrimonio":
+            top_candidates["midlayer"] = _mid_no_frio[:4]
+        else:
+            top_candidates["midlayer"] = _mid_no_frio[:1]
 
     elif temp >= 13 and not rain:
         top_candidates["outerwear"] = [
@@ -915,6 +928,7 @@ def generate_outfits(
     top_usage = {}
     shoes_usage = {}
     midlayer_usage = {}
+    one_piece_usage = {}
     outerwear_usage = {}
     accessory_usage_in_batch = {}
     accessory_outfits_count = 0
@@ -925,10 +939,18 @@ def generate_outfits(
     else:
         max_same_shoes = 2 if top_n >= 3 else 1
     _n_blazers = sum(1 for g in top_candidates["midlayer"] if g.subcategory == "blazer")
-    max_same_midlayer = 1 if (occasion == "matrimonio" and 24 <= temp <= 25) else top_n
-    if occasion == "matrimonio" and mood == "comodo":
-        _n_blazers = sum(1 for g in top_candidates["midlayer"] if g.subcategory == "blazer")
+    if occasion == "matrimonio":
         max_same_midlayer = 1 if _n_blazers >= 2 else top_n
+    elif 24 <= temp <= 25:
+        max_same_midlayer = 1
+    else:
+        max_same_midlayer = min(2, top_n)
+    _n_one_pieces = len(top_candidates.get("one_piece", []))
+    max_same_one_piece = 1 if _n_one_pieces >= 2 else top_n
+    import sys
+    if occasion == "matrimonio":
+        print(f"[DEBUG midlayer] temp={temp} mood={mood} _n_blazers={_n_blazers} max_same_midlayer={max_same_midlayer}", file=sys.stderr)
+        print(f"[DEBUG midlayer] pool={[(g.name, g.subcategory) for g in top_candidates['midlayer']]}", file=sys.stderr)
     if occasion in ["cita", "salida nocturna"]:
         elegant_shoes = [g for g in top_candidates["shoes"]
                          if g.subcategory in ["taco_alto", "taco_bajo", "sandalia"]]
@@ -980,6 +1002,9 @@ def generate_outfits(
             mid = next((g for g in c if g.category == "midlayer"), None)
             if mid and midlayer_usage.get(mid.id, 0) >= max_same_midlayer:
                 continue
+            one_piece_id = next((g.id for g in c if g.category == "one_piece"), None)
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
+                continue
             shoes = next((g for g in c if g.category == "shoes"), None)
             if shoes and shoes_usage.get(shoes.id, 0) >= max_same_shoes:
                 continue
@@ -990,6 +1015,8 @@ def generate_outfits(
                 continue
             if mid:
                 midlayer_usage[mid.id] = midlayer_usage.get(mid.id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
             if shoes:
                 shoes_usage[shoes.id] = shoes_usage.get(shoes.id, 0) + 1
             if outer:
@@ -1036,6 +1063,9 @@ def generate_outfits(
             if has_midlayer and midlayer_outfits_count >= max_midlayer_outfits:
                 continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            one_piece_id = ids.get("one_piece")
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
             if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
                 continue
@@ -1091,6 +1121,8 @@ def generate_outfits(
             shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
         if midlayer_id is not None:
             midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+        if one_piece_id is not None:
+            one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
         if outerwear_id is not None:
             outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
         if acc_id is not None:
@@ -1114,11 +1146,14 @@ def generate_outfits(
             top_id = ids.get("top")
             shoes_id = ids.get("shoes")
             midlayer_id = ids.get("midlayer")
+            one_piece_id = ids.get("one_piece")
             if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
                 continue
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
                 continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
             if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
                 continue
@@ -1132,6 +1167,8 @@ def generate_outfits(
                 shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
             if midlayer_id is not None:
                 midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
             if outerwear_id is not None:
                 outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
 
@@ -1156,11 +1193,14 @@ def generate_outfits(
             top_id = ids.get("top")
             shoes_id = ids.get("shoes")
             midlayer_id = ids.get("midlayer")
+            one_piece_id = ids.get("one_piece")
             if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
                 continue
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
                 continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
             # max_same_outerwear relajado: permitir repetir outerwear cuando es el único disponible
             # Umbral mínimo: solo aplicar cuando ya hay 2+ outfits aceptados
@@ -1178,6 +1218,8 @@ def generate_outfits(
                 shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
             if midlayer_id is not None:
                 midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
 
     return diverse_outfits[:top_n], []
 
@@ -1309,9 +1351,11 @@ def generate_outfits_from_selected_garment(
 
     elif temp >= 16 and not rain:
         top_candidates["outerwear"] = []
-        top_candidates["midlayer"] = [
-            g for g in top_candidates["midlayer"] if g.warmth != "frio"
-        ][:1]
+        _mid_no_frio = [g for g in top_candidates["midlayer"] if g.warmth != "frio"]
+        if occasion == "matrimonio":
+            top_candidates["midlayer"] = _mid_no_frio[:4]
+        else:
+            top_candidates["midlayer"] = _mid_no_frio[:1]
 
     elif temp >= 13 and not rain:
         top_candidates["outerwear"] = [
