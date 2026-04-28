@@ -1646,7 +1646,7 @@ with tab2:
                         if not name.strip():
                             st.error("La prenda debe tener nombre.")
                         else:
-                            garment.name = name.strip()
+                            garment.name = name.strip().capitalize()
                             garment.category = category
                             garment.subcategory = subcategory
                             garment.color = normalize_color_name(color)
@@ -1884,7 +1884,7 @@ with tab3:
 
                 garment = Garment(
                     id=next_id,
-                    name=suggested,
+                    name=suggested.strip().capitalize(),
                     category=cat,
                     subcategory=sub,
                     accessory_type=None,
@@ -2184,6 +2184,7 @@ with tab3:
         if uploaded_file is None and not name.strip():
             st.warning("Para agregar tu prenda, sube una foto o ponle un nombre.")
             st.stop()
+        name = name.strip().capitalize()
         next_id = max([g.id for g in st.session_state.wardrobe], default=0) + 1
         image_name = None
 
