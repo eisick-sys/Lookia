@@ -713,6 +713,14 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 
 ---
 
+## Bugs conocidos — detectados en pruebas v1.0.0
+
+- ⚠️ **Enterito + polar juntos:** aparecen combinados en outfits — el polar aplasta visualmente al enterito. Falta regla de compatibilidad en `compatibility.py` que penalice o bloquee `{"one_piece", "midlayer"}` cuando el one_piece es enterito y el midlayer es polar.
+- ⚠️ **Casual lluvia+calor → impermeable elegante:** con `occasion=casual` y `rain=True` + `temp >= 24`, el filtro del bloque `if temp >= 24 and rain:` solo discrimina por `waterproof` y `warmth`, no por estilo. Resultado: impermeable elegante aparece en outfits casuales con lluvia y calor. Agregar condición de estilo (`style not in ["elegante", "formal"]`) o `dress_level` al filtro de outerwear en ese bloque de `outfit_generation.py`.
+- ⚠️ **Casual + abrigo elegante:** verificar si la penalización de `is_formal_coat` agregada en `outerwear_context_penalty` (`category_rules.py`) es suficiente para ocasiones casuales, o si el penalty necesita subir para desplazar al abrigo elegante fuera de los primeros slots.
+
+---
+
 ## Pendiente para próximas sesiones
 
 ### Motor — matrimonio ✅ completado
@@ -745,7 +753,7 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 ### UI
 - ⬜ Formulario editar prenda — scroll automático o inline en galería
 - ⬜ Tip de pantys: mostrar máximo una vez por tanda
-- ✅ Persistencia del "Ignorar" en badge de inconsistencias — implementado con tabla Supabase `ignored_badges`
+- ✅ Persistencia del "Ignorar" en badge de inconsistencias — implementado con tabla Supabase `ignored_badges` (v1.0.0)
 - ⬜ Ocasiones frecuentes del perfil ordenadas primero en selectbox del recomendador
 - ⬜ Botón eliminar directo en tarjeta de galería — pendiente migración a React
 - ⬜ Destacar boton de "mi perfil" y "qué es Lookia"
@@ -756,6 +764,7 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 - ⬜ Refactor `generate_outfits_from_selected_garment` — ~430 líneas duplicadas con `generate_outfits`
 - ⚠️ Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` (L162) — ya importado en top del archivo
 - ⚠️ Riesgo de recursión infinita en `_generate_matrimonio_elegante` cuando no hay vestidos — revisar si `engine.recommender.generate_outfits` tiene el dispatch matrimonio+elegante
+- ✅ Versionado semántico — `APP_VERSION = "1.0.0"` visible en sidebar (v1.0.0)
 - ⬜ Push a version-sana después de pruebas completas
 - ⬜ UI definitiva — migrar de Streamlit a React o similar
 - ⬜ Dividir app.py en módulos por tab

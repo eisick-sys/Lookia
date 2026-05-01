@@ -19,7 +19,7 @@ from storage_cloud import (
     load_ignored_badges_cloud, add_ignored_badge_cloud,
 )
 
-APP_VERSION = "1.0.0"
+APP_VERSION = "1.0.1"
 
 st.set_page_config(
     page_title="Lookia",

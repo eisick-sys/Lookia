@@ -1616,7 +1616,6 @@ def generate_outfits_from_selected_garment(
         "bottom": [g for _, g in ranked["bottom"][:base_bottom_limit]],
         "shoes": [g for _, g in ranked["shoes"][:base_shoes_limit]],
         "midlayer": [g for _, g in ranked["midlayer"][:4]],
-        "accessory": [g for _, g in ranked["accessory"][:accessory_limit]],
         "one_piece": [g for _, g in ranked["one_piece"][:base_top_limit]],
     }
     if rain:
@@ -1632,6 +1631,9 @@ def generate_outfits_from_selected_garment(
         top_candidates["outerwear"] = (_waterproof_outer + _non_waterproof_outer)[:4]
     else:
         top_candidates["outerwear"] = [g for _, g in ranked["outerwear"]][:8]
+    _accessories = [g for _, g in ranked["accessory"][:max(accessory_limit + 3, 5)]]
+    random.shuffle(_accessories)
+    top_candidates["accessory"] = _accessories
 
     # =========================================================
     # FILTROS DE CLIMA — ordenados correctamente
@@ -1706,14 +1708,23 @@ def generate_outfits_from_selected_garment(
 
     # Filtros especiales por ocasión — igual que generate_outfits
     if occasion == "matrimonio":
+        if mood == "sexy":
+            _all_op = [g for _, g in ranked["one_piece"]]
+            _enteritos = [g for g in _all_op if g.subcategory == "enterito"]
+            _existing_ids = {g.id for g in top_candidates["one_piece"]}
+            for g in _enteritos:
+                if g.id not in _existing_ids:
+                    top_candidates["one_piece"].append(g)
+
+        _corte = 5 if mood == "sexy" else 4
         _sorted_one_piece = sorted(
             top_candidates["one_piece"],
             key=lambda g: (
+                -1 if (g.subcategory == "enterito" and mood == "sexy") else
                 0 if g.subcategory in ["vestido_elegante", "vestido_coctel"] else
-                0 if (g.subcategory == "enterito" and mood == "sexy") else
                 1 if g.subcategory == "vestido_casual" else 2
             )
-        )[:4]
+        )[:_corte]
 
         if mood == "urbano":
             _existing_ids = {g.id for g in _sorted_one_piece}
@@ -2116,6 +2127,22 @@ def generate_outfits_from_selected_garment(
 
     final_outfits = sorted(unique.values(), key=lambda x: x[0], reverse=True)
 
+    if occasion == "matrimonio" and mood not in ["urbano", "comodo"]:
+        _vestido_outfits = sorted(
+            [(s, c) for s, c in final_outfits if any(g.category == "one_piece" for g in c)],
+            key=lambda x: x[0], reverse=True
+        )
+        _resto_outfits = sorted(
+            [(s, c) for s, c in final_outfits if not any(g.category == "one_piece" for g in c)],
+            key=lambda x: x[0], reverse=True
+        )
+        if len(_vestido_outfits) >= 2:
+            final_outfits = _vestido_outfits[:2] + _resto_outfits + _vestido_outfits[2:]
+        elif len(_vestido_outfits) == 1:
+            final_outfits = _vestido_outfits + _resto_outfits
+        else:
+            final_outfits = _resto_outfits
+
     def is_too_similar(c1, c2):
         ow1 = next((g for g in c1 if g.category == "outerwear"), None)
         ow2 = next((g for g in c2 if g.category == "outerwear"), None)
@@ -2180,15 +2207,343 @@ def generate_outfits_from_selected_garment(
 
         return False
 
-    diverse = []
-    for score, combo in final_outfits:
-        too_similar = any(is_too_similar(combo, c) for _, c in diverse)
-        if not too_similar:
-            diverse.append((score, combo))
-        if len(diverse) >= top_n:
+    diverse_outfits = []
+    midlayer_outfits_count = 0
+    if occasion == "matrimonio":
+        max_midlayer_outfits = 1 if temp >= 24 else top_n
+    else:
+        max_midlayer_outfits = 1 if 24 <= temp < 26 else top_n
+    top_usage = {}
+    shoes_usage = {}
+    midlayer_usage = {}
+    one_piece_usage = {}
+    outerwear_usage = {}
+    accessory_usage_in_batch = {}
+    accessory_outfits_count = 0
+    max_accessory_outfits = top_n if occasion in ["matrimonio", "gala"] else random.choice([1, 1, 2])
+    max_same_top = 1 if occasion in ["matrimonio", "gala"] else (2 if top_n >= 3 else 1)
+    if occasion == "matrimonio" and mood == "comodo":
+        max_same_shoes = 1
+    elif occasion == "matrimonio":
+        max_same_shoes = 2
+    else:
+        max_same_shoes = 2 if top_n >= 3 else 1
+    _n_blazers = sum(1 for g in top_candidates["midlayer"] if g.subcategory == "blazer")
+    if occasion == "matrimonio":
+        if _n_blazers >= 3:
+            max_same_midlayer = 1
+        elif _n_blazers >= 2:
+            max_same_midlayer = 2
+        else:
+            max_same_midlayer = top_n
+    elif 24 <= temp <= 25:
+        max_same_midlayer = 1
+    else:
+        max_same_midlayer = min(2, top_n)
+    _n_one_pieces = len(top_candidates.get("one_piece", []))
+    max_same_one_piece = 1 if _n_one_pieces >= 2 else top_n
+    if occasion in ["cita", "salida nocturna"]:
+        elegant_shoes = [g for g in top_candidates["shoes"]
+                         if g.subcategory in ["taco_alto", "taco_bajo", "sandalia"]]
+        if len(elegant_shoes) >= 2:
+            max_same_shoes = 1
+    heel_outfits_count = 0
+    max_same_shoes_heel = top_n
+    if mood == "formal":
+        _heel_shoes = [g for g in top_candidates["shoes"]
+                       if g.subcategory in ["taco_alto", "taco_bajo"]]
+        _non_heel_shoes = [g for g in top_candidates["shoes"]
+                           if g.subcategory not in ["taco_alto", "taco_bajo"]]
+        if len(_heel_shoes) >= 1 and len(_non_heel_shoes) >= 2:
+            max_same_shoes_heel = 1
+    _n_waterproof_outer = sum(1 for g in top_candidates["outerwear"] if g.waterproof)
+    if not rain:
+        max_same_outerwear = 1 if len(top_candidates["outerwear"]) >= 2 else top_n
+    elif _n_waterproof_outer >= 3:
+        max_same_outerwear = 1
+    elif _n_waterproof_outer == 2:
+        max_same_outerwear = 2
+    elif _n_waterproof_outer == 1:
+        max_same_outerwear = 3
+    else:
+        max_same_outerwear = 2
+    remaining_outfits = list(final_outfits)
+
+    # Para matrimonio: forzar vestidos — solo para moods que no sean urbano
+    if occasion == "matrimonio" and mood not in ["urbano", "comodo"]:
+        _max_forced_vestidos = 3 if mood == "sexy" else 2
+        _all_vestido_outfits = [(s, c) for s, c in remaining_outfits if any(g.category == "one_piece" for g in c)]
+        _vestido_by_id = {}
+        for s, c in _all_vestido_outfits:
+            op = next((g for g in c if g.category == "one_piece"), None)
+            if op and op.id not in _vestido_by_id:
+                _vestido_by_id[op.id] = (s, c)
+        _vestidos_remaining = sorted(_vestido_by_id.values(), key=lambda x: x[0], reverse=True)
+        _seen = set(_vestido_by_id.keys())
+        for s, c in _all_vestido_outfits:
+            op = next((g for g in c if g.category == "one_piece"), None)
+            if op and op.id in _seen and (s, c) not in _vestidos_remaining:
+                _vestidos_remaining.append((s, c))
+        _resto_remaining = [(s, c) for s, c in remaining_outfits if not any(g.category == "one_piece" for g in c)]
+
+        matrimonio_forced = []
+        _used_one_piece_ids = set()
+        for s, c in _vestidos_remaining:
+            if len(matrimonio_forced) >= _max_forced_vestidos:
+                break
+            one_piece = next((g for g in c if g.category == "one_piece"), None)
+            if one_piece and one_piece.id in _used_one_piece_ids:
+                continue
+            if one_piece:
+                _used_one_piece_ids.add(one_piece.id)
+            mid = next((g for g in c if g.category == "midlayer"), None)
+            if mid and midlayer_usage.get(mid.id, 0) >= max_same_midlayer:
+                continue
+            one_piece_id = next((g.id for g in c if g.category == "one_piece"), None)
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
+                continue
+            shoes = next((g for g in c if g.category == "shoes"), None)
+            if shoes and shoes_usage.get(shoes.id, 0) >= max_same_shoes:
+                continue
+            if shoes and shoes.subcategory in ["taco_alto", "taco_bajo"] and heel_outfits_count >= max_same_shoes_heel:
+                continue
+            outer = next((g for g in c if g.category == "outerwear"), None)
+            if outer and outerwear_usage.get(outer.id, 0) >= max_same_outerwear:
+                continue
+            if s < 0:
+                continue
+            if mid:
+                midlayer_usage[mid.id] = midlayer_usage.get(mid.id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
+            if shoes:
+                shoes_usage[shoes.id] = shoes_usage.get(shoes.id, 0) + 1
+                if shoes.subcategory in ["taco_alto", "taco_bajo"]:
+                    heel_outfits_count += 1
+            if outer:
+                outerwear_usage[outer.id] = outerwear_usage.get(outer.id, 0) + 1
+            matrimonio_forced.append((s, c))
+
+        for s, c in matrimonio_forced:
+            remaining_outfits.remove((s, c))
+            diverse_outfits.append((s, c))
+            ids = {g.category: g.id for g in c}
+            top_id = ids.get("top")
+            acc_id = ids.get("accessory")
+            if top_id: top_usage[top_id] = top_usage.get(top_id, 0) + 1
+            if acc_id:
+                accessory_outfits_count += 1
+                accessory_usage_in_batch[acc_id] = accessory_usage_in_batch.get(acc_id, 0) + 1
+            if any(g.category == "midlayer" for g in c):
+                midlayer_outfits_count += 1
+
+    while len(diverse_outfits) < top_n and remaining_outfits:
+        best_idx = None
+        best_effective = float('-inf')
+
+        for i, (score, combo) in enumerate(remaining_outfits):
+            if occasion == "matrimonio" and mood == "sexy":
+                if not any(g.category == "one_piece" for g in combo):
+                    continue
+            if score < 0:
+                continue
+            ids = {g.category: g.id for g in combo}
+            has_midlayer = any(g.category == "midlayer" for g in combo)
+            top_id = ids.get("top")
+            shoes_id = ids.get("shoes")
+            midlayer_id = ids.get("midlayer")
+            outerwear_id = ids.get("outerwear")
+            acc_id = ids.get("accessory")
+
+            if has_midlayer and midlayer_outfits_count >= max_midlayer_outfits:
+                continue
+            if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            one_piece_id = ids.get("one_piece")
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
+                continue
+            if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
+                continue
+            if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
+                continue
+            if shoes_id is not None and heel_outfits_count >= max_same_shoes_heel:
+                shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+                if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                    continue
+            if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
+                continue
+            if acc_id is not None and accessory_outfits_count >= max_accessory_outfits:
+                continue
+
+            too_similar = False
+            for _, existing in diverse_outfits:
+                ids_ex = {g.category: g.id for g in existing}
+                if is_too_similar(combo, existing):
+                    too_similar = True
+                    break
+                if ids.get("one_piece") is not None and ids.get("one_piece") == ids_ex.get("one_piece"):
+                    if occasion not in ["matrimonio", "gala"]:
+                        too_similar = True
+                        break
+                if ids.get("bottom") == ids_ex.get("bottom") and ids.get("shoes") == ids_ex.get("shoes"):
+                    too_similar = True
+                    break
+            if too_similar:
+                continue
+
+            penalty = 30 * accessory_usage_in_batch.get(acc_id, 0) if acc_id else 0
+            effective = score - penalty
+
+            if effective > best_effective:
+                best_effective = effective
+                best_idx = i
+
+        if best_idx is None:
             break
 
-    return diverse[:top_n], []
+        score, combo = remaining_outfits.pop(best_idx)
+        ids = {g.category: g.id for g in combo}
+        has_midlayer = any(g.category == "midlayer" for g in combo)
+        top_id = ids.get("top")
+        shoes_id = ids.get("shoes")
+        midlayer_id = ids.get("midlayer")
+        outerwear_id = ids.get("outerwear")
+        acc_id = ids.get("accessory")
+
+        diverse_outfits.append((score, combo))
+
+        if has_midlayer:
+            midlayer_outfits_count += 1
+        if top_id is not None:
+            top_usage[top_id] = top_usage.get(top_id, 0) + 1
+        if shoes_id is not None:
+            shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
+            shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+            if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                heel_outfits_count += 1
+        if midlayer_id is not None:
+            midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+        if one_piece_id is not None:
+            one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
+        if outerwear_id is not None:
+            outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
+        if acc_id is not None:
+            accessory_outfits_count += 1
+            accessory_usage_in_batch[acc_id] = accessory_usage_in_batch.get(acc_id, 0) + 1
+
+    # Fallback: si no llegamos a 3 outfits, segunda pasada sin filtro is_too_similar
+    min_outfits = min(3, top_n)
+    if len(diverse_outfits) < min_outfits:
+        existing_ids = {id(combo) for _, combo in diverse_outfits}
+        for score, combo in sorted(remaining_outfits, key=lambda x: x[0], reverse=True):
+            if len(diverse_outfits) >= min_outfits:
+                break
+            if id(combo) in existing_ids:
+                continue
+            if occasion == "matrimonio" and mood == "sexy":
+                if not any(g.category == "one_piece" for g in combo):
+                    continue
+            ids = {g.category: g.id for g in combo}
+            outerwear_id = ids.get("outerwear")
+            top_id = ids.get("top")
+            shoes_id = ids.get("shoes")
+            midlayer_id = ids.get("midlayer")
+            one_piece_id = ids.get("one_piece")
+            if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
+                continue
+            if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
+                continue
+            if shoes_id is not None and heel_outfits_count >= max_same_shoes_heel:
+                shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+                if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                    continue
+            if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
+                continue
+            if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
+                continue
+            if score < 0:
+                continue
+            diverse_outfits.append((score, combo))
+            existing_ids.add(id(combo))
+            if top_id is not None:
+                top_usage[top_id] = top_usage.get(top_id, 0) + 1
+            if shoes_id is not None:
+                shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
+                shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+                if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                    heel_outfits_count += 1
+            if midlayer_id is not None:
+                midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
+            if outerwear_id is not None:
+                outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
+
+    # Tercera pasada: relajar max_same_outerwear si el outerwear disponible es escaso
+    if len(diverse_outfits) < min_outfits:
+        existing_ids = {id(combo) for _, combo in diverse_outfits}
+        all_remaining = sorted(
+            [(s, c) for s, c in final_outfits if id(c) not in existing_ids],
+            key=lambda x: x[0],
+            reverse=True,
+        )
+        best_score = diverse_outfits[0][0] if diverse_outfits else 0
+        for score, combo in all_remaining:
+            if len(diverse_outfits) >= min_outfits:
+                break
+            if id(combo) in existing_ids:
+                continue
+            if occasion == "matrimonio" and mood == "sexy":
+                if not any(g.category == "one_piece" for g in combo):
+                    continue
+            ids = {g.category: g.id for g in combo}
+            top_id = ids.get("top")
+            shoes_id = ids.get("shoes")
+            midlayer_id = ids.get("midlayer")
+            one_piece_id = ids.get("one_piece")
+            if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
+                continue
+            if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
+                continue
+            if shoes_id is not None and heel_outfits_count >= max_same_shoes_heel:
+                shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+                if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                    continue
+            if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
+                continue
+            if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
+                continue
+            outerwear_id = ids.get("outerwear")
+            _outerwear_limit = (
+                max_same_outerwear + 1
+                if occasion == "matrimonio" and len(diverse_outfits) < min_outfits
+                else max_same_outerwear
+            )
+            if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= _outerwear_limit:
+                continue
+            if len(diverse_outfits) >= 2 and best_score > 0:
+                threshold = best_score * (0.20 if occasion == "matrimonio" else 0.35)
+                if score < threshold:
+                    continue
+            if score < 0:
+                continue
+            diverse_outfits.append((score, combo))
+            existing_ids.add(id(combo))
+            if top_id is not None:
+                top_usage[top_id] = top_usage.get(top_id, 0) + 1
+            if shoes_id is not None:
+                shoes_usage[shoes_id] = shoes_usage.get(shoes_id, 0) + 1
+                shoes_obj = next((g for g in combo if g.category == "shoes"), None)
+                if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
+                    heel_outfits_count += 1
+            if midlayer_id is not None:
+                midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
+            if one_piece_id is not None:
+                one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
+
+    return diverse_outfits[:top_n], []
 
 
 def generate_week_plan(
