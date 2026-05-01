@@ -713,6 +713,44 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 
 ---
 
+### Sesión 29 — 01-May-2026 — Equiparación from_selected + fixes de diversidad
+
+**Refactorización**
+- ✅ `outfit_generation.py` dividido en `engine/generation/outfit_generation.py`, `engine/generation/outfit_generation_selected.py` y `engine/generation/week_plan.py`
+- ✅ `recommender.py` y `app.py` actualizados para apuntar a los nuevos paths
+- ✅ Versión bumpeada a `1.0.1`
+
+**Fixes aplicados a `generate_outfits_from_selected_garment`**
+- ✅ Fix A: Pool de accesorios ampliado a `max(accessory_limit+3, 5)` con `random.shuffle`
+- ✅ Fix B: Matrimonio+sexy — inyección de enteritos al pool one_piece + corte dinámico (5 vs 4)
+- ✅ Fix C: Reordenamiento de `final_outfits` en matrimonio para forzar vestidos primero
+- ✅ Fix D: Sistema de selección completo (3 fases + contadores `max_same_*` + fallbacks) reemplaza el loop simple de 6 líneas
+
+**Fixes de diversidad y estabilidad (ambos archivos generation)**
+- ✅ Fix 1: Eliminada regla `same_one_piece → always True` en `is_too_similar` — redundante con `max_same_one_piece`
+- ✅ Fix 2: `same_top + same_shoes → True` relajado a `same_top + same_shoes + same_bottom → True`
+- ✅ Fix 3: `same_bottom_type + same_shoes_type → True` relajado a requerir además `same_top`
+- ✅ Fix 4: `max_same_midlayer` ahora basado en total de midlayers en el pool, no solo blazers
+- ✅ Fix 5: `max_same_outerwear` sin lluvia cambiado de 1 a 2 cuando hay 2+ outerwears
+- ✅ Fix 6: Pool de midlayer a 16-23°C ampliado de `[:1]` a `[:3]` para ocasiones no-matrimonio
+
+**Outfit sorpresa mejorado**
+- ✅ Selección ponderada por sexiness, uso reciente y color no neutro (`random.choices` con weights)
+- ✅ Fallback de hasta 3 intentos con prendas distintas si `from_selected` devuelve vacío
+- ✅ Fallback final a `generate_outfits` normal si ninguna prenda forzada produce resultados
+
+**Estado actual**
+- El motor llega consistentemente a 3 outfits en la mayoría de escenarios
+- Casos límite restantes: top forzado a 18° puede mostrar variedad reducida en midlayer/calzado cuando el pool post-filtros es pequeño
+- Matrimonio+sexy con calzado forzado: limitado por cantidad de one_pieces elegantes disponibles
+
+**Pendiente**
+- Revisar mood formal dentro de matrimonio (genera resultados inconsistentes)
+- Investigar vestido casual que no aparece en mood relajado (correcto por diseño pero revisar)
+- Considerar ampliar pool de calzado a temperaturas bajas para mayor variedad
+
+---
+
 ## Bugs conocidos — detectados en pruebas v1.0.0
 
 - ⚠️ **Enterito + polar juntos:** aparecen combinados en outfits — el polar aplasta visualmente al enterito. Falta regla de compatibilidad en `compatibility.py` que penalice o bloquee `{"one_piece", "midlayer"}` cuando el one_piece es enterito y el midlayer es polar.

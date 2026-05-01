@@ -645,7 +645,7 @@ def generate_outfits(
         if occasion == "matrimonio":
             top_candidates["midlayer"] = _mid_no_frio[:4]
         else:
-            top_candidates["midlayer"] = _mid_no_frio[:1]
+            top_candidates["midlayer"] = _mid_no_frio[:3]
 
     elif temp >= 13 and not rain:
         _allow_cold = occasion in ["trabajo", "cita", "salida nocturna"] and mood in ["elegante", "formal", "comodo"]
@@ -1147,23 +1147,20 @@ def generate_outfits(
         ow1 = ids1.get("outerwear")
         ow2 = ids2.get("outerwear")
         different_outerwear = (ow1 is not None and ow2 is not None and ow1 != ow2)
-        if same_bottom_type and same_shoes_type and not different_outerwear:
+        if same_bottom_type and same_shoes_type and same_top and not different_outerwear:
             return True
 
         # reglas existentes (más suaves)
         if same_top and same_bottom:
             return True
 
-        if same_top and same_shoes:
+        if same_top and same_shoes and same_bottom:
             return True
 
         if same_top and same_one_piece:
             return True
 
         if same_one_piece and same_shoes:
-            return True
-
-        if same_one_piece and ids1.get("one_piece") is not None:
             return True
 
         return False
@@ -1190,6 +1187,7 @@ def generate_outfits(
     else:
         max_same_shoes = 2 if top_n >= 3 else 1
     _n_blazers = sum(1 for g in top_candidates["midlayer"] if g.subcategory == "blazer")
+    _n_midlayers = len(top_candidates["midlayer"])
     if occasion == "matrimonio":
         if _n_blazers >= 3:
             max_same_midlayer = 1
@@ -1200,7 +1198,12 @@ def generate_outfits(
     elif 24 <= temp <= 25:
         max_same_midlayer = 1
     else:
-        max_same_midlayer = min(2, top_n)
+        if _n_midlayers >= 3:
+            max_same_midlayer = 1
+        elif _n_midlayers == 2:
+            max_same_midlayer = 2
+        else:
+            max_same_midlayer = top_n
     _n_one_pieces = len(top_candidates.get("one_piece", []))
     max_same_one_piece = 1 if _n_one_pieces >= 2 else top_n
     if occasion in ["cita", "salida nocturna"]:
@@ -1219,7 +1222,12 @@ def generate_outfits(
             max_same_shoes_heel = 1
     _n_waterproof_outer = sum(1 for g in top_candidates["outerwear"] if g.waterproof)
     if not rain:
-        max_same_outerwear = 1 if len(top_candidates["outerwear"]) >= 2 else top_n
+        if len(top_candidates["outerwear"]) >= 3:
+            max_same_outerwear = 2
+        elif len(top_candidates["outerwear"]) == 2:
+            max_same_outerwear = 2
+        else:
+            max_same_outerwear = top_n
     elif _n_waterproof_outer >= 3:
         max_same_outerwear = 1
     elif _n_waterproof_outer == 2:

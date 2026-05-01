@@ -893,18 +893,49 @@ with tab1:
             weights = [surprise_weight(g) for g in surprise_candidates]
             forced = random.choices(surprise_candidates, weights=weights, k=1)[0]
 
-            outfits, _missing = generate_outfits_from_selected_garment(
-                garments=st.session_state.wardrobe,
-                selected_garment=forced,
-                occasion=occasion,
-                temp=temp,
-                rain=rain,
-                mood=mood,
-                activity=activity,
-                top_n=3,
-                feedback_list=st.session_state.feedback,
-                recent_outfits=combined_recent,
-            )
+            outfits = []
+            _missing = []
+            _tried = set()
+            _attempts = 0
+
+            while _attempts < 3 and not outfits:
+                _candidates_remaining = [g for g in surprise_candidates if g.id not in _tried]
+                if not _candidates_remaining:
+                    break
+
+                if _attempts > 0:
+                    _weights_r = [surprise_weight(g) for g in _candidates_remaining]
+                    forced = random.choices(_candidates_remaining, weights=_weights_r, k=1)[0]
+
+                _tried.add(forced.id)
+                _attempts += 1
+
+                outfits, _missing = generate_outfits_from_selected_garment(
+                    garments=st.session_state.wardrobe,
+                    selected_garment=forced,
+                    occasion=occasion,
+                    temp=temp,
+                    rain=rain,
+                    mood=mood,
+                    activity=activity,
+                    top_n=3,
+                    feedback_list=st.session_state.feedback,
+                    recent_outfits=combined_recent,
+                )
+
+            if not outfits:
+                outfits, _missing = generate_outfits(
+                    garments=st.session_state.wardrobe,
+                    occasion=occasion,
+                    temp=temp,
+                    rain=rain,
+                    mood=mood,
+                    activity=activity,
+                    top_n=3,
+                    feedback_list=st.session_state.feedback,
+                    recent_outfits=combined_recent,
+                )
+
             st.session_state.missing_categories = _missing
         else:
             outfits = []
