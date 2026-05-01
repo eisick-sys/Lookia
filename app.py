@@ -875,7 +875,23 @@ with tab1:
         ]
 
         if surprise_candidates:
-            forced = random.choice(surprise_candidates)
+            recent_ids = set()
+            for outfit_ids in get_recent_outfit_memory():
+                recent_ids.update(outfit_ids)
+
+            NEUTRAL_COLORS = {"negro", "blanco", "gris", "gris claro", "gris oscuro", "crema", "beige"}
+
+            def surprise_weight(g):
+                weight = 1.0
+                weight += getattr(g, "sexiness", 0) * 1.5
+                if g.id not in recent_ids:
+                    weight += 2.0
+                if normalize_color_name(g.color) not in NEUTRAL_COLORS:
+                    weight += 1.5
+                return weight
+
+            weights = [surprise_weight(g) for g in surprise_candidates]
+            forced = random.choices(surprise_candidates, weights=weights, k=1)[0]
 
             outfits, _missing = generate_outfits_from_selected_garment(
                 garments=st.session_state.wardrobe,
