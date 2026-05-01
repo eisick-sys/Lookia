@@ -802,7 +802,7 @@ with tab1:
         else:
             # Gala sin vestidos + "Mostrar de todos modos" → derivar a motor matrimonio elegante
             if occasion == "gala" and show_anyway_clicked:
-                from engine.outfit_generation import _generate_matrimonio_elegante
+                from engine.generation.outfit_generation import _generate_matrimonio_elegante
                 from utils.user_profile import build_user_style_profile
                 outfits, _missing = _generate_matrimonio_elegante(
                     garments=st.session_state.wardrobe,

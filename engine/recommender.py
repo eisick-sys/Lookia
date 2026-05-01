@@ -844,10 +844,10 @@ def explain_outfit_score(
 
     return reasons[:3]
 
-from engine.outfit_generation import (
+from engine.generation.outfit_generation import (
     generate_outfits as generate_outfits,
 )
-from engine.outfit_generation import (
+from engine.generation.outfit_generation_selected import (
     generate_outfits_from_selected_garment as generate_outfits_from_selected_garment,
 )
-from engine.outfit_generation import generate_week_plan as generate_week_plan
+from engine.generation.week_plan import generate_week_plan as generate_week_plan
