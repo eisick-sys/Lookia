@@ -30,7 +30,10 @@ proyecto app/
 ├── .gitignore              # Incluye .env, __pycache__, wardrobe_images/
 ├── engine/
 │   ├── recommender.py      # Motor principal + explain_outfit_score
-│   ├── outfit_generation.py # generate_outfits + generate_outfits_from_selected_garment + generate_week_plan
+│   ├── generation/
+│   │   ├── outfit_generation.py          # generate_outfits
+│   │   ├── outfit_generation_selected.py # generate_outfits_from_selected_garment
+│   │   └── week_plan.py                  # generate_week_plan
 │   ├── occasion_rules.py   # Reglas por ocasión + get_weather_tag
 │   ├── category_rules.py   # Bonus/penalty por categoría de prenda
 │   ├── scoring_components.py # dress_score, weather_score, mood_bonus, etc.
@@ -730,88 +733,83 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 - ✅ Fix 1: Eliminada regla `same_one_piece → always True` en `is_too_similar` — redundante con `max_same_one_piece`
 - ✅ Fix 2: `same_top + same_shoes → True` relajado a `same_top + same_shoes + same_bottom → True`
 - ✅ Fix 3: `same_bottom_type + same_shoes_type → True` relajado a requerir además `same_top`
-- ✅ Fix 4: `max_same_midlayer` ahora basado en total de midlayers en el pool, no solo blazers
+- ✅ Fix 4: `max_same_midlayer` ahora basado en total de midlayers post-filtro de clima, no solo blazers
 - ✅ Fix 5: `max_same_outerwear` sin lluvia cambiado de 1 a 2 cuando hay 2+ outerwears
 - ✅ Fix 6: Pool de midlayer a 16-23°C ampliado de `[:1]` a `[:3]` para ocasiones no-matrimonio
+- ✅ Fix 7: Fallbacks relajan `max_same_midlayer`, `max_same_shoes` y `max_same_outerwear` progresivamente en segunda y tercera pasada
+- ✅ Fix 8: `bottom_usage` + `max_same_bottom` agregado a las 3 pasadas del loop de selección — guard solo en primera pasada, conteo en todas
 
 **Outfit sorpresa mejorado**
 - ✅ Selección ponderada por sexiness, uso reciente y color no neutro (`random.choices` con weights)
 - ✅ Fallback de hasta 3 intentos con prendas distintas si `from_selected` devuelve vacío
 - ✅ Fallback final a `generate_outfits` normal si ninguna prenda forzada produce resultados
 
-**Estado actual**
-- El motor llega consistentemente a 3 outfits en la mayoría de escenarios
-- Casos límite restantes: top forzado a 18° puede mostrar variedad reducida en midlayer/calzado cuando el pool post-filtros es pequeño
-- Matrimonio+sexy con calzado forzado: limitado por cantidad de one_pieces elegantes disponibles
+**Bugs resueltos**
+- ✅ Bug 2: Enterito + polar — bloqueo duro en `occasion_rules.py` cuando midlayer sport/polar está con one_piece formal/sexy
+- ✅ Bug 3: Lluvia+calor → impermeable elegante en casual — resuelto por regla prendas elegantes en moods relajados
+- ✅ Bug 4: Casual + abrigo elegante en mood relajado — resuelto por la misma regla
+- ✅ Bug 5: Recursión infinita matrimonio elegante — ya estaba resuelto (fallbacks usan `mood="sexy"`)
 
-**Pendiente**
-- Revisar mood formal dentro de matrimonio (genera resultados inconsistentes)
-- Investigar vestido casual que no aparece en mood relajado (correcto por diseño pero revisar)
-- Considerar ampliar pool de calzado a temperaturas bajas para mayor variedad
+**Nueva regla `occasion_rules.py` — prendas elegantes/formales en moods relajados**
+- ✅ Prenda con `style in ["elegante","formal"]`, sin secondary casual/urbano, y `dress_level in ["arreglado","elegante"]` queda bloqueada en `mood in ["relajado","comodo"]` cuando `occasion in ["casual","deporte"]`
+
+**Formularios agregar/editar prenda sincronizados**
+- ✅ `PATTERN_OPTIONS` usado en ambos tabs (incluye `"lunares"`)
+- ✅ Colores secundarios con `st.multiselect` en ambos tabs
+- ✅ Orden dress_level antes que sexiness en ambos tabs
+- ✅ Labels `"Nivel térmico"` e `"Impermeable"` consistentes
+
+**Deporte+entrenar — fix parcial**
+- ✅ `occasion_rules.py`: excepciones if/elif/elif — tops `polera`/`polera_deporte` con `warmth == "caluroso"` pueden usarse para entrenar aunque no tengan style sport
+- ✅ `occasion_rules.py`: bottom `short_casual` con `warmth == "caluroso"`, `dress_level in ["relajado","flexible"]` y sin denim en el nombre puede usarse para entrenar
+- ✅ `utils/attribute_inference.py`: `"fitness"` agregado a keywords de style sport en `infer_style_from_name` y a keywords de `polera_deporte` en `infer_subcategory_from_name`
+- ⚠️ Sigue dando resultados limitados en algunos escenarios de calor extremo — diagnóstico pendiente
 
 ---
 
-## Bugs conocidos — detectados en pruebas v1.0.0
+## Tabla de bugs y mejoras pendientes — v1.0.1
 
-- ⚠️ **Enterito + polar juntos:** aparecen combinados en outfits — el polar aplasta visualmente al enterito. Falta regla de compatibilidad en `compatibility.py` que penalice o bloquee `{"one_piece", "midlayer"}` cuando el one_piece es enterito y el midlayer es polar.
-- ⚠️ **Casual lluvia+calor → impermeable elegante:** con `occasion=casual` y `rain=True` + `temp >= 24`, el filtro del bloque `if temp >= 24 and rain:` solo discrimina por `waterproof` y `warmth`, no por estilo. Resultado: impermeable elegante aparece en outfits casuales con lluvia y calor. Agregar condición de estilo (`style not in ["elegante", "formal"]`) o `dress_level` al filtro de outerwear en ese bloque de `outfit_generation.py`.
-- ⚠️ **Casual + abrigo elegante:** verificar si la penalización de `is_formal_coat` agregada en `outerwear_context_penalty` (`category_rules.py`) es suficiente para ocasiones casuales, o si el penalty necesita subir para desplazar al abrigo elegante fuera de los primeros slots.
+### 🔴 Crítico
+| # | Ítem | Archivo(s) |
+|---|------|-----------|
+| 1 | Moderación de fotos en subidas | `storage_cloud.py`, `app.py` |
 
----
+### 🟠 Alta prioridad / Motor
+| # | Ítem | Archivo(s) |
+|---|------|-----------|
+| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` |
+| 8 | Deporte+entrenar+calor — solo 2 outfits, diagnóstico pendiente | `occasion_rules.py` |
+| 9 | Mood formal en matrimonio — resultados inconsistentes | `occasion_rules.py`, `outfit_generation.py` |
+| 10 | Prenda forzada outerwear en gala — solo aparece en outfit 1 | `outfit_generation.py` |
 
-## Pendiente para próximas sesiones
+### 🟡 Media prioridad / Motor
+| # | Ítem | Archivo(s) |
+|---|------|-----------|
+| 11 | Chaleco cuello V — combinaciones incoherentes | `compatibility.py` |
+| 12 | Calzado plano de trabajo para calor | `occasion_rules.py`, `scoring_components.py` |
+| 13 | `taco_bajo` permitido cómodo, penalizado relajado | `scoring_components.py` |
+| 14 | `taco_alto` penalizado cómodo, bloqueado relajado | `scoring_components.py` |
+| 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` |
+| 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` |
+| 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` |
 
-### Motor — matrimonio ✅ completado
-- ✅ mood sexy — validado en todas las temperaturas (sesión actual)
-- ✅ mood cómodo — lógica implementada, ajuste fino aceptado como suficiente
-- ✅ Actividad "formal" — pospuesto, no prioritario
-- ✅ generate_outfits_from_selected_garment matrimonio elegante — aceptable en flujo "Mostrar de todos modos"
+### 🟢 Baja prioridad / UI y clóset
+| # | Ítem | Archivo(s) |
+|---|------|-----------|
+| 18 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` |
+| 19 | Tip de pantys — máximo una vez por tanda | `app.py` |
+| 20 | Formulario editar prenda — scroll automático | `app.py` |
+| 21 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` |
+| 22 | Verificar top leopardo (id 63) — tag urbano | Supabase |
+| 23 | Agregar sandalias, ballerinas, chalas | Supabase |
 
-### Motor (general)
-- ✅ matrimonio — todos los moods completados
-- ✅ Gala — implementada y validada (37 casos)
-- 🎯 **PRÓXIMO: Rotación de categorías (bottom_usage + diversidad forzada genérica)**
-- ⬜ Deporte — todos los moods y temperaturas
-- ⬜ matrimonio+cómodo — ajuste fino de scores (queda como deuda menor, no bloquea gala)
-- ⬜ Compatibilidad de colores — penalizar outfits con 4+ colores sin eje cromático claro. 
-  Revisar compatibility.py
-- ⬜ taco_bajo → permitido en mood cómodo, penalizado en relajado
-- ⬜ taco_alto → penalizado en cómodo, bloqueado en relajado
-- ⬜ Calzado plano de trabajo para calor
-- ⬜ Mayor diversidad de tops en mood urbano
-- ⬜ Planificador — polera sin midlayer con frío extremo
-- ⬜ Chaleco cuello V — genera combinaciones incoherentes
-- ⚠️ Cardigan/midlayer repetido en múltiples outfits — problema de rotación pendiente
-
-### Clóset
-- ⬜ Verificar top leopardo (63) — agregar tag urbano en secondary_styles si corresponde
-- ⬜ Agregar sandalias, ballerinas y chalas al clóset (subcategoría ballarina ya implementada)
-- ⬜ Más bottoms livianos para calor
-
-### UI
-- ⬜ Formulario editar prenda — scroll automático o inline en galería
-- ⬜ Tip de pantys: mostrar máximo una vez por tanda
-- ✅ Persistencia del "Ignorar" en badge de inconsistencias — implementado con tabla Supabase `ignored_badges` (v1.0.0)
-- ⬜ Ocasiones frecuentes del perfil ordenadas primero en selectbox del recomendador
-- ⬜ Botón eliminar directo en tarjeta de galería — pendiente migración a React
-- ⬜ Destacar boton de "mi perfil" y "qué es Lookia"
-- ⬜ Pruebas completas en Claude in Chrome — instalar extensión primero
-
-### Técnico
-- ⬜ Moderación de fotos — bloquear nudes/menores/contenido inapropiado en subida (urgente)
-- ⬜ Refactor `generate_outfits_from_selected_garment` — ~430 líneas duplicadas con `generate_outfits`
-- ⚠️ Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` (L162) — ya importado en top del archivo
-- ⚠️ Riesgo de recursión infinita en `_generate_matrimonio_elegante` cuando no hay vestidos — revisar si `engine.recommender.generate_outfits` tiene el dispatch matrimonio+elegante
-- ✅ Versionado semántico — `APP_VERSION = "1.0.0"` visible en sidebar (v1.0.0)
-- ⬜ Push a version-sana después de pruebas completas
-- ⬜ UI definitiva — migrar de Streamlit a React o similar
-- ⬜ Dividir app.py en módulos por tab
-- ⬜ Renombrar dress_level "flexible" a "intermedio" en refactor futuro
-
-### Funcionalidades nuevas
-- 🎯 **PRÓXIMO: `chaleco_vestir`** — nueva subcategoría para midlayer (chaleco de tela/elegante, no deporte). Diseño aprobado, implementación pendiente.
-- ⬜ Rotación de categorías — `bottom_usage` y mecanismo de diversidad forzada genérica para bottom/midlayer/outerwear
-- ⬜ Estadísticas en tab "Mi clóset" — ya implementado básico, expandir
-- ⬜ Integración IA Anthropic (PRIORITARIO): moderación de fotos + inferencia de atributos desde imagen en una sola llamada a Claude Haiku
-- ⬜ Ocasiones frecuentes del perfil usadas para ordenar opciones en recomendador
-- ⬜ Compatibilidad de colores — penalizar outfits con 4+ colores sin eje cromático claro
+### ⚙️ Técnico / Deuda
+| # | Ítem | Archivo(s) |
+|---|------|-----------|
+| 24 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` |
+| 25 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` |
+| 26 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` |
+| 27 | Extraer `is_too_similar` a función standalone | ambos generation |
+| 28 | Dividir `app.py` en módulos por tab | `app.py` |
+| 29 | Nueva subcategoría `chaleco_vestir` | `constants.py` |
+| 30 | Migración React — UI definitiva | Proyecto nuevo |
