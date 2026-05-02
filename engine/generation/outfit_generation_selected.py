@@ -705,7 +705,7 @@ def generate_outfits_from_selected_garment(
         ow1 = ids1.get("outerwear")
         ow2 = ids2.get("outerwear")
         different_outerwear = (ow1 is not None and ow2 is not None and ow1 != ow2)
-        if same_bottom_type and same_shoes_type and same_top and not different_outerwear:
+        if same_bottom_type and same_shoes_type and same_top and not different_outerwear and same_bottom:
             return True
 
         if same_top and same_bottom:
