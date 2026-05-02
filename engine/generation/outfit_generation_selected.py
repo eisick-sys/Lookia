@@ -733,6 +733,8 @@ def generate_outfits_from_selected_garment(
     midlayer_usage = {}
     one_piece_usage = {}
     outerwear_usage = {}
+    bottom_usage = {}
+    max_same_bottom = 1 if len(top_candidates.get("bottom", [])) >= 2 else top_n
     accessory_usage_in_batch = {}
     accessory_outfits_count = 0
     max_accessory_outfits = top_n if occasion in ["matrimonio", "gala"] else random.choice([1, 1, 2])
@@ -880,6 +882,7 @@ def generate_outfits_from_selected_garment(
             midlayer_id = ids.get("midlayer")
             outerwear_id = ids.get("outerwear")
             acc_id = ids.get("accessory")
+            bottom_id = ids.get("bottom")
 
             if has_midlayer and midlayer_outfits_count >= max_midlayer_outfits:
                 continue
@@ -899,6 +902,8 @@ def generate_outfits_from_selected_garment(
             if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
                 continue
             if acc_id is not None and accessory_outfits_count >= max_accessory_outfits:
+                continue
+            if bottom_id is not None and bottom_usage.get(bottom_id, 0) >= max_same_bottom:
                 continue
 
             too_similar = False
@@ -935,6 +940,7 @@ def generate_outfits_from_selected_garment(
         midlayer_id = ids.get("midlayer")
         outerwear_id = ids.get("outerwear")
         acc_id = ids.get("accessory")
+        bottom_id = ids.get("bottom")
 
         diverse_outfits.append((score, combo))
 
@@ -953,6 +959,8 @@ def generate_outfits_from_selected_garment(
             one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
         if outerwear_id is not None:
             outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
+        if bottom_id is not None:
+            bottom_usage[bottom_id] = bottom_usage.get(bottom_id, 0) + 1
         if acc_id is not None:
             accessory_outfits_count += 1
             accessory_usage_in_batch[acc_id] = accessory_usage_in_batch.get(acc_id, 0) + 1
@@ -975,6 +983,7 @@ def generate_outfits_from_selected_garment(
             shoes_id = ids.get("shoes")
             midlayer_id = ids.get("midlayer")
             one_piece_id = ids.get("one_piece")
+            bottom_id = ids.get("bottom")
             if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
                 continue
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
@@ -1006,6 +1015,8 @@ def generate_outfits_from_selected_garment(
                 one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
             if outerwear_id is not None:
                 outerwear_usage[outerwear_id] = outerwear_usage.get(outerwear_id, 0) + 1
+            if bottom_id is not None:
+                bottom_usage[bottom_id] = bottom_usage.get(bottom_id, 0) + 1
 
     # Tercera pasada: relajar max_same_outerwear si el outerwear disponible es escaso
     if len(diverse_outfits) < min_outfits:
@@ -1029,6 +1040,7 @@ def generate_outfits_from_selected_garment(
             shoes_id = ids.get("shoes")
             midlayer_id = ids.get("midlayer")
             one_piece_id = ids.get("one_piece")
+            bottom_id = ids.get("bottom")
             if top_id is not None and top_usage.get(top_id, 0) >= max_same_top:
                 continue
             if shoes_id is not None and shoes_usage.get(shoes_id, 0) >= max_same_shoes:
@@ -1068,5 +1080,7 @@ def generate_outfits_from_selected_garment(
                 midlayer_usage[midlayer_id] = midlayer_usage.get(midlayer_id, 0) + 1
             if one_piece_id is not None:
                 one_piece_usage[one_piece_id] = one_piece_usage.get(one_piece_id, 0) + 1
+            if bottom_id is not None:
+                bottom_usage[bottom_id] = bottom_usage.get(bottom_id, 0) + 1
 
     return diverse_outfits[:top_n], []

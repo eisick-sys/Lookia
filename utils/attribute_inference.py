@@ -142,7 +142,7 @@ def infer_subcategory_from_name(name: str, category: Optional[str] = None) -> Op
 
     subcategory_keywords = {
         "top": {
-            "polera_deporte": ["polera deporte", "polera deportiva", "camiseta deporte", "camiseta deportiva", "running top", "dry fit", "dri fit"],
+            "polera_deporte": ["polera deporte", "polera deportiva", "camiseta deporte", "camiseta deportiva", "running top", "dry fit", "dri fit", "polera fitness", "fitness"],
             "polera": ["polera", "camiseta", "remera", "t-shirt"],
             "blusa": ["blusa"],
             "camisa": ["camisa"],
@@ -413,7 +413,7 @@ def infer_style_from_name(name: str) -> Optional[str]:
         "elegante": ["elegante", "formal", "vestir", "fino", "fina", "gala", "de gala", "coctel", "de noche", "noche elegante"],
         "formal": ["formal", "traje", "sastre"],
         "urbano": ["urbano", "urbana", "street", "streetwear"],
-        "sport": ["sport", "deportivo", "deportiva", "running", "training", "gym"],
+        "sport": ["sport", "deportivo", "deportiva", "running", "training", "gym", "fitness"],
         "casual": ["casual", "diario", "everyday"],
     }
 

@@ -250,7 +250,23 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                 else:
                     return _ret(False, f"{garment.name} no es adecuada para deporte.")
 
-        if garment.category in ["top", "bottom", "shoes", "one_piece"]:
+        if activity == "entrenar" and garment.category == "top":
+            if garment.subcategory in ["polera_deporte", "polera"] and garment.warmth == "caluroso":
+                pass
+            elif "sport" not in garment_styles:
+                return _ret(False, f"{garment.name} no es adecuada para entrenar.")
+        elif activity == "entrenar" and garment.category == "bottom":
+            if (
+                garment.subcategory == "short_casual"
+                and garment.warmth == "caluroso"
+                and garment.dress_level in ["relajado", "flexible"]
+                and "jean" not in garment.name.lower()
+                and "denim" not in garment.name.lower()
+            ):
+                pass
+            elif "sport" not in garment_styles:
+                return _ret(False, f"{garment.name} no es adecuada para entrenar.")
+        elif garment.category in ["top", "bottom", "shoes", "one_piece"]:
             if "sport" not in garment_styles:
                 if not (
                     garment.category == "shoes"
