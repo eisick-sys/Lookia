@@ -694,6 +694,11 @@ def generate_outfits(
         if invalid_pattern_combo(combo):
             return
 
+        for g in combo:
+            allowed, _ = garment_allowed_for_occasion(g, occasion, rain, mood, temp, activity, combo=combo)
+            if not allowed:
+                return
+
         score = outfit_score(
             combo,
             occasion,

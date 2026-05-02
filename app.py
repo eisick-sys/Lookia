@@ -1313,17 +1313,8 @@ with tab2:
                     )
 
                     current_pattern = st.session_state.get(f"edit_pattern_{garment.id}", getattr(garment, "pattern", "liso"))
-                    pattern_options_base = [
-                        "liso",
-                        "rayas",
-                        "cuadros",
-                        "estampado",
-                        "animal_print",
-                        "floral",
-                        "grafico",
-                    ]
 
-                    pattern_options_edit = [current_pattern] + [p for p in pattern_options_base if p != current_pattern]
+                    pattern_options_edit = [current_pattern] + [p for p in PATTERN_OPTIONS if p != current_pattern]
 
                     if f"edit_pattern_{garment.id}" not in st.session_state:
                         st.session_state[f"edit_pattern_{garment.id}"] = current_pattern
@@ -1488,7 +1479,7 @@ with tab2:
                         if f"edit_warmth_{garment.id}" not in st.session_state:
                             st.session_state[f"edit_warmth_{garment.id}"] = garment.warmth if garment.warmth in WARMTH_OPTIONS else "medio"
                         warmth = st.selectbox(
-                            "Tipo térmico",
+                            "Nivel térmico",
                             WARMTH_OPTIONS,
                             key=f"edit_warmth_{garment.id}"
                         )
@@ -1692,8 +1683,8 @@ with tab3:
     if "form_color" not in st.session_state:
         st.session_state.form_color = "negro"
 
-    if "form_secondary_color" not in st.session_state:
-        st.session_state.form_secondary_color = "ninguno"
+    if "form_secondary_colors" not in st.session_state:
+        st.session_state.form_secondary_colors = []
 
     if "form_pattern" not in st.session_state:
         st.session_state.form_pattern = "liso"
@@ -1731,7 +1722,7 @@ with tab3:
         st.session_state.form_category = "top"
         st.session_state.form_subcategory = None
         st.session_state.form_color = "negro"
-        st.session_state.form_secondary_color = "ninguno"
+        st.session_state.form_secondary_colors = []
         st.session_state.form_pattern = "liso"
         st.session_state.form_style = "casual"
         st.session_state.form_secondary_styles = []
@@ -1881,7 +1872,7 @@ with tab3:
                 str(inferred.get("secondary_color", "")).strip().lower()
             )
             if inferred_secondary_color in COLOR_OPTIONS:
-                st.session_state.form_secondary_color = inferred_secondary_color
+                st.session_state.form_secondary_colors = [inferred_secondary_color]
 
             if inferred.get("pattern") in PATTERN_OPTIONS:
                 st.session_state.form_pattern = inferred["pattern"]
@@ -2052,16 +2043,21 @@ with tab3:
     )
 
     if pattern != "liso":
-        secondary_color = st.selectbox(
-            "Color secundario",
-            ["ninguno"] + sorted_color_options,
-            key="form_secondary_color",
-            format_func=lambda c: "— ninguno —" if c == "ninguno" else f"{color_icons.get(c, '⬜')} {c}"
+        available_secondary_colors_add = [c for c in sorted_color_options if c != color]
+        st.session_state.form_secondary_colors = [
+            c for c in st.session_state.form_secondary_colors if c in available_secondary_colors_add
+        ]
+        secondary_colors = st.multiselect(
+            "Colores secundarios",
+            available_secondary_colors_add,
+            key="form_secondary_colors",
+            format_func=lambda c: f"{color_icons.get(c, '⬜')} {c}",
+            help="Selecciona colores presentes en estampados, rayas, floral, animal print, etc."
         )
     else:
-        if st.session_state.form_secondary_color != "ninguno":
-            st.session_state.form_secondary_color = "ninguno"
-        secondary_color = "ninguno"
+        if st.session_state.form_secondary_colors:
+            st.session_state.form_secondary_colors = []
+        secondary_colors = []
 
     style = st.selectbox(
         "Estilo principal",
@@ -2096,20 +2092,20 @@ with tab3:
             warmth = "medio"
 
         if show_functional_fields:
-            waterproof = st.checkbox("¿Es impermeable?", key="form_waterproof")
+            waterproof = st.checkbox("Impermeable", key="form_waterproof")
         else:
             waterproof = False
-
-        if show_functional_fields:
-            sexiness = st.slider("Nivel sexy", min_value=0, max_value=3, key="form_sexiness_add")
-        else:
-            sexiness = 0
 
         dress_level = st.selectbox(
             "Nivel de formalidad",
             DRESS_LEVEL_OPTIONS,
             key="form_dress_level"
         )
+
+        if show_functional_fields:
+            sexiness = st.slider("Nivel sexy", min_value=0, max_value=3, key="form_sexiness_add")
+        else:
+            sexiness = 0
 
         submitted = st.form_submit_button("Guardar prenda")
 
@@ -2131,7 +2127,7 @@ with tab3:
             subcategory=subcategory,
             accessory_type=None,
             color=normalize_color_name(color),
-            secondary_colors=[normalize_color_name(secondary_color)] if secondary_color != "ninguno" else [],
+            secondary_colors=[normalize_color_name(c) for c in secondary_colors],
             pattern=pattern,
             style=style,
             secondary_styles=secondary_styles,

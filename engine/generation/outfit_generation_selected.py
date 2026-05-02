@@ -382,7 +382,7 @@ def generate_outfits_from_selected_garment(
         for g in combo:
             if g.id == selected_garment.id:
                 continue
-            allowed, _ = garment_allowed_for_occasion(g, occasion, rain, mood, temp, activity)
+            allowed, _ = garment_allowed_for_occasion(g, occasion, rain, mood, temp, activity, combo=combo)
             if not allowed:
                 return
 

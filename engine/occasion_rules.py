@@ -86,7 +86,7 @@ def is_animal_print(garment: Garment) -> bool:
     return any(x in pattern for x in ["animal", "leop", "zebr", "cebr"])
 
 
-def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = False, mood: str = "", temp: int = 15, activity: str = ""):
+def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = False, mood: str = "", temp: int = 15, activity: str = "", combo: list = None):
     garment_styles = all_styles(garment)
     lower_name = garment.name.lower()
 
@@ -332,5 +332,21 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
     if is_shoe_ballet_flat(garment):
         if temp <= 8:
             return _ret(False, f"{garment.name} no es la mejor opción para este frío — pero tú decides.")
+
+    if garment.category == "midlayer" and combo:
+        one_pieces = [g for g in combo if g.category == "one_piece"]
+        for op in one_pieces:
+            op_is_formal = (
+                op.dress_level in ["arreglado", "elegante"]
+                or getattr(op, "sexiness", 0) >= 2
+                or op.subcategory in ["vestido_elegante", "vestido_coctel", "enterito"]
+            )
+            mid_is_incompatible = (
+                garment.subcategory in ["polar", "hoodie"]
+                or garment.style == "sport"
+                or "sport" in (getattr(garment, "secondary_styles", None) or [])
+            )
+            if op_is_formal and mid_is_incompatible:
+                return _ret(False, f"{garment.name} no combina con {op.name}.")
 
     return _ret(True, "")
