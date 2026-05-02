@@ -349,4 +349,17 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
             if op_is_formal and mid_is_incompatible:
                 return _ret(False, f"{garment.name} no combina con {op.name}.")
 
+    if mood in ["relajado", "comodo"]:
+        prenda_es_formal = (
+            garment.style in ["elegante", "formal"]
+            and "casual" not in (garment.secondary_styles or [])
+            and "urbano" not in (garment.secondary_styles or [])
+        )
+        prenda_es_versatil = garment.dress_level in ["relajado", "flexible"]
+        ocasion_permite_formal = occasion in [
+            "trabajo", "cita", "matrimonio", "gala", "salida nocturna"
+        ]
+        if prenda_es_formal and not prenda_es_versatil and not ocasion_permite_formal:
+            return _ret(False, f"{garment.name} es demasiado formal para un mood {mood}.")
+
     return _ret(True, "")
