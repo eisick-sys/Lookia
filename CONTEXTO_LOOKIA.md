@@ -454,8 +454,6 @@ Contexto: el motor no tenía lógica propia para matrimonio+cómodo. Las prendas
 
 **Estado WIP**
 - ⚠️ PENDIENTE: resultados aún pueden mostrar demasiado zapato derby y zapatilla elegante en algunos clósets — ajuste fino de scores pendiente
-- ⚠️ PENDIENTE FUTURO: agregar ballerinas como subcategoría de shoes (calzado cómodo por excelencia para matrimonio)
-
 ---
 
 ### Sesión 24 — abril 2026
@@ -481,10 +479,6 @@ Contexto: el motor no tenía lógica propia para matrimonio+cómodo. Las prendas
 - ✅ Impermeable elegante con lluvia (no sport/relajado)
 - ✅ Cómodo 3°/7° produce 2 outfits con armario sintético — esperado, en producción hay más prendas
 
-**Pendiente**
-- ⬜ Pruebas reales en app con clóset de Punta Arenas — matrimonio+cómodo varias temperaturas
-- ⬜ Gala — sin validar en ningún mood
-- ⬜ Merge main → version-sana cuando matrimonio esté confirmado estable
 
 ---
 

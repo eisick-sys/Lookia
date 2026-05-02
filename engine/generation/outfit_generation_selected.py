@@ -739,12 +739,23 @@ def generate_outfits_from_selected_garment(
     accessory_outfits_count = 0
     max_accessory_outfits = top_n if occasion in ["matrimonio", "gala"] else random.choice([1, 1, 2])
     max_same_top = 1 if occasion in ["matrimonio", "gala"] else (2 if top_n >= 3 else 1)
+    _n_shoes = len(top_candidates.get("shoes", []))
     if occasion == "matrimonio" and mood == "comodo":
         max_same_shoes = 1
     elif occasion == "matrimonio":
         max_same_shoes = 2
+    elif occasion in ["cita", "salida nocturna"]:
+        elegant_shoes = [g for g in top_candidates["shoes"]
+                         if g.subcategory in ["taco_alto", "taco_bajo", "sandalia"]]
+        if len(elegant_shoes) >= 2:
+            max_same_shoes = 1
+        else:
+            max_same_shoes = 2 if top_n >= 3 else 1
     else:
-        max_same_shoes = 2 if top_n >= 3 else 1
+        if _n_shoes == 1:
+            max_same_shoes = top_n
+        else:
+            max_same_shoes = 2 if top_n >= 3 else 1
     _n_blazers = sum(1 for g in top_candidates["midlayer"] if g.subcategory == "blazer")
     _n_midlayers = len(top_candidates["midlayer"])
     if occasion == "matrimonio":
@@ -765,11 +776,20 @@ def generate_outfits_from_selected_garment(
             max_same_midlayer = top_n
     _n_one_pieces = len(top_candidates.get("one_piece", []))
     max_same_one_piece = 1 if _n_one_pieces >= 2 else top_n
-    if occasion in ["cita", "salida nocturna"]:
-        elegant_shoes = [g for g in top_candidates["shoes"]
-                         if g.subcategory in ["taco_alto", "taco_bajo", "sandalia"]]
-        if len(elegant_shoes) >= 2:
-            max_same_shoes = 1
+    # Ajuste pool de 1 — si solo hay 1 candidato en la categoria, no limitar repeticion
+    _n_tops = len(top_candidates.get("top", []))
+    if _n_tops == 1:
+        max_same_top = top_n
+    _n_bottoms = len(top_candidates.get("bottom", []))
+    if _n_bottoms == 1:
+        max_same_bottom = top_n
+    _n_outerwear = len(top_candidates.get("outerwear", []))
+    if _n_outerwear == 1:
+        max_same_outerwear = top_n
+    if _n_shoes == 1:
+        max_same_shoes = top_n
+    if _n_one_pieces == 1:
+        max_same_one_piece = top_n
     heel_outfits_count = 0
     max_same_shoes_heel = top_n
     if mood == "formal":
