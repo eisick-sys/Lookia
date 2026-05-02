@@ -761,6 +761,28 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 
 ---
 
+### Sesión 30 — 02-May-2026 — Bugs motor + diversidad + deporte
+
+**Bugs resueltos esta sesión**
+- ✅ Bug 8 parcial: Deporte+entrenar+calor — diagnóstico completo ejecutado sobre clóset real (Supabase). Causa raíz: `max_same_shoes = 2` limitaba la única `zapatilla_deporte` disponible a aparecer solo en 2 outfits. Fix: principio "pool de 1" para shoes. Adicionalmente se confirmaron las excepciones de sesión 29 (short_casual caluroso + polera calurosa sin style sport).
+
+**Principio "pool de 1" implementado (ambos archivos generation)**
+
+Cuando el pool de candidatos de una categoría tiene exactamente 1 prenda, su `max_same_*` sube a `top_n` — el motor usa esa prenda en todos los outfits en lugar de cortarse. Aplica a: `shoes`, `top`, `bottom`, `outerwear`, `one_piece`. Midlayer no necesita ajuste (ya tenía su propia lógica con `_n_midlayers`).
+
+Casos más impactantes:
+- `shoes` en cualquier ocasión con 1 calzado disponible (incluye matrimonio/cita/nocturna donde antes el cap era 1 o 2)
+- `outerwear` en lluvia con 1 impermeable disponible (antes cap = 3, ahora = top_n)
+
+Implementación en dos capas:
+1. La lógica de `max_same_shoes` para matrimonio/cita/nocturna se integró en un único bloque `if/elif/elif/else` (antes era un `if` separado que sobreescribía al final)
+2. Bloque genérico de override "pool de 1" insertado después de todos los `max_same_*` individuales y antes del loop de selección — evalúa `_n_tops`, `_n_bottoms`, `_n_outerwear`, `_n_shoes`, `_n_one_pieces`
+
+**⚠️ Inconsistencia observada (pendiente)**
+En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en la siguiente recarga muestra 3. Causa probable: `random.shuffle` en pools de accesorios y outerwear genera variación en qué combos se registran primero en `unique{}`, afectando cuántos sobreviven los filtros de diversidad. No crítico pero debe investigarse.
+
+---
+
 ## Tabla de bugs y mejoras pendientes — v1.0.1
 
 ### 🔴 Crítico
@@ -772,7 +794,7 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 | # | Ítem | Archivo(s) |
 |---|------|-----------|
 | 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` |
-| 8 | Deporte+entrenar+calor — solo 2 outfits, diagnóstico pendiente | `occasion_rules.py` |
+| 8 | Deporte+entrenar — inconsistencia 2 vs 3 outfits entre tandas | `outfit_generation.py` |
 | 9 | Mood formal en matrimonio — resultados inconsistentes | `occasion_rules.py`, `outfit_generation.py` |
 | 10 | Prenda forzada outerwear en gala — solo aparece en outfit 1 | `outfit_generation.py` |
 
@@ -786,24 +808,25 @@ Cuando `selected_garment` es un outerwear (abrigo, chaqueta, bolero), la lógica
 | 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` |
 | 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` |
 | 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` |
+| 18 | Inconsistencia 2 vs 3 outfits entre tandas — `random.shuffle` genera variación en `unique{}` | `outfit_generation.py`, `outfit_generation_selected.py` |
 
 ### 🟢 Baja prioridad / UI y clóset
 | # | Ítem | Archivo(s) |
 |---|------|-----------|
-| 18 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` |
-| 19 | Tip de pantys — máximo una vez por tanda | `app.py` |
-| 20 | Formulario editar prenda — scroll automático | `app.py` |
-| 21 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` |
-| 22 | Verificar top leopardo (id 63) — tag urbano | Supabase |
-| 23 | Agregar sandalias, ballerinas, chalas | Supabase |
+| 19 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` |
+| 20 | Tip de pantys — máximo una vez por tanda | `app.py` |
+| 21 | Formulario editar prenda — scroll automático | `app.py` |
+| 22 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` |
+| 23 | Verificar top leopardo (id 84) — tag urbano | Supabase |
+| 24 | Agregar sandalias, ballerinas, chalas | Supabase |
 
 ### ⚙️ Técnico / Deuda
 | # | Ítem | Archivo(s) |
 |---|------|-----------|
-| 24 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` |
-| 25 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` |
-| 26 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` |
-| 27 | Extraer `is_too_similar` a función standalone | ambos generation |
-| 28 | Dividir `app.py` en módulos por tab | `app.py` |
-| 29 | Nueva subcategoría `chaleco_vestir` | `constants.py` |
-| 30 | Migración React — UI definitiva | Proyecto nuevo |
+| 25 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` |
+| 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` |
+| 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` |
+| 28 | Extraer `is_too_similar` a función standalone | ambos generation |
+| 29 | Dividir `app.py` en módulos por tab | `app.py` |
+| 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` |
+| 31 | Migración React — UI definitiva | Proyecto nuevo |
