@@ -783,50 +783,99 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 
 ---
 
+### Sesión 31 — 02-May-2026 (continuación) — Bug #10 gala/matrimonio prenda forzada
+
+**`engine/occasion_rules.py`**
+- ✅ Nueva función `validate_selected_for_occasion(garment, occasion, mood, temp, rain, activity)` — fuente de verdad única para validación de prenda forzada. Retorna `(allowed, reason, severity)` donde severity es `"block"`, `"warn"` u `"ok"`
+- ✅ Elimina las 5 contradicciones entre `app.py`, `garment_allowed_for_occasion` y `_generate_gala`
+
+**`app.py`**
+- ✅ Bloque de validación de `selected_garment` reemplazado por llamada a `validate_selected_for_occasion` — elimina lógica duplicada inline para gala y matrimonio+elegante
+- ✅ Doble warning eliminado para casos como botín en gala
+- ✅ Nombre de prenda aparece primero en formulario de edición (antes aparecía después de colores secundarios)
+
+**`engine/generation/outfit_generation.py`**
+- ✅ Accesorios forzados aparecen en todos los outfits de `_generate_gala` y `_generate_matrimonio_elegante` — antes solo aparecían en outfit 1
+
+**`engine/generation/outfit_generation_selected.py`**
+- ✅ `ranked` por categoría: la categoría de la prenda forzada rankea con `"casual"` cuando `ignore_occasion_for_selected=True`, las categorías companion rankean con la ocasión real — tacos y sandalias entran al pool correcto para matrimonio+elegante
+- ✅ Filtro de matrimonio omitido para categoría forzada cuando `ignore_occasion_for_selected=True`: excepción explícita al final del bloque matrimonio que resetea `top_candidates[sel_cat]` al pool completo sin filtros de ocasión
+- ✅ `add_combo` usa `check_occasion = "casual"` para companions cuando `ignore_occasion_for_selected=True` — evita que `garment_allowed_for_occasion` rechace companions válidos
+
+**`engine/recommender.py`**
+- ✅ `garment_base_score` usa `check_occasion` en vez de `occasion` cuando `ignore_occasion_for_forced=True` — scoring consistente con el ranking, sin penalizaciones de matrimonio para companions en modo ignore; evita que el diversity loop (`score < 0`) descarte outfits válidos
+
+**`is_too_similar` (ambos archivos generation)**
+- ✅ Regla fuerte `same_bottom_type + same_shoes_type` requiere además `same_bottom` exacto — dos jeans distintos con mismo top ya no se bloquean entre sí
+
+**Causa raíz del Bug #10 documentada (3 capas)**
+1. `ranked["shoes"]` usaba `"casual"` para todos los companions → tacos/sandalias rankeaban bajo → no entraban al top 5 → filtro matrimonio+elegante quedaba sin candidatos
+2. `add_combo` usaba `occasion="matrimonio"` para `garment_allowed_for_occasion` → bloqueaba companions válidos como botines aunque el usuario hubiera presionado "Mostrar de todos modos"
+3. `outfit_score` usaba `occasion="matrimonio"` para `garment_base_score` → scores muy negativos (-697) → `score < 0` del diversity loop descartaba todos los outfits
+
+---
+
 ## Tabla de bugs y mejoras pendientes — v1.0.1
 
 ### 🔴 Crítico
-| # | Ítem | Archivo(s) |
-|---|------|-----------|
-| 1 | Moderación de fotos en subidas | `storage_cloud.py`, `app.py` |
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 1 | Moderación de fotos en subidas | `storage_cloud.py`, `app.py` | ⏳ Pendiente estratégico |
 
 ### 🟠 Alta prioridad / Motor
-| # | Ítem | Archivo(s) |
-|---|------|-----------|
-| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` |
-| 8 | Deporte+entrenar — inconsistencia 2 vs 3 outfits entre tandas | `outfit_generation.py` |
-| 9 | Mood formal en matrimonio — resultados inconsistentes | `occasion_rules.py`, `outfit_generation.py` |
-| 10 | Prenda forzada outerwear en gala — solo aparece en outfit 1 | `outfit_generation.py` |
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` | ⚠️ Parcial |
+| 8 | Deporte+entrenar — inconsistencia resuelta con pool-de-1 | `occasion_rules.py`, `outfit_generation.py` | ✅ Resuelto |
+| 9 | Mood formal en matrimonio — resultados inconsistentes | `occasion_rules.py`, `outfit_generation.py` | ⬜ Pendiente |
+| 10 | Prenda forzada atípica en gala/matrimonio — fixes arquitecturales | `outfit_generation_selected.py`, `recommender.py`, `occasion_rules.py` | ✅ Resuelto — pruebas pendientes |
 
 ### 🟡 Media prioridad / Motor
-| # | Ítem | Archivo(s) |
-|---|------|-----------|
-| 11 | Chaleco cuello V — combinaciones incoherentes | `compatibility.py` |
-| 12 | Calzado plano de trabajo para calor | `occasion_rules.py`, `scoring_components.py` |
-| 13 | `taco_bajo` permitido cómodo, penalizado relajado | `scoring_components.py` |
-| 14 | `taco_alto` penalizado cómodo, bloqueado relajado | `scoring_components.py` |
-| 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` |
-| 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` |
-| 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` |
-| 18 | Inconsistencia 2 vs 3 outfits entre tandas — `random.shuffle` genera variación en `unique{}` | `outfit_generation.py`, `outfit_generation_selected.py` |
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 11 | Chaleco cuello V — combinaciones incoherentes | `compatibility.py` | ⬜ Pendiente |
+| 12 | Calzado plano de trabajo para calor | `occasion_rules.py`, `scoring_components.py` | ⬜ Pendiente |
+| 13 | `taco_bajo` permitido cómodo, penalizado relajado | `scoring_components.py` | ⬜ Pendiente |
+| 14 | `taco_alto` penalizado cómodo, bloqueado relajado | `scoring_components.py` | ⬜ Pendiente |
+| 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` | ⬜ Pendiente |
+| 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` | ⬜ Pendiente |
+| 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` | ⬜ Pendiente |
+| 18 | Inconsistencia 2 vs 3 outfits entre tandas — investigar | `outfit_generation.py` | ⬜ Pendiente |
 
 ### 🟢 Baja prioridad / UI y clóset
-| # | Ítem | Archivo(s) |
-|---|------|-----------|
-| 19 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` |
-| 20 | Tip de pantys — máximo una vez por tanda | `app.py` |
-| 21 | Formulario editar prenda — scroll automático | `app.py` |
-| 22 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` |
-| 23 | Verificar top leopardo (id 84) — tag urbano | Supabase |
-| 24 | Agregar sandalias, ballerinas, chalas | Supabase |
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 19 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` | ⬜ Pendiente |
+| 20 | Tip de pantys — máximo una vez por tanda | `app.py` | ⬜ Pendiente |
+| 21 | Formulario editar prenda — scroll automático | `app.py` | ⬜ Pendiente |
+| 22 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` | ⬜ Pendiente |
+| 23 | Verificar top leopardo (id 63) — tag urbano | Supabase | ⬜ Pendiente |
+| 24 | Agregar sandalias, ballerinas, chalas | Supabase | ⬜ Pendiente |
 
 ### ⚙️ Técnico / Deuda
-| # | Ítem | Archivo(s) |
-|---|------|-----------|
-| 25 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` |
-| 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` |
-| 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` |
-| 28 | Extraer `is_too_similar` a función standalone | ambos generation |
-| 29 | Dividir `app.py` en módulos por tab | `app.py` |
-| 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` |
-| 31 | Migración React — UI definitiva | Proyecto nuevo |
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 25 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` | ⬜ Pendiente |
+| 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` | ⬜ Pendiente |
+| 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` | ⬜ Pendiente |
+| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ⬜ Pendiente |
+| 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente |
+| 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Pendiente |
+| 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
+
+---
+
+## Pruebas pendientes — Bug #10 prenda forzada (próxima sesión)
+
+| # | Caso | Esperado |
+|---|------|----------|
+| P1 | Pantalón forzado, matrimonio, elegante, "Mostrar de todos modos" | 3 outfits con tops elegantes + tacos + blazer según clima |
+| P2 | Pantalón forzado, matrimonio, urbano, "¿Qué me pongo?" | 3 outfits sin warning |
+| P3 | Pantalón forzado, matrimonio, cómodo, "¿Qué me pongo?" | 3 outfits sin warning |
+| P4 | Pantalón forzado, matrimonio, sexy, "Mostrar de todos modos" | Outfits con pantalón + tops elegantes |
+| P5 | Top forzado, matrimonio, elegante, "Mostrar de todos modos" | Outfits con vestidos + el top como alternativa |
+| P6 | Accesorio forzado, gala, elegante, "¿Qué me pongo?" | Accesorio aparece en los 3 outfits |
+| P7 | Calzado forzado, gala, elegante, "¿Qué me pongo?" | Sin warning, 3 outfits con vestido + calzado forzado |
+| P8 | Calzado atípico forzado, gala, elegante, "Mostrar de todos modos" | Outfits con mejor calzado disponible respetando clima |
+| P9 | Prenda casual forzada, cita elegante, "Mostrar de todos modos" | Outfits coherentes con cita, companions elegantes |
+| P10 | Regresión: prenda correcta forzada en matrimonio elegante | Sin cambios vs comportamiento anterior |

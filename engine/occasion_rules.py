@@ -379,3 +379,56 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
             return _ret(False, f"{garment.name} es demasiado formal para un mood {mood}.")
 
     return _ret(True, "")
+
+
+def validate_selected_for_occasion(
+    garment,
+    occasion: str,
+    mood: str,
+    temp: int,
+    rain: bool,
+    activity: str,
+):
+    """
+    Valida si una prenda seleccionada puede forzarse en outfits para la ocasión dada.
+    Retorna (compatible: bool, reason: str, severity: "block" | "warn" | "ok").
+
+    "block": el motor no puede generar outfits con esta prenda en esta ocasión.
+    "warn":  la prenda es atípica pero el usuario puede forzarla.
+    "ok":    sin problemas.
+
+    Llama a garment_allowed_for_occasion primero (capa 1) y luego aplica
+    reglas específicas de ocasión que reflejan la lógica interna del motor (capa 2).
+    """
+    allowed, reason = garment_allowed_for_occasion(garment, occasion, rain, mood=mood, temp=temp, activity=activity)
+    if not allowed:
+        return False, reason, "block"
+
+    cat = garment.category
+    sub = getattr(garment, "subcategory", None)
+
+    if occasion == "gala":
+        accepted = (
+            (cat == "one_piece" and sub in ["vestido_elegante", "vestido_coctel"]) or
+            cat == "shoes" or
+            (cat == "outerwear" and sub in ["abrigo", "chaqueta", "bolero"]) or
+            (cat == "outerwear" and sub == "trench" and mood == "urbano") or
+            cat == "accessory"
+        )
+        if not accepted:
+            if cat == "outerwear" and sub == "trench":
+                return False, f"{garment.name} no va con gala {mood}.", "block"
+            return False, f"{garment.name} no es compatible con gala — esta ocasión requiere vestido elegante o cóctel.", "block"
+
+    elif occasion == "matrimonio" and mood == "elegante":
+        accepted = (
+            (cat == "one_piece" and sub in ["vestido_elegante", "vestido_coctel"]) or
+            (cat == "shoes" and sub in ["taco_alto", "taco_bajo", "sandalia"]) or
+            (cat == "midlayer" and sub == "blazer") or
+            (cat == "outerwear" and sub in ["abrigo", "trench"]) or
+            cat == "accessory"
+        )
+        if not accepted:
+            return False, f"{garment.name} no es la elección típica para un matrimonio elegante — pero tú decides.", "warn"
+
+    return True, "", "ok"

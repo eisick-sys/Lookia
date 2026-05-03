@@ -69,7 +69,7 @@ with st.sidebar:
 from models import Garment, OutfitFeedback, UsedOutfit, UserProfile
 from weather import format_weather_label, get_current_weather, get_week_forecast
 
-from engine.occasion_rules import garment_allowed_for_occasion, get_weather_tag
+from engine.occasion_rules import garment_allowed_for_occasion, get_weather_tag, validate_selected_for_occasion
 from engine.recommender import (
     explain_outfit_score,
     generate_outfits,
@@ -720,47 +720,15 @@ with tab1:
     selected_allowed = True
 
     if selected_garment is not None:
-        selected_allowed, reason = garment_allowed_for_occasion(selected_garment, occasion, rain, mood=mood, temp=temp, activity=activity)
-        if not selected_allowed:
+        compatible, reason, severity = validate_selected_for_occasion(
+            selected_garment, occasion, mood, temp, rain, activity
+        )
+        if severity == "block":
             st.warning(reason)
-
-        if selected_garment is not None and occasion == "matrimonio" and mood == "elegante":
-            cat = selected_garment.category
-            sub = getattr(selected_garment, "subcategory", None)
-            es_compatible = (
-                (cat == "one_piece" and sub in ["vestido_elegante", "vestido_coctel"]) or
-                (cat == "shoes" and sub in ["taco_alto", "taco_bajo", "sandalia"]) or
-                (cat == "midlayer" and sub == "blazer") or
-                (cat == "outerwear" and sub in ["abrigo", "trench"]) or
-                cat == "accessory"
-            )
-            if not es_compatible:
-                st.warning(f"{selected_garment.name} no es la elección típica para un matrimonio elegante — pero tú decides.")
-                selected_allowed = False
-
-        if selected_garment is not None and occasion == "gala":
-            cat = selected_garment.category
-            sub = getattr(selected_garment, "subcategory", None)
-            _calzado_ok_gala = (
-                sub in ["taco_alto", "taco_bajo", "sandalia"]
-                if mood != "comodo"
-                else sub in ["taco_bajo", "sandalia"]
-            )
-            if cat == "shoes" and sub == "zapatilla_urbana":
-                _calzado_ok_gala = True  # urbano puede usar zapatilla arreglada
-            es_compatible_gala = (
-                (cat == "one_piece" and sub in ["vestido_elegante", "vestido_coctel"]) or
-                (cat == "shoes" and _calzado_ok_gala) or
-                (cat == "outerwear" and sub in ["abrigo", "chaqueta", "bolero"]) or
-                (cat == "outerwear" and sub == "trench" and mood == "urbano") or
-                cat == "accessory"
-            )
-            if not es_compatible_gala:
-                if cat == "outerwear" and sub == "trench" and mood != "urbano":
-                    st.warning(f"{selected_garment.name} no va con gala {mood} — pero tú decides.")
-                else:
-                    st.warning(f"{selected_garment.name} no es la elección típica para gala — pero tú decides.")
-                selected_allowed = False
+            selected_allowed = False
+        elif severity == "warn":
+            st.warning(reason)
+            selected_allowed = False
 
         # Advertencia de clima para prenda forzada
         if selected_garment.category == "outerwear" and temp >= 24:
@@ -1279,6 +1247,49 @@ with tab2:
                     else:
                         st.info("Esta prenda aún no tiene foto.")
 
+                    def _reinfer_from_edit_name():
+                        _name = st.session_state.get(f"edit_name_{garment.id}", "").strip()
+                        if not _name or len(_name) < 3:
+                            return
+                        _inferred = infer_attributes_from_name(_name)
+
+                        _new_cat = None
+                        if _inferred.get("category") in CATEGORY_OPTIONS:
+                            st.session_state[f"edit_category_{garment.id}"] = _inferred["category"]
+                            _new_cat = _inferred["category"]
+
+                        if _new_cat:
+                            _inferred_sub = _inferred.get("subcategory")
+                            _valid_subs = SUBCATEGORY_OPTIONS.get(_new_cat, [])
+                            if _inferred_sub in _valid_subs:
+                                st.session_state[f"edit_sub_{garment.id}_{_new_cat}"] = _inferred_sub
+
+                        if _inferred.get("color") in COLOR_OPTIONS:
+                            st.session_state[f"edit_color_{garment.id}"] = _inferred["color"]
+
+                        if _inferred.get("pattern") in PATTERN_OPTIONS:
+                            st.session_state[f"edit_pattern_{garment.id}"] = _inferred["pattern"]
+
+                        if _inferred.get("warmth") in WARMTH_OPTIONS:
+                            st.session_state[f"edit_warmth_{garment.id}"] = _inferred["warmth"]
+
+                        if _inferred.get("dress_level") in DRESS_LEVEL_OPTIONS:
+                            st.session_state[f"edit_dress_level_{garment.id}"] = _inferred["dress_level"]
+
+                        if _inferred.get("sexiness") is not None:
+                            st.session_state[f"edit_sexiness_{garment.id}"] = _inferred["sexiness"]
+
+                        if _inferred.get("style") in STYLE_OPTIONS:
+                            st.session_state[f"edit_style_{garment.id}"] = _inferred["style"]
+
+                    st.markdown("""
+<div style="background-color: #fff0f3; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;">
+    <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 0.95rem;">Nombre de la prenda</p>
+    <p style="margin: 0; font-size: 0.8rem; color: #666;">💡 Lookia infiere la categoría, color y otros atributos desde el nombre — mientras más descriptivo, mejor</p>
+</div>
+""", unsafe_allow_html=True)
+                    name = st.text_input("Nombre", value=garment.name, key=f"edit_name_{garment.id}", label_visibility="collapsed", on_change=_reinfer_from_edit_name)
+
                     garment_color = normalize_color_name(getattr(garment, "color", "blanco"))
 
                     if f"edit_style_{garment.id}" not in st.session_state:
@@ -1395,49 +1406,6 @@ with tab2:
                         if key_sc in st.session_state:
                             st.session_state[key_sc] = []
                         secondary_colors = []
-
-                    def _reinfer_from_edit_name():
-                        _name = st.session_state.get(f"edit_name_{garment.id}", "").strip()
-                        if not _name or len(_name) < 3:
-                            return
-                        _inferred = infer_attributes_from_name(_name)
-
-                        _new_cat = None
-                        if _inferred.get("category") in CATEGORY_OPTIONS:
-                            st.session_state[f"edit_category_{garment.id}"] = _inferred["category"]
-                            _new_cat = _inferred["category"]
-
-                        if _new_cat:
-                            _inferred_sub = _inferred.get("subcategory")
-                            _valid_subs = SUBCATEGORY_OPTIONS.get(_new_cat, [])
-                            if _inferred_sub in _valid_subs:
-                                st.session_state[f"edit_sub_{garment.id}_{_new_cat}"] = _inferred_sub
-
-                        if _inferred.get("color") in COLOR_OPTIONS:
-                            st.session_state[f"edit_color_{garment.id}"] = _inferred["color"]
-
-                        if _inferred.get("pattern") in PATTERN_OPTIONS:
-                            st.session_state[f"edit_pattern_{garment.id}"] = _inferred["pattern"]
-
-                        if _inferred.get("warmth") in WARMTH_OPTIONS:
-                            st.session_state[f"edit_warmth_{garment.id}"] = _inferred["warmth"]
-
-                        if _inferred.get("dress_level") in DRESS_LEVEL_OPTIONS:
-                            st.session_state[f"edit_dress_level_{garment.id}"] = _inferred["dress_level"]
-
-                        if _inferred.get("sexiness") is not None:
-                            st.session_state[f"edit_sexiness_{garment.id}"] = _inferred["sexiness"]
-
-                        if _inferred.get("style") in STYLE_OPTIONS:
-                            st.session_state[f"edit_style_{garment.id}"] = _inferred["style"]
-
-                    st.markdown("""
-<div style="background-color: #fff0f3; padding: 12px 16px; border-radius: 8px; margin-bottom: 8px;">
-    <p style="margin: 0 0 4px 0; font-weight: 600; font-size: 0.95rem;">Nombre de la prenda</p>
-    <p style="margin: 0; font-size: 0.8rem; color: #666;">💡 Lookia infiere la categoría, color y otros atributos desde el nombre — mientras más descriptivo, mejor</p>
-</div>
-""", unsafe_allow_html=True)
-                    name = st.text_input("Nombre", value=garment.name, key=f"edit_name_{garment.id}", label_visibility="collapsed", on_change=_reinfer_from_edit_name)
 
                     if f"edit_category_{garment.id}" not in st.session_state:
                         st.session_state[f"edit_category_{garment.id}"] = garment.category if garment.category in CATEGORY_OPTIONS else CATEGORY_OPTIONS[0]

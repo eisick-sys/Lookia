@@ -323,11 +323,13 @@ def outfit_score(
 
     score = 0
 
+    check_occasion = "casual" if (ignore_occasion_for_forced and forced_garment_id is not None) else occasion
+
     for g in items:
         if ignore_occasion_for_forced and forced_garment_id is not None and g.id == forced_garment_id:
             allowed = True
         else:
-            allowed, _ = garment_allowed_for_occasion(g, occasion, rain, mood, temp, activity)
+            allowed, _ = garment_allowed_for_occasion(g, check_occasion, rain, mood, temp, activity)
 
         if not allowed:
             return -999
@@ -335,7 +337,7 @@ def outfit_score(
         base = garment_base_score(
             g,
             g.category,
-            occasion,
+            check_occasion,
             temp,
             rain,
             mood,

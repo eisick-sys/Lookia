@@ -144,7 +144,10 @@ def _generate_matrimonio_elegante(
             omitir_blazer = (20 <= temp <= 23 and i == 2)
             blazer = blazers[i % len(blazers)] if usar_blazer and blazers and not omitir_blazer else None
         abrigo = abrigos[i % len(abrigos)] if usar_abrigo and abrigos else None
-        acc = accesorios[i % len(accesorios)] if accesorios else None
+        if selected_garment is not None and selected_garment.category == "accessory":
+            acc = selected_garment
+        else:
+            acc = accesorios[i % len(accesorios)] if accesorios else None
 
         combo = [vestido, taco]
         if blazer:
@@ -347,7 +350,10 @@ def _generate_gala(
         zapato = calzado[i % len(calzado)]
         abrigo = abrigos[i % len(abrigos)] if usar_abrigo and abrigos else None
         capa = capas_ligeras[i % len(capas_ligeras)] if usar_capa_ligera and capas_ligeras else None
-        acc = accesorios[i % len(accesorios)] if accesorios else None
+        if selected_garment is not None and selected_garment.category == "accessory":
+            acc = selected_garment
+        else:
+            acc = accesorios[i % len(accesorios)] if accesorios else None
 
         combo = [vestido, zapato]
         if abrigo:

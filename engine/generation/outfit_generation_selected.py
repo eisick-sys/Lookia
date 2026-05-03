@@ -99,7 +99,7 @@ def generate_outfits_from_selected_garment(
         cat: rank_garments(
             garments_by_category[cat],
             cat,
-            occasion if not ignore_occasion_for_selected else "casual",
+            "casual" if (ignore_occasion_for_selected and cat == selected_garment.category) else occasion,
             temp,
             rain,
             mood,
@@ -329,6 +329,15 @@ def generate_outfits_from_selected_garment(
                 if g.subcategory not in ["mocasin", "botin", "bota", "zapatilla_urbana", "zapatilla_deporte"]
             ]
 
+        if ignore_occasion_for_selected and selected_garment:
+            sel_cat = selected_garment.category
+            if sel_cat == "bottom":
+                top_candidates["bottom"] = [g for _, g in ranked["bottom"][:base_bottom_limit]]
+            elif sel_cat == "top":
+                top_candidates["top"] = [g for _, g in ranked["top"][:base_top_limit]]
+            elif sel_cat == "shoes":
+                top_candidates["shoes"] = [g for _, g in ranked["shoes"][:base_shoes_limit]]
+
     if occasion == "cita" and mood == "elegante":
         top_candidates["top"] = [
             g for g in top_candidates["top"]
@@ -379,10 +388,11 @@ def generate_outfits_from_selected_garment(
         if invalid_pattern_combo(combo):
             return
 
+        check_occasion = occasion if not ignore_occasion_for_selected else "casual"
         for g in combo:
             if g.id == selected_garment.id:
                 continue
-            allowed, _ = garment_allowed_for_occasion(g, occasion, rain, mood, temp, activity, combo=combo)
+            allowed, reason = garment_allowed_for_occasion(g, check_occasion, rain, mood, temp, activity, combo=combo)
             if not allowed:
                 return
 
