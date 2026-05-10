@@ -108,9 +108,12 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
     }
 
     if garment.dress_level in blocked_by_occasion.get(occasion, []):
-        if not (occasion == "matrimonio" and mood == "comodo"
-                and garment.category == "shoes"
-                and garment.subcategory in ["botin", "bota", "zapato", "mocasin"]):
+        _exc_comodo = (occasion == "matrimonio" and mood == "comodo"
+                       and garment.category == "shoes"
+                       and garment.subcategory in ["botin", "bota", "zapato", "mocasin"])
+        _exc_relajado = (occasion == "matrimonio" and mood == "relajado"
+                         and garment.category == "shoes")
+        if not _exc_comodo and not _exc_relajado:
             return _ret(False, f"No te recomiendo usar {garment.name} para {occasion}.")
 
     if mood == "formal":
@@ -132,6 +135,10 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
     if garment.category == "shoes":
         if garment.subcategory == "sandalia" and temp <= 10:
             return _ret(False, f"{garment.name} no es adecuada para este frío.")
+
+    if occasion == "casual" and mood != "urbano":
+        if garment.style == "sport":
+            return _ret(False, f"{garment.name} es demasiado deportiva para casual")
 
     # =========================================================
     # MATRIMONIO Y GALA

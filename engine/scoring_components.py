@@ -43,6 +43,12 @@ def dress_score(dress_level: str, occasion: str) -> int:
             "arreglado": 15,
             "elegante": 20,
         },
+        "matrimonio_relajado": {
+            "relajado": 10,
+            "flexible": 16,
+            "arreglado": 14,
+            "elegante": 8,
+        },
         "gala": {
             "relajado": 0,
             "flexible": 2,
@@ -486,6 +492,12 @@ def practicality_penalty(
                 elif g.subcategory == "zapatilla_urbana" and g.dress_level in ["arreglado", "elegante"]:
                     penalty -= 40
 
+        if mood == "relajado" and g.category == "midlayer" and g.subcategory == "blazer":
+            if g.dress_level == "flexible":
+                penalty += 15
+            elif g.dress_level in ["arreglado", "elegante"]:
+                penalty -= 10
+
         if temp >= 26:
             if g.category == "outerwear":
                 penalty += 40
@@ -661,7 +673,10 @@ def practicality_penalty(
     if occasion == "matrimonio":
         for g in items:
             if g.category == "one_piece" and g.subcategory in ["vestido_elegante", "vestido_coctel"]:
-                penalty -= 160
+                if mood == "relajado":
+                    penalty += 60   # penalizar en vez de boostar
+                else:
+                    penalty -= 160
             elif g.category == "one_piece" and g.subcategory == "vestido_casual":
                 penalty -= 60
             elif g.category == "one_piece" and g.subcategory == "enterito" and mood == "sexy":

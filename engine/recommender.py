@@ -76,7 +76,8 @@ def garment_base_score(
     score = 0
 
     # Componentes base
-    score += dress_score(g.dress_level, occasion)
+    _dress_occasion = "matrimonio_relajado" if (occasion == "matrimonio" and mood == "relajado") else occasion
+    score += dress_score(g.dress_level, _dress_occasion)
     score += weather_score(g, temp, rain, occasion, mood, items)
     score += activity_bonus(g, activity, occasion)
 

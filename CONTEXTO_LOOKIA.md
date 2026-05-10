@@ -813,6 +813,46 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 2. `add_combo` usaba `occasion="matrimonio"` para `garment_allowed_for_occasion` → bloqueaba companions válidos como botines aunque el usuario hubiera presionado "Mostrar de todos modos"
 3. `outfit_score` usaba `occasion="matrimonio"` para `garment_base_score` → scores muy negativos (-697) → `score < 0` del diversity loop descartaba todos los outfits
 
+### Sesión 32 — 03-May-2026 — Fixes motor + matrimonio relajado/formal
+
+**Fixes aplicados (pendientes de commit):**
+
+**`engine/occasion_rules.py`**
+- ✅ Prendas con `style == "sport"` como estilo principal bloqueadas en `occasion == "casual"` salvo `mood == "urbano"`
+- ✅ Excepción calzado `dress_level` relajado para matrimonio + `mood == "relajado"` (cualquier calzado pasa, no solo subcategorías específicas)
+- ✅ `validate_selected_for_occasion` — fuente de verdad única para validación de prenda forzada
+
+**`engine/generation/outfit_generation.py`**
+- ✅ matrimonio + relajado — nuevo bloque con reglas propias: tops/bottoms con `dress_level flexible+`, vestido casual incluido, calzado sin `zapatilla_deporte`, blazer flexible permitido como midlayer
+- ✅ matrimonio + formal — hereda automáticamente las reglas estrictas del `else` (vestidos elegantes, tacos, blazer elegante)
+- ✅ Reordenamiento y forzado de vestidos excluyen `mood relajado`
+- ✅ `_force_mid` y `matrimonio_midlayer_allowed` incluyen `mood relajado`
+
+**`engine/generation/outfit_generation_selected.py`**
+- ✅ Mismos 9 cambios aplicados para equiparar con `outfit_generation.py`
+- ✅ Loops de tops/bottoms en `selected_category == "shoes"` actualizados para relajado
+- ✅ `ranked` por categoría: categoría forzada con `"casual"`, companions con ocasión real cuando `ignore_occasion_for_selected=True`
+- ✅ `garment_base_score` usa `check_occasion` cuando `ignore_occasion_for_forced=True`
+
+**`engine/recommender.py`**
+- ✅ `garment_base_score` con `check_occasion` para scoring consistente en modo ignore
+
+**`engine/generation/outfit_generation.py` + `outfit_generation_selected.py`**
+- ✅ `is_too_similar` regla fuerte requiere `same_bottom_exact` — jeans distintos con mismo top no se bloquean
+- ✅ Accesorios forzados aparecen en todos los outfits de gala y matrimonio
+
+**⚠️ Pendiente de pruebas antes de commit:**
+
+| # | Prueba | Esperado |
+|---|--------|----------|
+| T1 | Matrimonio + relajado temp 18° | Outfits más casuales — vestido casual, tops flexibles, calzado variado |
+| T2 | Matrimonio + relajado temp 5° | Blazer flexible (no sweater/cardigan), abrigo elegante |
+| T3 | Matrimonio + formal temp 18° | Vestidos elegantes priorizados, tacos, blazer elegante |
+| T4 | Matrimonio + elegante temp 18° | Sin cambios vs antes |
+| T5 | Matrimonio + sexy temp 18° | Sin cambios vs antes |
+| T6 | Prenda forzada matrimonio + relajado | Funciona correctamente con motor permisivo |
+| T7 | Prenda forzada matrimonio + formal "Mostrar de todos modos" | Outfits con companions formales |
+
 ---
 
 ## Tabla de bugs y mejoras pendientes — v1.0.1
@@ -826,9 +866,8 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 | # | Ítem | Archivo(s) | Estado |
 |---|------|-----------|--------|
 | 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` | ⚠️ Parcial |
-| 8 | Deporte+entrenar — inconsistencia resuelta con pool-de-1 | `occasion_rules.py`, `outfit_generation.py` | ✅ Resuelto |
-| 9 | Mood formal en matrimonio — resultados inconsistentes | `occasion_rules.py`, `outfit_generation.py` | ⬜ Pendiente |
-| 10 | Prenda forzada atípica en gala/matrimonio — fixes arquitecturales | `outfit_generation_selected.py`, `recommender.py`, `occasion_rules.py` | ✅ Resuelto — pruebas pendientes |
+| 9 | Matrimonio relajado/formal — reglas invertidas | `outfit_generation.py`, `outfit_generation_selected.py` | ⚠️ Aplicado, pruebas pendientes |
+| 10 | Prenda forzada atípica en gala/matrimonio | múltiples | ✅ Resuelto — pruebas pendientes |
 
 ### 🟡 Media prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
@@ -862,20 +901,3 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 | 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente |
 | 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Pendiente |
 | 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
-
----
-
-## Pruebas pendientes — Bug #10 prenda forzada (próxima sesión)
-
-| # | Caso | Esperado |
-|---|------|----------|
-| P1 | Pantalón forzado, matrimonio, elegante, "Mostrar de todos modos" | 3 outfits con tops elegantes + tacos + blazer según clima |
-| P2 | Pantalón forzado, matrimonio, urbano, "¿Qué me pongo?" | 3 outfits sin warning |
-| P3 | Pantalón forzado, matrimonio, cómodo, "¿Qué me pongo?" | 3 outfits sin warning |
-| P4 | Pantalón forzado, matrimonio, sexy, "Mostrar de todos modos" | Outfits con pantalón + tops elegantes |
-| P5 | Top forzado, matrimonio, elegante, "Mostrar de todos modos" | Outfits con vestidos + el top como alternativa |
-| P6 | Accesorio forzado, gala, elegante, "¿Qué me pongo?" | Accesorio aparece en los 3 outfits |
-| P7 | Calzado forzado, gala, elegante, "¿Qué me pongo?" | Sin warning, 3 outfits con vestido + calzado forzado |
-| P8 | Calzado atípico forzado, gala, elegante, "Mostrar de todos modos" | Outfits con mejor calzado disponible respetando clima |
-| P9 | Prenda casual forzada, cita elegante, "Mostrar de todos modos" | Outfits coherentes con cita, companions elegantes |
-| P10 | Regresión: prenda correcta forzada en matrimonio elegante | Sin cambios vs comportamiento anterior |
