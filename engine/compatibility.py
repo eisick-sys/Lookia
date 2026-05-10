@@ -335,6 +335,7 @@ def style_compatibility(garment1: Garment, garment2: Garment) -> int:
 
         base_styles = all_styles(base)
         mid_styles = all_styles(mid)
+        mid_sub = getattr(mid, "subcategory", None)
 
         base_is_elegant_or_sexy = (
             "elegante" in base_styles
@@ -342,13 +343,26 @@ def style_compatibility(garment1: Garment, garment2: Garment) -> int:
             or getattr(base, "sexiness", 0) >= 2
         )
 
+        mid_is_knitwear = mid_sub in ["chaleco", "cardigan", "sweater"]
+
         mid_is_casual_or_urban = (
-            "casual" in mid_styles
-            or "urbano" in mid_styles
+            ("casual" in mid_styles or "urbano" in mid_styles)
+            and not mid_is_knitwear
         )
 
         if base_is_elegant_or_sexy and mid_is_casual_or_urban:
             return -18
+
+        # Penalizaciones diferenciadas por tipo de knitwear con vestido elegante/cóctel
+        if mid_is_knitwear and base_is_elegant_or_sexy:
+            base_sub = getattr(base, "subcategory", None)
+            if base_sub in ["vestido_elegante", "vestido_coctel"]:
+                if mid_sub == "sweater":
+                    return -12
+                elif mid_sub == "cardigan":
+                    return -6
+                elif mid_sub == "chaleco":
+                    return 0  # chaleco sin mangas sobre vestido es válido
 
     # =========================================================
     # PENALIZACIÓN: VESTIDO ELEGANTE/CÓCTEL CON CALZADO INFORMAL

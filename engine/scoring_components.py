@@ -492,7 +492,7 @@ def practicality_penalty(
                 elif g.subcategory == "zapatilla_urbana" and g.dress_level in ["arreglado", "elegante"]:
                     penalty -= 40
 
-        if mood == "relajado" and g.category == "midlayer" and g.subcategory == "blazer":
+        if mood == "relajado" and occasion == "matrimonio" and g.category == "midlayer" and g.subcategory == "blazer":
             if g.dress_level == "flexible":
                 penalty += 15
             elif g.dress_level in ["arreglado", "elegante"]:
@@ -568,6 +568,7 @@ def practicality_penalty(
 
         if (
             mood == "relajado"
+            and occasion != "matrimonio"
             and g.category == "one_piece"
             and g.subcategory in ["vestido_elegante", "vestido_coctel"]
         ):

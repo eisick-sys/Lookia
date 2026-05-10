@@ -685,6 +685,22 @@ def shoe_context_bonus(
         if mood == "comodo":
             bonus += 8
 
+    # Trabajo + calor: favorecer calzado plano elegante
+    if occasion == "trabajo" and temp >= 24:
+        sub = getattr(garment, "subcategory", None)
+        if sub == "sandalia" and (
+            garment_has_style(garment, "elegante")
+            or garment_has_style(garment, "formal")
+            or garment.dress_level in ["arreglado", "elegante"]
+        ):
+            bonus += 20
+        elif sub == "taco_bajo":
+            bonus += 12
+        elif sub == "ballarina" and garment.dress_level in ["flexible", "arreglado"]:
+            bonus += 10
+        elif sub == "taco_alto":
+            bonus -= 15  # penalizar taco alto con calor en trabajo
+
     return bonus
 
 # =========================================================

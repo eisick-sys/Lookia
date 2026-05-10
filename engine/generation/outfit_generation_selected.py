@@ -950,7 +950,8 @@ def generate_outfits_from_selected_garment(
             if has_midlayer and midlayer_outfits_count >= max_midlayer_outfits:
                 continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
-                continue
+                if midlayer_id != selected_garment.id:
+                    continue
             one_piece_id = ids.get("one_piece")
             if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
@@ -1056,7 +1057,8 @@ def generate_outfits_from_selected_garment(
                 if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
                     continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
-                continue
+                if midlayer_id != selected_garment.id:
+                    continue
             if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
             if outerwear_id is not None and outerwear_usage.get(outerwear_id, 0) >= max_same_outerwear:
@@ -1113,7 +1115,8 @@ def generate_outfits_from_selected_garment(
                 if shoes_obj and shoes_obj.subcategory in ["taco_alto", "taco_bajo"]:
                     continue
             if midlayer_id is not None and midlayer_usage.get(midlayer_id, 0) >= max_same_midlayer:
-                continue
+                if midlayer_id != selected_garment.id:
+                    continue
             if one_piece_id is not None and one_piece_usage.get(one_piece_id, 0) >= max_same_one_piece:
                 continue
             outerwear_id = ids.get("outerwear")

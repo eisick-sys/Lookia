@@ -741,7 +741,8 @@ def explain_outfit_score(
     # =========================================================
     # FORMALIDAD
     # =========================================================
-    dress_points = sum(dress_score(g.dress_level, occasion) for g in items)
+    _dress_occ = "matrimonio_relajado" if (occasion == "matrimonio" and mood == "relajado") else occasion
+    dress_points = sum(dress_score(g.dress_level, _dress_occ) for g in items)
     if dress_points >= len(items) * 12:
         reasons.append(random.choice([
             f"✅ Tiene buena formalidad para '{occasion}'",

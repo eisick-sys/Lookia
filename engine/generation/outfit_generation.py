@@ -136,13 +136,24 @@ def _generate_matrimonio_elegante(
     for i in range(min(top_n, len(vestidos))):
         vestido = vestidos[i % len(vestidos)]
         taco = calzado[i % len(calzado)]
+        _blazer_forzado = (
+            selected_garment is not None
+            and selected_garment.category == "midlayer"
+            and getattr(selected_garment, "subcategory", None) == "blazer"
+        )
         if 24 <= temp <= 25:
-            blazers_calor = [g for g in blazers if g.warmth in ["caluroso", "medio"]]
-            omitir_blazer = (i != 0 or not blazers_calor)
-            blazer = blazers_calor[0] if not omitir_blazer else None
+            if _blazer_forzado:
+                blazer = selected_garment
+            else:
+                blazers_calor = [g for g in blazers if g.warmth in ["caluroso", "medio"]]
+                omitir_blazer = (i != 0 or not blazers_calor)
+                blazer = blazers_calor[0] if not omitir_blazer else None
         else:
-            omitir_blazer = (20 <= temp <= 23 and i == 2)
-            blazer = blazers[i % len(blazers)] if usar_blazer and blazers and not omitir_blazer else None
+            if _blazer_forzado:
+                blazer = selected_garment if usar_blazer and not (20 <= temp <= 23 and i == 2) else None
+            else:
+                omitir_blazer = (20 <= temp <= 23 and i == 2)
+                blazer = blazers[i % len(blazers)] if usar_blazer and blazers and not omitir_blazer else None
         abrigo = abrigos[i % len(abrigos)] if usar_abrigo and abrigos else None
         if selected_garment is not None and selected_garment.category == "accessory":
             acc = selected_garment
