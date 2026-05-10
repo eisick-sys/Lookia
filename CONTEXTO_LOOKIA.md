@@ -865,21 +865,22 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 ### 🟠 Alta prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
 |---|------|-----------|--------|
-| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` | ⚠️ Parcial |
-| 9 | Matrimonio relajado/formal — reglas invertidas | `outfit_generation.py`, `outfit_generation_selected.py` | ⚠️ Aplicado, pruebas pendientes |
-| 10 | Prenda forzada atípica en gala/matrimonio | múltiples | ✅ Resuelto — pruebas pendientes |
+| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` | ⚠️ Revisión final pre-React |
+| 9 | Matrimonio relajado/formal — reglas invertidas | `outfit_generation.py`, `outfit_generation_selected.py` | ✅ Resuelto |
+| 10 | Prenda forzada atípica en gala/matrimonio | múltiples | ✅ Resuelto |
 
 ### 🟡 Media prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
 |---|------|-----------|--------|
-| 11 | Chaleco cuello V — combinaciones incoherentes | `compatibility.py` | ⬜ Pendiente |
-| 12 | Calzado plano de trabajo para calor | `occasion_rules.py`, `scoring_components.py` | ⬜ Pendiente |
+| 11 | Knitwear con vestidos elegantes | `compatibility.py` | ✅ Resuelto |
+| 12 | Calzado plano trabajo+calor | `category_rules.py` | ✅ Resuelto |
 | 13 | `taco_bajo` permitido cómodo, penalizado relajado | `scoring_components.py` | ⬜ Pendiente |
 | 14 | `taco_alto` penalizado cómodo, bloqueado relajado | `scoring_components.py` | ⬜ Pendiente |
 | 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` | ⬜ Pendiente |
 | 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` | ⬜ Pendiente |
 | 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` | ⬜ Pendiente |
-| 18 | Inconsistencia 2 vs 3 outfits entre tandas — investigar | `outfit_generation.py` | ⬜ Pendiente |
+| 18 | Inconsistencia 2 vs 3 outfits entre tandas — investigar | `outfit_generation.py` | ⚠️ Revisión final pre-React |
+| 32 | Prenda forzada atípica — 1 solo outfit en from_selected | `outfit_generation_selected.py` | ⚠️ Revisión final pre-React |
 
 ### 🟢 Baja prioridad / UI y clóset
 | # | Ítem | Archivo(s) | Estado |
@@ -901,3 +902,67 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 | 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente |
 | 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Pendiente |
 | 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
+
+---
+
+## Sesión 33 — 10-May-2026 — Pruebas T1-T7, fixes scoring, bugs #11 y #12, code review
+
+**Pruebas matrimonio completadas (sesión 32 cerrada)**
+
+| Prueba | Estado |
+|---|---|
+| T1 matrimonio+relajado 18° | ✅ Aprobado con nota rotación |
+| T2 matrimonio+relajado 5° | ✅ Aprobado con nota rotación |
+| T3 matrimonio+formal 18° | ✅ Aprobado |
+| T4 matrimonio+elegante 18° | ✅ Aprobado — regresión limpia |
+| T5 matrimonio+sexy 18° | ✅ Aprobado — regresión limpia |
+| T6 Prenda forzada matrimonio+relajado | ✅ Aprobado |
+| T7 Prenda forzada matrimonio+formal bypass | ✅ Aprobado |
+
+**Fixes de scoring aplicados**
+
+`engine/scoring_components.py`
+- ✅ `dress_score`: nueva entrada `"matrimonio_relajado"` con valores flexibles (flexible: 16, arreglado: 14, elegante: 8) — favorece prendas casuales en matrimonio+relajado sin afectar otros moods
+- ✅ `practicality_penalty`: vestido_elegante/coctel en matrimonio+relajado recibe +60 en vez de -160 — diferencia al mood relajado del elegante
+- ✅ Shuffle de blazers en pool de midlayer para matrimonio+relajado — mejora rotación entre tandas
+- ✅ Blazer penalty (+15 flexible, -10 arreglado/elegante) ahora con guard `occasion == "matrimonio"` — no aplica en trabajo ni otras ocasiones
+- ✅ Double penalty vestido_elegante corregido: bloque genérico +80 de mood relajado excluye matrimonio con `occasion != "matrimonio"` — neto real ahora es +60 como se diseñó
+
+`engine/recommender.py`
+- ✅ `garment_base_score`: usa `_dress_occasion = "matrimonio_relajado"` cuando `occasion == "matrimonio" and mood == "relajado"`
+- ✅ `explain_outfit_score`: misma sustitución `_dress_occ` para consistencia en explicaciones
+
+`engine/generation/outfit_generation.py`
+- ✅ Fix blazer forzado en `_generate_matrimonio_elegante`: variable `_blazer_forzado` garantiza que el blazer seleccionado aparezca en los 3 outfits sin ser sobreescrito por el ciclo `i % len(blazers)`
+
+`engine/generation/outfit_generation_selected.py`
+- ✅ Fix `midlayer_usage` para prenda forzada: la condición `max_same_midlayer` no aplica cuando `midlayer_id == selected_garment.id` — prenda forzada aparece en los 3 slots
+
+**Bug #11 — Knitwear con vestidos elegantes**
+`engine/compatibility.py`
+- ✅ Bloque `{midlayer, one_piece}` refactorizado con diferenciación por subcategoría:
+  - `chaleco` (sin mangas): 0 penalty con vestido elegante — es un look válido
+  - `cardigan`: -6 con vestido elegante — penalización leve
+  - `sweater`: -12 con vestido elegante — penalización moderada
+  - Midlayers casual/urbano (no knitwear): -18 con vestido elegante — sin cambios
+- ✅ Decisión: subcategoría `chaleco_vestir` (#30) y atributo `neckline` postergados para React — no hay chalecos de vestir en el clóset femenino típico de Lookia
+
+**Bug #12 — Calzado plano trabajo+calor**
+`engine/category_rules.py`
+- ✅ `shoe_context_bonus`: nuevo bloque `occasion == "trabajo" and temp >= 24` — sandalia elegante +20, taco_bajo +12, ballarina flexible/arreglada +10, taco_alto -15
+- ✅ Fix datos Supabase: "Sandalias elegantes" (id 152) actualizado a style `elegante`, dress_level `arreglado`
+
+**Code review automático (plugin code-review)**
+- ✅ Plugin instalado y configurado — requiere PR abierto para funcionar (no push directo)
+- ✅ Review manual detectó 3 bugs reales, todos resueltos en commit f73523a
+- ✅ Plugins instalados en CC: code-review, security-guidance, supabase, github
+
+**Commits de sesión**
+- `4e0f62c` — Sesiones 32-33: matrimonio relajado/formal, fixes scoring dress_level, penalización vestido elegante mood relajado, shuffle blazers
+- `f73523a` — fix: code review — blazer penalty solo matrimonio, double-penalty vestido relajado, explain_outfit_score usa dress_occasion
+
+**Próxima sesión**
+- Bugs #13, #14 (taco_bajo/taco_alto por mood)
+- Bug #17 (planificador + frío)
+- Revisión final pre-React (rotación, refactor, limpieza)
+- Plan de migración React con arquitectura FastAPI + React
