@@ -991,9 +991,6 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 - ⬜ Bug #33 — Vestido forzado en gala/salida nocturna mood relajado: no genera outfits ni con "Mostrar de todos modos"
 - ⬜ Bug #34 — Prenda forzada limita a 1 outfit en algunos escenarios (investigar condición residual)
 
-**Pendiente técnico**
-- ⬜ Logo nuevo subido (mismo nombre `logo.png`) — pendiente commit
-
 **Plan de migración React acordado**
 - Stack: FastAPI (Python) + React frontend + Supabase sin cambios
 - Orden: bugs pendientes → refactor app.py → revisión completa código → migración
