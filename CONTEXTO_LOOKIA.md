@@ -874,13 +874,15 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 |---|------|-----------|--------|
 | 11 | Knitwear con vestidos elegantes | `compatibility.py` | ✅ Resuelto |
 | 12 | Calzado plano trabajo+calor | `category_rules.py` | ✅ Resuelto |
-| 13 | `taco_bajo` permitido cómodo, penalizado relajado | `scoring_components.py` | ⬜ Pendiente |
-| 14 | `taco_alto` penalizado cómodo, bloqueado relajado | `scoring_components.py` | ⬜ Pendiente |
+| 13 | `taco_bajo` tolerado en mood cómodo (penalty 0) | `scoring_components.py` | ✅ Resuelto |
+| 14 | `taco_alto` penalizado mood relajado (+80), `taco_bajo` penalizado leve (+30) | `scoring_components.py` | ✅ Resuelto |
 | 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` | ⬜ Pendiente |
 | 16 | Compatibilidad de colores — 4+ colores sin eje cromático | `compatibility.py` | ⬜ Pendiente |
-| 17 | Planificador — polera sin midlayer con frío extremo | `week_plan.py` | ⬜ Pendiente |
-| 18 | Inconsistencia 2 vs 3 outfits entre tandas — investigar | `outfit_generation.py` | ⚠️ Revisión final pre-React |
-| 32 | Prenda forzada atípica — 1 solo outfit en from_selected | `outfit_generation_selected.py` | ⚠️ Revisión final pre-React |
+| 17 | Frío extremo sin capa — penalty +60 cuando temp ≤ 8 y no hay midlayer/outerwear | `scoring_components.py` | ✅ Resuelto |
+| 18 | Inconsistencia 2 vs 3 outfits entre tandas — `is_too_similar` prenda forzada one_piece | `outfit_generation.py`, `outfit_generation_selected.py` | ✅ Resuelto |
+| 32 | Prenda forzada one_piece — dedup key alineada con `core_ids` (excluye outerwear) | `outfit_generation_selected.py` | ✅ Resuelto |
+| 33 | Vestido forzado en gala/salida nocturna mood relajado — no genera outfits | `outfit_generation.py`, `outfit_generation_selected.py` | ⬜ Pendiente |
+| 34 | Prenda forzada limita a 1 outfit en algunos escenarios — condición residual a investigar | `outfit_generation_selected.py` | ⬜ Pendiente |
 
 ### 🟢 Baja prioridad / UI y clóset
 | # | Ítem | Archivo(s) | Estado |
@@ -965,4 +967,44 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 - Bugs #13, #14 (taco_bajo/taco_alto por mood)
 - Bug #17 (planificador + frío)
 - Revisión final pre-React (rotación, refactor, limpieza)
+
+---
+
+### Sesión 34 — 10-May-2026 — Bugs motor + plan migración React
+
+**Bugs resueltos**
+- ✅ Bug #13 — `taco_bajo` tolerado en mood cómodo (penalty 0)
+- ✅ Bug #14 — `taco_alto` penalizado mood relajado (penalty 80), `taco_bajo` penalizado leve (penalty 30)
+  - Archivo: `engine/scoring_components.py`, función `practicality_penalty`
+  - Commit: cc02f5c
+- ✅ Bug #17 — Planificador + frío extremo sin capa: penalty +60 cuando temp <= 8 y no hay midlayer/outerwear
+  - Archivo: `engine/scoring_components.py`, función `practicality_penalty`
+  - Commit: cc02f5c
+- ✅ Bug #18 — Inconsistencia 2 vs 3 outfits entre tandas: `is_too_similar` ahora ignora `one_piece` compartido cuando no hay top compartido (caso prenda forzada vestido)
+  - Archivos: `engine/generation/outfit_generation.py`, `engine/generation/outfit_generation_selected.py`
+  - Commit: da28682
+- ✅ Bug #32 — Prenda forzada one_piece genera 1 solo outfit: alineada key de deduplicación con `core_ids` (excluye outerwear) igual que `outfit_generation.py`
+  - Archivos: `engine/generation/outfit_generation_selected.py`
+  - Commit: da28682
+
+**Pendiente detectado en pruebas post-sesión**
+- ⬜ Bug #33 — Vestido forzado en gala/salida nocturna mood relajado: no genera outfits ni con "Mostrar de todos modos"
+- ⬜ Bug #34 — Prenda forzada limita a 1 outfit en algunos escenarios (investigar condición residual)
+
+**Pendiente técnico**
+- ⬜ Logo nuevo subido (mismo nombre `logo.png`) — pendiente commit
+
+**Plan de migración React acordado**
+- Stack: FastAPI (Python) + React frontend + Supabase sin cambios
+- Orden: bugs pendientes → refactor app.py → revisión completa código → migración
+- Refactor app.py: crear `tabs/` con tab1-4 como módulos + `ui_utils.py` para funciones compartidas
+- Deadline migración: fin de mayo 2026
+- Ver plan detallado en historial de conversación sesión 34
+
+**Próxima sesión**
+- Commit logo.png
+- Bugs #33 y #34 (prenda forzada en gala/salida nocturna relajado)
+- Bugs baja prioridad UI: #19 (ocasiones frecuentes primero), #20 (tip pantys max 1 vez), #15 (diversidad tops urbano)
+- Refactor app.py → tabs/
+- Revisión completa código pre-React
 - Plan de migración React con arquitectura FastAPI + React
