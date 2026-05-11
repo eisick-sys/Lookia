@@ -410,8 +410,17 @@ def practicality_penalty(
                         penalty += 45
         if mood == "comodo":
             if g.category == "shoes":
-                if is_shoe_heel(g):
+                if g.subcategory == "taco_alto":
                     penalty += 50
+                # taco_bajo tolerable en cómodo — sin penalización
+
+        if mood == "relajado":
+            if g.category == "shoes":
+                if g.subcategory == "taco_alto":
+                    penalty += 80
+                elif g.subcategory == "taco_bajo":
+                    penalty += 30
+
         if rain:
             if g.category == "outerwear":
                 if not g.waterproof:
@@ -697,5 +706,17 @@ def practicality_penalty(
             penalty -= 70
         elif max_sexiness == 2:
             penalty -= 25
+
+    # Sin capa abrigada con frío extremo
+    if temp <= 8:
+        has_warming_layer = any(
+            g.category in ["midlayer", "outerwear"] for g in items
+        )
+        if not has_warming_layer:
+            has_exposed_top = any(
+                g.category in ["top", "one_piece"] for g in items
+            )
+            if has_exposed_top:
+                penalty += 60
 
     return penalty
