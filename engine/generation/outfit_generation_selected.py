@@ -682,9 +682,11 @@ def generate_outfits_from_selected_garment(
     for score, combo in outfits:
         if score <= -999:
             continue
-        key = tuple(sorted(g.id for g in combo))
-        if key not in unique or score > unique[key][0]:
-            unique[key] = (score, combo)
+        core_ids = tuple(sorted(
+            g.id for g in combo if g.category in ["top", "bottom", "one_piece", "shoes", "midlayer", "accessory"]
+        ))
+        if core_ids not in unique or score > unique[core_ids][0]:
+            unique[core_ids] = (score, combo)
 
     final_outfits = sorted(unique.values(), key=lambda x: x[0], reverse=True)
 
@@ -761,7 +763,13 @@ def generate_outfits_from_selected_garment(
             return True
 
         if same_one_piece and same_shoes:
-            return True
+            # Si ambos comparten el one_piece, puede ser prenda forzada — no es "similar"
+            # Solo marcar como similar si también comparten top o bottom
+            ids1_top = ids1.get("top")
+            ids2_top = ids2.get("top")
+            if ids1_top is not None and ids1_top == ids2_top:
+                return True
+            # Si no comparten nada más, son outfits distintos con mismo vestido (válido)
 
         return False
 

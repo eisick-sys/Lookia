@@ -1216,7 +1216,13 @@ def generate_outfits(
             return True
 
         if same_one_piece and same_shoes:
-            return True
+            # Si ambos comparten el one_piece, puede ser prenda forzada — no es "similar"
+            # Solo marcar como similar si también comparten top o bottom
+            ids1_top = ids1.get("top")
+            ids2_top = ids2.get("top")
+            if ids1_top is not None and ids1_top == ids2_top:
+                return True
+            # Si no comparten nada más, son outfits distintos con mismo vestido (válido)
 
         return False
 
