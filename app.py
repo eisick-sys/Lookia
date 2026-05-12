@@ -619,7 +619,12 @@ with tab1:
     col1, col2, col3 = st.columns(3)
     with col1:
         occasion = st.selectbox("Ocasión", OCCASION_OPTIONS)
-        mood = st.selectbox("Mood / estilo deseado", MOOD_OPTIONS)
+        _moods_bloqueados = {
+            "deporte": ["formal", "elegante"],
+            "gala": ["relajado"],
+        }
+        _mood_options = [m for m in MOOD_OPTIONS if m not in _moods_bloqueados.get(occasion, [])]
+        mood = st.selectbox("Mood / estilo deseado", _mood_options)
         
     with col2:
         _actividades_disponibles = ["normal"]
@@ -930,17 +935,11 @@ with tab1:
             "midlayer": "una prenda intermedia (blazer, sweater, etc.)",
         }
         if occasion == "gala" and not missing_cats:
-            if mood == "relajado":
-                st.warning(
-                    "Una gala, por definición, no es relajada. "
-                    "Si igual quieres ver opciones con lo que tienes, presiona 💪 **Mostrar de todos modos**."
-                )
-            else:
-                st.warning(
-                    "Para una gala necesitas un **vestido elegante o cóctel** en tu clóset. "
-                    "¿Tienes uno? Agrégalo primero. Si igual quieres ver opciones con lo que tienes, "
-                    "presiona 💪 **Mostrar de todos modos**."
-                )
+            st.warning(
+                "Para una gala necesitas un **vestido elegante o cóctel** en tu clóset. "
+                "¿Tienes uno? Agrégalo primero. Si igual quieres ver opciones con lo que tienes, "
+                "presiona 💪 **Mostrar de todos modos**."
+            )
         elif missing_cats:
             faltantes = ", ".join(cat_labels.get(c, c) for c in missing_cats)
             st.warning(f"No tengo prendas suficientes para armar este outfit. Te falta agregar: **{faltantes}**.")
@@ -992,7 +991,7 @@ with tab1:
 
             if has_skirt and temp <= 20:
                 st.info("❄️ Tip: si usas falda con este clima, no olvides tus pantys.")
-            elif has_short and temp <= 20:
+            elif has_short and temp <= 20 and occasion != "deporte":
                 st.info("❄️ Tip: si usas short con este clima, considera unas pantys o medias.")
 
             if rain:

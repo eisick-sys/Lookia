@@ -405,6 +405,12 @@ def generate_outfits(
     if feedback_list is None:
         feedback_list = []
 
+    if occasion == "deporte" and mood == "formal":
+        return [], []
+
+    if occasion == "gala" and mood == "relajado":
+        return [], []
+
     if occasion == "matrimonio" and mood == "elegante":
         return _generate_matrimonio_elegante(
             garments=garments,
@@ -865,17 +871,17 @@ def generate_outfits(
                     continue
 
                 _force_mid = (
-                    occasion == "matrimonio" and mood in ["comodo", "relajado"]
-                    and temp <= 15 and top_candidates["midlayer"]
-                )
+                    (occasion == "matrimonio" and mood in ["comodo", "relajado"] and temp <= 15)
+                    or (temp <= 8 and occasion != "deporte")
+                ) and top_candidates["midlayer"]
                 _force_mid_outer = (
-                    occasion == "matrimonio"
-                    and temp <= 12 and top_candidates["midlayer"] and top_candidates["outerwear"]
-                )
+                    (occasion == "matrimonio" and temp <= 12)
+                    or (temp <= 8 and occasion != "deporte")
+                ) and top_candidates["midlayer"] and top_candidates["outerwear"]
                 _force_outer_only = (
-                    occasion == "matrimonio"
-                    and temp <= 12 and not top_candidates["midlayer"] and top_candidates["outerwear"]
-                )
+                    (occasion == "matrimonio" and temp <= 12)
+                    or (temp <= 8 and occasion != "deporte")
+                ) and not top_candidates["midlayer"] and top_candidates["outerwear"]
                 if not _force_mid and not _force_outer_only and not _force_mid_outer:
                     register_combo(base)
 
@@ -1045,17 +1051,17 @@ def generate_outfits(
                 continue
 
             _force_mid = (
-                occasion == "matrimonio" and mood in ["comodo", "relajado"]
-                and temp <= 15 and top_candidates["midlayer"]
-            )
+                (occasion == "matrimonio" and mood in ["comodo", "relajado"] and temp <= 15)
+                or (temp <= 8 and occasion != "deporte")
+            ) and top_candidates["midlayer"]
             _force_mid_outer = (
-                occasion == "matrimonio"
-                and temp <= 12 and top_candidates["midlayer"] and top_candidates["outerwear"]
-            )
+                (occasion == "matrimonio" and temp <= 12)
+                or (temp <= 8 and occasion != "deporte")
+            ) and top_candidates["midlayer"] and top_candidates["outerwear"]
             _force_outer_only = (
-                occasion == "matrimonio"
-                and temp <= 12 and not top_candidates["midlayer"] and top_candidates["outerwear"]
-            )
+                (occasion == "matrimonio" and temp <= 12)
+                or (temp <= 8 and occasion != "deporte")
+            ) and not top_candidates["midlayer"] and top_candidates["outerwear"]
             if not _force_mid and not _force_outer_only and not _force_mid_outer:
                 register_combo(base)
 

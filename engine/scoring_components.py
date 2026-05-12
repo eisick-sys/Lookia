@@ -2,7 +2,8 @@
 from typing import List
 
 from models import Garment
-from utils.garment_utils import garment_has_style, all_styles, is_shoe_heel
+from utils.garment_utils import garment_has_style, all_styles, is_shoe_heel, is_shoe_sneaker_like
+from engine.compatibility import count_chromatic_colors
 
 
 def dress_score(dress_level: str, occasion: str) -> int:
@@ -367,13 +368,15 @@ def coherence_penalty(items: List[Garment], occasion: str) -> int:
     if bold_items and relaxed_base_count >= 3:
         penalty += 10
 
-    # Penalización por exceso de colores distintos
-    unique_colors = {g.color for g in items if getattr(g, "color", None)}
-    if len(unique_colors) >= 4:
+    # Penalización por exceso de colores cromáticos
+    chromatic_count = count_chromatic_colors(items)
+    if chromatic_count >= 4:
+        penalty += 999
+    elif chromatic_count == 3:
         if occasion in ["cita", "salida nocturna", "matrimonio", "gala"]:
-            penalty += 35
+            penalty += 45
         else:
-            penalty += 20
+            penalty += 25
 
     return penalty
 
@@ -408,18 +411,17 @@ def practicality_penalty(
                 elif "zapatilla" in name or garment_has_style(g, "sport"):
                     if g.dress_level == "relajado":
                         penalty += 45
-        if mood == "comodo":
-            if g.category == "shoes":
+        if g.category == "shoes":
+            if mood == "comodo":
                 if g.subcategory == "taco_alto":
                     penalty += 50
-                # taco_bajo tolerable en cómodo — sin penalización
-
-        if mood == "relajado":
-            if g.category == "shoes":
+                elif g.subcategory == "taco_bajo":
+                    penalty += 20
+            elif mood == "relajado":
                 if g.subcategory == "taco_alto":
                     penalty += 80
                 elif g.subcategory == "taco_bajo":
-                    penalty += 30
+                    penalty += 40
 
         if rain:
             if g.category == "outerwear":
@@ -628,6 +630,14 @@ def practicality_penalty(
                 if one_piece.warmth != "caluroso" and g.warmth != "caluroso":
                     penalty += 999
 
+        if g.category == "midlayer":
+            is_polar = g.subcategory == "polar" or "polar" in g.name.lower() or "fleece" in g.name.lower()
+            if is_polar:
+                if occasion == "salida nocturna" and mood in ["sexy", "elegante"]:
+                    penalty += 999
+                elif occasion == "trabajo" and mood in ["elegante", "formal"]:
+                    penalty += 999
+
     # Vestido elegante/cóctel: solo calzado formal y capas elegantes (una vez por outfit)
     has_vestido_elegante = any(
         g.category == "one_piece"
@@ -706,6 +716,12 @@ def practicality_penalty(
             penalty -= 70
         elif max_sexiness == 2:
             penalty -= 25
+
+    has_buzo = any(g.category == "bottom" and g.subcategory == "buzo" for g in items)
+    if has_buzo:
+        for g in items:
+            if g.category == "shoes" and not is_shoe_sneaker_like(g):
+                penalty += 120
 
     # Sin capa abrigada con frío extremo
     if temp <= 8:

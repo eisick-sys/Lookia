@@ -543,3 +543,17 @@ def invalid_pattern_combo(combo: List[Garment]) -> bool:
         return True
 
     return False
+
+
+NEUTRAL_COLORS = {"negro", "blanco", "gris", "beige", "café", "crema", "gris claro"}
+
+
+def count_chromatic_colors(items: List[Garment]) -> int:
+    chromatic = set()
+    for g in items:
+        if g.category == "outerwear":
+            continue
+        for c in garment_colors(g):
+            if normalize_color(c) not in NEUTRAL_COLORS:
+                chromatic.add(normalize_color(c))
+    return len(chromatic)

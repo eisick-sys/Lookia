@@ -234,6 +234,10 @@ def bottom_context_penalty(
         if mood == "elegante":
             penalty += 10
 
+    if garment.subcategory == "buzo":
+        if occasion != "deporte" and mood not in ["urbano"]:
+            penalty += 60
+
     return penalty
 #---------------------------------------------------------------
 
