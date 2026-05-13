@@ -460,7 +460,7 @@ def generate_outfits(
     base_top_limit = 5
     base_bottom_limit = 5
     base_shoes_limit = 4
-    mid_limit = 2
+    mid_limit = 4
     outer_limit = 3
     accessory_limit = 1
 
