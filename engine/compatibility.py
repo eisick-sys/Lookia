@@ -557,3 +557,66 @@ def count_chromatic_colors(items: List[Garment]) -> int:
             if normalize_color(c) not in NEUTRAL_COLORS:
                 chromatic.add(normalize_color(c))
     return len(chromatic)
+
+
+def is_too_similar(c1, c2):
+    ow1 = next((g for g in c1 if g.category == "outerwear"), None)
+    ow2 = next((g for g in c2 if g.category == "outerwear"), None)
+    if ow1 and ow2 and ow1.id != ow2.id:
+        return False
+
+    ids1 = {g.category: g.id for g in c1}
+    ids2 = {g.category: g.id for g in c2}
+
+    same_top = ids1.get("top") == ids2.get("top")
+    same_bottom = ids1.get("bottom") == ids2.get("bottom")
+    same_one_piece = ids1.get("one_piece") == ids2.get("one_piece")
+    same_shoes = ids1.get("shoes") == ids2.get("shoes")
+
+    bottom1 = next((g for g in c1 if g.category == "bottom"), None)
+    bottom2 = next((g for g in c2 if g.category == "bottom"), None)
+
+    shoes1 = next((g for g in c1 if g.category == "shoes"), None)
+    shoes2 = next((g for g in c2 if g.category == "shoes"), None)
+
+    same_bottom_type = False
+    same_shoes_type = False
+
+    if bottom1 and bottom2:
+        name1 = bottom1.name.lower()
+        name2 = bottom2.name.lower()
+        same_bottom_type = (
+            ("buzo" in name1 and "buzo" in name2) or
+            ("jean" in name1 and "jean" in name2) or
+            ("short" in name1 and "short" in name2)
+        )
+
+    if shoes1 and shoes2:
+        name1 = shoes1.name.lower()
+        name2 = shoes2.name.lower()
+        same_shoes_type = (
+            ("zapatilla" in name1 and "zapatilla" in name2)
+        )
+
+    ow1 = ids1.get("outerwear")
+    ow2 = ids2.get("outerwear")
+    different_outerwear = (ow1 is not None and ow2 is not None and ow1 != ow2)
+    if same_bottom_type and same_shoes_type and same_top and not different_outerwear and same_bottom:
+        return True
+
+    if same_top and same_bottom:
+        return True
+
+    if same_top and same_shoes and same_bottom:
+        return True
+
+    if same_top and same_one_piece:
+        return True
+
+    if same_one_piece and same_shoes:
+        ids1_top = ids1.get("top")
+        ids2_top = ids2.get("top")
+        if ids1_top is not None and ids1_top == ids2_top:
+            return True
+
+    return False
