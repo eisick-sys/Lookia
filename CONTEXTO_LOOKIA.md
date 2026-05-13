@@ -147,6 +147,7 @@ LOOKIA_ENV = "production"
 | 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` | ✅ Dado por superado |
 | 16 | Compatibilidad colores — 4+ cromáticos sin eje | `compatibility.py`, `scoring_components.py` | ✅ Resuelto |
 | 17 | Frío extremo sin capa — forzar midlayer/outerwear temp ≤ 8° | `outfit_generation.py`, `outfit_generation_selected.py` | ✅ Resuelto |
+| 35 | Chaleco cuello V — lógica de compatibilidad y scoring no implementada | `compatibility.py`, `scoring_components.py` | ⬜ Pendiente |
 | 18 | Inconsistencia 2 vs 3 outfits entre tandas | ambos generation | ✅ Resuelto |
 | 32 | Prenda forzada one_piece — 1 solo outfit | `outfit_generation_selected.py` | ✅ Resuelto |
 | 33 | Vestido forzado gala/salida nocturna mood relajado → [] | ambos generation | ✅ Resuelto |
@@ -168,7 +169,7 @@ LOOKIA_ENV = "production"
 | 25 | Integración IA Anthropic — moderación + inferencia fotos | `storage_cloud.py`, `attribute_inference.py` | ⬜ Pendiente |
 | 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` | ⬜ Pendiente |
 | 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` | ⬜ Pendiente |
-| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ⬜ Pendiente |
+| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ✅ Resuelto |
 | 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente pre-React |
 | 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Postergado a React |
 | 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
@@ -940,6 +941,7 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 | 32 | Prenda forzada one_piece — dedup key alineada con `core_ids` (excluye outerwear) | `outfit_generation_selected.py` | ✅ Resuelto |
 | 33 | Vestido forzado en gala/salida nocturna mood relajado — no genera outfits | `outfit_generation.py`, `outfit_generation_selected.py` | ⬜ Pendiente |
 | 34 | Prenda forzada limita a 1 outfit en algunos escenarios — condición residual a investigar | `outfit_generation_selected.py` | ⬜ Pendiente |
+| 35 | Chaleco cuello V — lógica de compatibilidad y scoring no implementada | `compatibility.py`, `scoring_components.py` | ⬜ Pendiente |
 
 ### 🟢 Baja prioridad / UI y clóset
 | # | Ítem | Archivo(s) | Estado |
@@ -957,7 +959,7 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 | 25 | Integración IA Anthropic — moderación + inferencia desde fotos | `storage_cloud.py`, `attribute_inference.py` | ⬜ Pendiente |
 | 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` | ⬜ Pendiente |
 | 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` | ⬜ Pendiente |
-| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ⬜ Pendiente |
+| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ✅ Resuelto |
 | 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente |
 | 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Pendiente |
 | 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
@@ -1129,7 +1131,19 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 - ✅ Filtro matrimonio+relajado: `dress_level` incluye `"relajado"` además de `["flexible", "arreglado", "elegante"]`
 
 **Próxima sesión**
-- Deuda técnica #28 — extraer `is_too_similar` a función standalone
 - Deuda técnica #29 — dividir `app.py` en módulos por tab
+- Bug #35 — implementar lógica chaleco cuello V (compatibilidad, scoring, subcategorías)
 - Limpieza `occasion_rules`/`scoring_components`
 - Migración React — FastAPI + React, deadline fin de mayo 2026
+
+---
+
+### Sesión 36 (continuación) — 13-May-2026 — Deuda #28
+
+**Deuda #28 — Extraer is_too_similar a función standalone**
+`engine/compatibility.py`, `engine/generation/outfit_generation.py`, `engine/generation/outfit_generation_selected.py`
+- ✅ Función `is_too_similar` extraída a `engine/compatibility.py` como función standalone
+- ✅ Definiciones locales eliminadas de ambos archivos de generación
+- ✅ Imports actualizados en ambos archivos
+- ✅ App corre sin errores tras el cambio
+- Nota: CC detectó discrepancia en bloque `same_one_piece and same_shoes` — se usó la versión correcta de los archivos locales, no la simplificada
