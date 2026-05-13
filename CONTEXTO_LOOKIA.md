@@ -22,28 +22,29 @@ proyecto app/
 ├── auth_ui.py              # Pantalla de login/registro con Supabase Auth
 ├── weather.py              # Conexión OpenWeather (actual + pronóstico semanal)
 ├── migrate_local_data.py   # Script one-shot: sube JSON locales a Supabase (no va a producción)
-├── requirements.txt        # streamlit, pillow, pandas, requests, python-dotenv, supabase
-├── closet.json             # (legacy) Clóset local — ya migrado a Supabase
-├── feedback.json           # (legacy) Feedback local — ya migrado a Supabase
-├── used_outfits.json       # (legacy) Outfits usados locales — ya migrados a Supabase
-├── .env                    # Variables de entorno (NO subir a GitHub)
-├── .gitignore              # Incluye .env, __pycache__, wardrobe_images/
+├── test_outfit_coverage.py # Script de pruebas automatizadas del motor
+├── requirements.txt
+├── closet.json             # (legacy)
+├── feedback.json           # (legacy)
+├── used_outfits.json       # (legacy)
+├── .env
+├── .gitignore
 ├── engine/
 │   ├── recommender.py      # Motor principal + explain_outfit_score
 │   ├── generation/
 │   │   ├── outfit_generation.py          # generate_outfits
 │   │   ├── outfit_generation_selected.py # generate_outfits_from_selected_garment
 │   │   └── week_plan.py                  # generate_week_plan
-│   ├── occasion_rules.py   # Reglas por ocasión + get_weather_tag
-│   ├── category_rules.py   # Bonus/penalty por categoría de prenda
-│   ├── scoring_components.py # dress_score, weather_score, mood_bonus, etc.
-│   ├── compatibility.py    # Compatibilidad de colores, estilos y patrones
-│   ├── history_utils.py    # Penalización por repetición de prendas
-│   ├── user_profile.py     # Perfil automático desde feedback
-│   └── selection_utils.py  # Helpers de selección
+│   ├── occasion_rules.py
+│   ├── category_rules.py
+│   ├── scoring_components.py
+│   ├── compatibility.py
+│   ├── history_utils.py
+│   ├── user_profile.py
+│   └── selection_utils.py
 └── utils/
-    ├── garment_utils.py    # Detectores de prendas (is_shoe_heel, is_bottom_skirt, etc.)
-    └── attribute_inference.py # Inferencia de atributos desde nombre de prenda
+    ├── garment_utils.py
+    └── attribute_inference.py
 ```
 
 ---
@@ -103,22 +104,78 @@ LOOKIA_ENV = "production"
 - **Base de datos:** PostgreSQL en Supabase. Tablas: `garments`, `outfit_feedback`, `used_outfits`. Todas con RLS habilitado por `user_id`.
 - **Storage:** Bucket `garment-images`. Ruta: `{user_id}/{image_name}`. Imágenes públicas, subida autenticada con `access_token`.
 - **Cliente:** `supabase_client.py` — `get_supabase()` para operaciones de DB, `get_supabase_for_user(access_token)` para uploads de Storage.
-- **Migración datos locales:** `migrate_local_data.py` — ejecutar una sola vez con `python migrate_local_data.py USER_ID`. Usa `SUPABASE_SERVICE_KEY` para bypassear RLS.
-- **Tabla `ignored_badges`:** `(id, user_id, garment_id, created_at)` con RLS. Persistencia real de badges ignorados en galería.
+- **Tabla `ignored_badges`:** `(id, user_id, garment_id, created_at)` con RLS.
 
 ---
 
 ## Notas técnicas importantes
 - La app ya usa Supabase — JSON locales son legacy, no se leen en producción
-- `wardrobe_images/` y `__pycache__/` no van al repositorio (están en `.gitignore`)
+- `wardrobe_images/` y `__pycache__/` no van al repositorio
 - Claude Code tiende a incluir .env en commits — siempre verificar antes del push
-- `supabase-py 2.3.5` instalado localmente (versiones más nuevas fallan en Python 3.14 por dependencia `pyiceberg`)
-- En Streamlit Cloud se instala la versión de `requirements.txt` — verificar compatibilidad si se cambia la versión
+- `supabase-py 2.3.5` instalado localmente (versiones más nuevas fallan en Python 3.14)
 
 ## ⚠️ Pendiente urgente
-- **Moderación de fotos en subida:** actualmente no hay filtro de contenido en las imágenes subidas por usuarios. Implementar moderación para bloquear nudes, menores, contenido inapropiado antes de guardar en Supabase Storage. Opciones: API de moderación (AWS Rekognition, Google Vision, Anthropic), o revisión manual inicial.
+- **Moderación de fotos en subida:** no hay filtro de contenido en imágenes subidas. Implementar moderación (AWS Rekognition, Google Vision, o Anthropic) antes de guardar en Supabase Storage.
 
 ---
+
+## Script de pruebas automatizado
+
+`test_outfit_coverage.py` — itera ocasiones × moods × temps × lluvia y reporta combinaciones con < 3 outfits. Usa `SUPABASE_SERVICE_KEY` para bypassear RLS. Baseline actual: **48 fallos totales, 38 reales** (10 son early returns intencionales de `deporte+formal`). Los 38 restantes son todos limitación de clóset, no bugs del motor.
+
+---
+
+## Tabla de bugs y mejoras pendientes — v1.0.1
+
+### 🔴 Crítico
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 1 | Moderación de fotos en subidas | `storage_cloud.py`, `app.py` | ⏳ Pendiente estratégico |
+
+### 🟠 Alta prioridad / Motor
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 7 | Midlayer repetido a temp baja | `outfit_generation.py` | ⚠️ Revisión final pre-React |
+
+### 🟡 Media prioridad / Motor
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 11 | Knitwear con vestidos elegantes | `compatibility.py` | ✅ Resuelto |
+| 12 | Calzado plano trabajo+calor | `category_rules.py` | ✅ Resuelto |
+| 13 | `taco_bajo` penalizado leve en cómodo (+20) | `scoring_components.py` | ✅ Resuelto |
+| 14 | `taco_alto` penalizado cómodo (+50), bloqueado casi en relajado (+80) | `scoring_components.py` | ✅ Resuelto |
+| 15 | Mayor diversidad de tops en mood urbano | `outfit_generation.py` | ✅ Dado por superado |
+| 16 | Compatibilidad colores — 4+ cromáticos sin eje | `compatibility.py`, `scoring_components.py` | ✅ Resuelto |
+| 17 | Frío extremo sin capa — forzar midlayer/outerwear temp ≤ 8° | `outfit_generation.py`, `outfit_generation_selected.py` | ✅ Resuelto |
+| 18 | Inconsistencia 2 vs 3 outfits entre tandas | ambos generation | ✅ Resuelto |
+| 32 | Prenda forzada one_piece — 1 solo outfit | `outfit_generation_selected.py` | ✅ Resuelto |
+| 33 | Vestido forzado gala/salida nocturna mood relajado → [] | ambos generation | ✅ Resuelto |
+| 34 | Prenda forzada limita a 1 outfit — condición residual | `outfit_generation_selected.py` | ✅ Resuelto |
+
+### 🟢 Baja prioridad / UI y clóset
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 19 | Ocasiones frecuentes del perfil ordenadas primero | `app.py` | ⬜ Post-React |
+| 20 | Tip de pantys — máximo una vez por tanda | `app.py` | ⬜ Post-React |
+| 21 | Formulario editar prenda — scroll automático | `app.py` | ⬜ Post-React |
+| 22 | Destacar botones "Mi perfil" y "Qué es Lookia" | `app.py` | ⬜ Post-React |
+| 23 | Verificar top leopardo (id 63) — tag urbano | Supabase | ⬜ Pendiente |
+| 24 | Agregar sandalias, ballerinas, chalas | Supabase | ⬜ Pendiente |
+
+### ⚙️ Técnico / Deuda
+| # | Ítem | Archivo(s) | Estado |
+|---|------|-----------|--------|
+| 25 | Integración IA Anthropic — moderación + inferencia fotos | `storage_cloud.py`, `attribute_inference.py` | ⬜ Pendiente |
+| 26 | Refactor `outfit_generation_selected.py` — duplicación | `outfit_generation_selected.py` | ⬜ Pendiente |
+| 27 | Import `outfit_score` dentro de loop en `_generate_matrimonio_elegante` | `outfit_generation.py` | ⬜ Pendiente |
+| 28 | Extraer `is_too_similar` a función standalone | ambos generation | ⬜ Pendiente |
+| 29 | Dividir `app.py` en módulos por tab | `app.py` | ⬜ Pendiente pre-React |
+| 30 | Nueva subcategoría `chaleco_vestir` | `constants.py` | ⬜ Postergado a React |
+| 31 | Migración React — UI definitiva | Proyecto nuevo | ⬜ Largo plazo |
+
+---
+
+## Historial de cambios por sesión
 
 ## Historial de cambios por sesión
 
@@ -987,21 +1044,82 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
   - Archivos: `engine/generation/outfit_generation_selected.py`
   - Commit: da28682
 
-**Pendiente detectado en pruebas post-sesión**
-- ⬜ Bug #33 — Vestido forzado en gala/salida nocturna mood relajado: no genera outfits ni con "Mostrar de todos modos"
-- ⬜ Bug #34 — Prenda forzada limita a 1 outfit en algunos escenarios (investigar condición residual)
 
-**Plan de migración React acordado**
-- Stack: FastAPI (Python) + React frontend + Supabase sin cambios
-- Orden: bugs pendientes → refactor app.py → revisión completa código → migración
-- Refactor app.py: crear `tabs/` con tab1-4 como módulos + `ui_utils.py` para funciones compartidas
-- Deadline migración: fin de mayo 2026
-- Ver plan detallado en historial de conversación sesión 34
+---
+
+### Sesión 35 — 11-May-2026 — Bugs motor + calidad cromática + combinaciones absurdas
+
+**Bug #13/#14 — Calzado por mood**
+`engine/scoring_components.py`, función `practicality_penalty`
+- ✅ Reemplazado bloque `is_shoe_heel → +50` genérico por penalizaciones granulares por subcategoría
+- ✅ `mood == "comodo"`: `taco_alto` +50, `taco_bajo` +20
+- ✅ `mood == "relajado"`: `taco_alto` +80, `taco_bajo` +40
+
+**Bug #17 — Frío extremo fuerza capa**
+`engine/generation/outfit_generation.py` + `outfit_generation_selected.py`
+- ✅ `_force_mid`, `_force_mid_outer`, `_force_outer_only` generalizados: condición `temp <= 8 and occasion != "deporte"` aplica a todas las ocasiones, no solo matrimonio
+- ✅ Aplica en ambos bloques del loop (top+bottom y one_piece)
+
+**Bug #16 — Compatibilidad cromática**
+`engine/compatibility.py`
+- ✅ Nueva función `count_chromatic_colors(items)` — cuenta colores únicos no neutros excluyendo outerwear
+- ✅ `NEUTRAL_COLORS = {"negro", "blanco", "gris", "beige", "café", "crema", "gris claro"}`
+
+`engine/scoring_components.py`, función `coherence_penalty`
+- ✅ Reemplazado conteo de colores totales por `count_chromatic_colors`
+- ✅ 4+ cromáticos: penalty 999 (bloqueo duro)
+- ✅ 3 cromáticos: +45 en ocasiones formales, +25 en casual
+
+**Combinaciones inválidas bloqueadas**
+`engine/generation/outfit_generation.py`
+- ✅ Early return `[], []` para `deporte + formal`
+- ✅ Early return `[], []` para `gala + relajado`
+
+`app.py`
+- ✅ Selector de mood filtra opciones según ocasión: `deporte` excluye `formal`; `gala` excluye `relajado`
+- ✅ Warning de gala+relajado eliminado (ya no puede llegar)
+
+**Buzo como bottom — reglas nuevas**
+`engine/category_rules.py`, `bottom_context_penalty`
+- ✅ `subcategory == "buzo"` fuera de `deporte` o `mood != "urbano"` → penalty +60
+
+`engine/scoring_components.py`, `practicality_penalty`
+- ✅ Buzo + calzado no-zapatilla → penalty +120 (bloqueo efectivo de buzo+ballerina, buzo+taco, etc.)
+
+**Polar como midlayer — reglas nuevas**
+`engine/scoring_components.py`, `practicality_penalty`
+- ✅ Polar bloqueado (penalty 999) en `salida nocturna` + `mood in ["sexy", "elegante"]`
+- ✅ Polar bloqueado (penalty 999) en `trabajo` + `mood in ["elegante", "formal"]`
+
+**Tip de pantys en deporte eliminado**
+`app.py`
+- ✅ Condición `has_short and temp <= 20` incluye `and occasion != "deporte"`
+
+**Script de pruebas**
+- ✅ `test_outfit_coverage.py` creado y validado con clóset real (107 prendas, service role key)
+- ✅ Baseline post-sesión: 48 fallos totales, 38 reales
+
+---
+
+## Sesión 36 — 13-May-2026 — Sincronización generation + reglas deporte + subcategoría polerón
+
+**Sincronización `outfit_generation_selected.py`**
+- ✅ Early returns `deporte+formal` y `gala+relajado` agregados al inicio de `generate_outfits_from_selected_garment`
+- ✅ `_force_mid`, `_force_mid_outer`, `_force_outer_only` sincronizados con `outfit_generation.py`: condición `or (temp <= 8 and occasion != "deporte")` agregada
+
+**Inferencia — fix `"formal"` en style**
+- ✅ `attribute_inference.py`, `infer_style_from_name`: keyword `"formal"` eliminado de lista de `"elegante"` — nombres con "formal" ahora infieren `style == "formal"` correctamente
+
+**Reglas deporte — midlayer**
+- ✅ `occasion_rules.py`: en `occasion == "deporte"`, midlayers bloqueados salvo `style == "sport"` o `subcategory in ["hoodie", "poleron"]`
+
+**Nueva subcategoría `poleron`**
+- ✅ `constants.py`: `"poleron"` agregado a `SUBCATEGORY_OPTIONS["midlayer"]` y `SUBCATEGORY_LABELS_ES`
+- ✅ `attribute_inference.py`: keywords `["poleron", "polerón", "sudadera"]`; `style_map["poleron"] = "casual"`; `warmth_map["poleron"] = "medio"`
 
 **Próxima sesión**
-- Commit logo.png
-- Bugs #33 y #34 (prenda forzada en gala/salida nocturna relajado)
-- Bugs baja prioridad UI: #19 (ocasiones frecuentes primero), #20 (tip pantys max 1 vez), #15 (diversidad tops urbano)
-- Refactor app.py → tabs/
-- Revisión completa código pre-React
-- Plan de migración React con arquitectura FastAPI + React
+- Bug #7 — midlayer repetido a temp baja (revisión final pre-React)
+- Deuda #26 — refactor `outfit_generation_selected.py`
+- Deuda #28 — extraer `is_too_similar` a función standalone
+- Deuda #29 — dividir `app.py` en módulos pre-React
+- Plan de migración React: FastAPI + React, deadline fin de mayo 2026

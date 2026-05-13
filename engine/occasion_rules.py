@@ -285,6 +285,10 @@ def garment_allowed_for_occasion(garment: Garment, occasion: str, rain: bool = F
                 ):
                     return _ret(False, f"{garment.name} no es adecuada para deporte.")
 
+        if garment.category == "midlayer":
+            if not (garment_has_style(garment, "sport") or garment.subcategory in ["hoodie", "poleron"]):
+                return _ret(False, "prenda intermedia no deportiva")
+
     # =========================================================
     # SALIDA NOCTURNA
     # =========================================================

@@ -157,6 +157,7 @@ def infer_subcategory_from_name(name: str, category: Optional[str] = None) -> Op
             "chaleco": ["chaleco", "chaleca"],
             "blazer": ["blazer"],
             "hoodie": ["hoodie"],
+            "poleron": ["poleron", "polerón", "sudadera"],
             "polar": ["polar"],
             "camisón": ["camisón", "camison", "camiseta larga"],
         },
@@ -317,6 +318,7 @@ def infer_attributes_from_subcategory(subcategory: str, current_attrs: dict) -> 
         "chaleco": "medio",
         "blazer": "medio",
         "hoodie": "medio",
+        "poleron": "medio",
         "chaqueta": "medio",
         "trench": "medio",
         "impermeable": "medio",
@@ -386,6 +388,7 @@ def infer_attributes_from_subcategory(subcategory: str, current_attrs: dict) -> 
         "polar": "sport",
         "zapatilla_deporte": "sport",
         "hoodie": "casual",
+        "poleron": "casual",
         "jardinera": "casual",
         "camisón": "casual",
     }
@@ -410,7 +413,7 @@ def infer_style_from_name(name: str) -> Optional[str]:
     text = normalize_text(name)
 
     style_keywords = {
-        "elegante": ["elegante", "formal", "vestir", "fino", "fina", "gala", "de gala", "coctel", "de noche", "noche elegante"],
+        "elegante": ["elegante", "vestir", "fino", "fina", "gala", "de gala", "coctel", "de noche", "noche elegante"],
         "formal": ["formal", "traje", "sastre"],
         "urbano": ["urbano", "urbana", "street", "streetwear"],
         "sport": ["sport", "deportivo", "deportiva", "running", "training", "gym", "fitness"],
