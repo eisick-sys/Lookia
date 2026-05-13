@@ -1278,10 +1278,8 @@ def generate_outfits(
     elif 24 <= temp <= 25:
         max_same_midlayer = 1
     else:
-        if _n_midlayers >= 3:
+        if _n_midlayers >= 2:
             max_same_midlayer = 1
-        elif _n_midlayers == 2:
-            max_same_midlayer = 2
         else:
             max_same_midlayer = top_n
     _n_one_pieces = len(top_candidates.get("one_piece", []))
