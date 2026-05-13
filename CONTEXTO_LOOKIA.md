@@ -135,7 +135,7 @@ LOOKIA_ENV = "production"
 ### 🟠 Alta prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
 |---|------|-----------|--------|
-| 7 | Midlayer repetido a temp baja | `outfit_generation.py` | ⚠️ Revisión final pre-React |
+| 7 | Midlayer repetido a temp baja | `outfit_generation.py` | ✅ Resuelto |
 
 ### 🟡 Media prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
@@ -922,7 +922,7 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 ### 🟠 Alta prioridad / Motor
 | # | Ítem | Archivo(s) | Estado |
 |---|------|-----------|--------|
-| 7 | Midlayer repetido a temp baja — parcialmente mejorado | `outfit_generation.py` | ⚠️ Revisión final pre-React |
+| 7 | Midlayer repetido a temp baja | `outfit_generation.py` | ✅ Resuelto |
 | 9 | Matrimonio relajado/formal — reglas invertidas | `outfit_generation.py`, `outfit_generation_selected.py` | ✅ Resuelto |
 | 10 | Prenda forzada atípica en gala/matrimonio | múltiples | ✅ Resuelto |
 
@@ -1117,9 +1117,19 @@ En algunas tandas el motor muestra 2 outfits + mensaje "pocas combinaciones", en
 - ✅ `constants.py`: `"poleron"` agregado a `SUBCATEGORY_OPTIONS["midlayer"]` y `SUBCATEGORY_LABELS_ES`
 - ✅ `attribute_inference.py`: keywords `["poleron", "polerón", "sudadera"]`; `style_map["poleron"] = "casual"`; `warmth_map["poleron"] = "medio"`
 
+---
+
+## Sesión 36 — 13-May-2026 — Bug #7 midlayer repetido a temp baja
+
+**Bug #7 — Midlayer repetido a temp baja**
+`engine/generation/outfit_generation.py`
+- ✅ `max_same_midlayer` para ocasiones no-matrimonio: cambiado de `2` (cuando `_n_midlayers == 2`) a `1` cuando hay 2+ midlayers — evita que el mismo midlayer aparezca dos veces en una tanda
+- ✅ `mid_limit` subido de `2` a `4` — el pool de midlayers ya no se trunca antes de llegar a la selección de diversidad
+- ✅ Pool de midlayers `ranked["midlayer"][:4]` subido a `[:6]` — permite que más blazers entren al pool para matrimonio+relajado antes del filtro por subcategoría
+- ✅ Filtro matrimonio+relajado: `dress_level` incluye `"relajado"` además de `["flexible", "arreglado", "elegante"]`
+
 **Próxima sesión**
-- Bug #7 — midlayer repetido a temp baja (revisión final pre-React)
-- Deuda #26 — refactor `outfit_generation_selected.py`
-- Deuda #28 — extraer `is_too_similar` a función standalone
-- Deuda #29 — dividir `app.py` en módulos pre-React
-- Plan de migración React: FastAPI + React, deadline fin de mayo 2026
+- Deuda técnica #28 — extraer `is_too_similar` a función standalone
+- Deuda técnica #29 — dividir `app.py` en módulos por tab
+- Limpieza `occasion_rules`/`scoring_components`
+- Migración React — FastAPI + React, deadline fin de mayo 2026

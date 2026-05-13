@@ -482,7 +482,7 @@ def generate_outfits(
         "top": [g for _, g in ranked["top"][:base_top_limit]],
         "bottom": [g for _, g in ranked["bottom"][:base_bottom_limit]],
         "shoes": [g for _, g in ranked["shoes"][:base_shoes_limit]],
-        "midlayer": [g for _, g in ranked["midlayer"][:4]],
+        "midlayer": [g for _, g in ranked["midlayer"][:6]],
         "one_piece": [g for _, g in ranked["one_piece"][:base_top_limit]],
     }
 
@@ -623,7 +623,7 @@ def generate_outfits(
             _blazers_relajado = [
                 g for g in top_candidates["midlayer"]
                 if g.subcategory == "blazer"
-                and g.dress_level in ["flexible", "arreglado", "elegante"]
+                and g.dress_level in ["relajado", "flexible", "arreglado", "elegante"]
             ]
             random.shuffle(_blazers_relajado)
             top_candidates["midlayer"] = _blazers_relajado[:3]
